@@ -1,0 +1,188 @@
+---
+// Header component with sticky positioning and backdrop blur
+---
+
+<header
+  id="header"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  data-scrolled="false"
+>
+  <div class="container-custom">
+    <nav
+      class="flex items-center justify-between py-6 md:py-8"
+      aria-label="Main navigation"
+    >
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 md:w-12 md:h-12 relative">
+          <!-- Leaf icon placeholder - using SVG -->
+          <svg
+            class="w-full h-full text-forest-green transform group-hover:rotate-6 transition-transform duration-300"
+            viewBox="0 0 40 40"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M20 2C20 2 5 8 5 20C5 32 12 38 20 38C20 28 25 20 35 15C30 8 20 2 20 2Z"
+              fill="currentColor"
+            />
+            <path
+              d="M20 10C20 10 12 15 15 25"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              fill="none"
+            />
+          </svg>
+        </div>
+        <span class="font-serif text-2xl md:text-3xl font-semibold italic text-charcoal">
+          Trellis
+        </span>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        <a
+          href="#how-it-works"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          How it works
+        </a>
+        <a
+          href="#pricing"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          Pricing
+        </a>
+        <a
+          href="#faq"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          FAQ
+        </a>
+      </div>
+
+      <!-- CTA Button -->
+      <div class="flex items-center gap-4">
+        <button
+          id="header-cta"
+          class="btn btn-primary text-sm md:text-base"
+          aria-label="Start building your design system"
+        >
+          Start Building
+        </button>
+
+        <!-- Mobile Menu Button -->
+        <button
+          id="mobile-menu-btn"
+          class="md:hidden p-2 text-charcoal hover:text-forest-green"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              class="menu-icon"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+            <path
+              class="close-icon hidden"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div
+      id="mobile-menu"
+      class="md:hidden hidden bg-cream border-t border-gray-200 pb-6"
+    >
+      <div class="flex flex-col gap-4 pt-6">
+        <a
+          href="#how-it-works"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
+        >
+          How it works
+        </a>
+        <a
+          href="#pricing"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
+        >
+          Pricing
+        </a>
+        <a
+          href="#faq"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
+        >
+          FAQ
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Spacer to prevent content from being hidden under fixed header -->
+<div class="h-20 md:h-24"></div>
+
+<style>
+  #header[data-scrolled='true'] {
+    @apply bg-cream/80 backdrop-blur-md shadow-sm;
+  }
+</style>
+
+<script>
+  // Header scroll effect
+  const header = document.getElementById('header');
+  let scrolled = false;
+
+  function handleScroll() {
+    const shouldBeScrolled = window.scrollY > 50;
+
+    if (shouldBeScrolled !== scrolled) {
+      scrolled = shouldBeScrolled;
+      header?.setAttribute('data-scrolled', String(scrolled));
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.querySelector('.menu-icon');
+  const closeIcon = document.querySelector('.close-icon');
+
+  mobileMenuBtn?.addEventListener('click', () => {
+    const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+    mobileMenuBtn.setAttribute('aria-expanded', String(!isExpanded));
+    mobileMenu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+
+  // Close mobile menu when clicking on links
+  document.querySelectorAll('.mobile-menu-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu?.classList.add('hidden');
+      menuIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+      mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Connect Header CTA to BrandIntake modal
+  const headerCTA = document.getElementById('header-cta');
+  headerCTA?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('openBrandIntake'));
+  });
+</script>
