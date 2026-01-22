@@ -3,18 +3,21 @@ import flowerPink from '../assets/flower-pink.png';
 import flowerYellow from '../assets/flower-yellow.png';
 import leaf1 from '../assets/leaf-1.png';
 import leaf2 from '../assets/leaf-2.png';
+import { FloralDecoration } from './FloralDecoration';
+import { AnimatedCTA } from './AnimatedCTA';
 ---
 
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-cream">
+<section class="relative min-h-screen flex items-center justify-center overflow-x-hidden">
+  <FloralDecoration client:load />
   <div class="container-custom relative z-10">
     <!-- Main Content -->
-    <div class="max-w-5xl mx-auto text-center pt-20 pb-32 md:pb-40">
+    <div class="max-w-4xl lg:max-w-5xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center pt-20 pb-32 md:pb-40">
       <!-- Headline -->
       <h1
         class="hero-headline mb-6 md:mb-8"
         data-animate="headline"
       >
-        Build a design system in 10 minutes, not 6 months
+        Build a design system in 10 minutes, <i>not 6 months</i>
       </h1>
 
       <!-- Sub-headline -->
@@ -28,179 +31,22 @@ import leaf2 from '../assets/leaf-2.png';
 
       <!-- CTA Button -->
       <div data-animate="cta" class="flex flex-col items-center gap-4">
-        <button
+        <AnimatedCTA
+          client:load
           id="hero-cta"
-          class="btn btn-primary text-lg px-12 py-5"
-          aria-label="Start building your design system"
+          variant="primary"
+          size="lg"
         >
           Start Building
-        </button>
+        </AnimatedCTA>
         <p class="text-charcoal/60 text-sm">$149 one-time purchase</p>
       </div>
     </div>
   </div>
 
-  <!-- Bottom-Left Floral Arrangement -->
-  <div class="floral-arrangement bottom-left hidden md:block" data-animate="floral-left">
-    <img
-      src={flowerPink.src}
-      alt=""
-      class="floral-element"
-      style="width: 200px; position: absolute; bottom: 0; left: 0;"
-    />
-    <img
-      src={leaf1.src}
-      alt=""
-      class="floral-element"
-      style="width: 150px; position: absolute; bottom: 80px; left: 120px;"
-    />
-
-    <!-- Tech Icon Placeholders - Bottom Left -->
-    <div class="tech-icon" style="bottom: 140px; left: 40px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">Fig</span>
-      </div>
-    </div>
-    <div class="tech-icon" style="bottom: 200px; left: 160px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">⚛️</span>
-      </div>
-    </div>
-    <div class="tech-icon" style="bottom: 60px; left: 200px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">pnpm</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom-Right Floral Arrangement -->
-  <div class="floral-arrangement bottom-right hidden lg:block" data-animate="floral-right">
-    <img
-      src={flowerYellow.src}
-      alt=""
-      class="floral-element"
-      style="width: 220px; position: absolute; bottom: 0; right: 0;"
-    />
-    <img
-      src={leaf2.src}
-      alt=""
-      class="floral-element"
-      style="width: 140px; position: absolute; bottom: 100px; right: 140px;"
-    />
-
-    <!-- Tech Icon Placeholders - Bottom Right -->
-    <div class="tech-icon" style="bottom: 160px; right: 40px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">Sass</span>
-      </div>
-    </div>
-    <div class="tech-icon" style="bottom: 220px; right: 180px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">DTCG</span>
-      </div>
-    </div>
-    <div class="tech-icon" style="bottom: 80px; right: 220px;">
-      <div class="icon-circle">
-        <span class="text-xs font-semibold text-charcoal">📝</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile Floral (Single Bottom Arrangement) -->
-  <div class="floral-arrangement mobile-floral md:hidden" data-animate="floral-mobile">
-    <img
-      src={flowerPink.src}
-      alt=""
-      class="floral-element"
-      style="width: 120px; position: absolute; bottom: -20px; left: 20px;"
-    />
-    <img
-      src={leaf2.src}
-      alt=""
-      class="floral-element"
-      style="width: 80px; position: absolute; bottom: 40px; left: 100px;"
-    />
-  </div>
 </section>
 
 <style>
-  .floral-arrangement {
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .floral-element {
-    opacity: 0;
-    animation: bloom 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-
-  .bottom-left .floral-element:nth-child(1) {
-    animation-delay: 0.3s;
-  }
-
-  .bottom-left .floral-element:nth-child(2) {
-    animation-delay: 0.5s;
-  }
-
-  .bottom-right .floral-element:nth-child(1) {
-    animation-delay: 0.4s;
-  }
-
-  .bottom-right .floral-element:nth-child(2) {
-    animation-delay: 0.6s;
-  }
-
-  .mobile-floral .floral-element {
-    animation-delay: 0.3s;
-  }
-
-  .tech-icon {
-    position: absolute;
-    opacity: 0;
-    animation: bloom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  }
-
-  .bottom-left .tech-icon:nth-child(3) {
-    animation-delay: 0.7s;
-  }
-
-  .bottom-left .tech-icon:nth-child(4) {
-    animation-delay: 0.8s;
-  }
-
-  .bottom-left .tech-icon:nth-child(5) {
-    animation-delay: 0.9s;
-  }
-
-  .bottom-right .tech-icon:nth-child(3) {
-    animation-delay: 0.7s;
-  }
-
-  .bottom-right .tech-icon:nth-child(4) {
-    animation-delay: 0.85s;
-  }
-
-  .bottom-right .tech-icon:nth-child(5) {
-    animation-delay: 0.95s;
-  }
-
-  .icon-circle {
-    width: 64px;
-    height: 64px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .icon-circle:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-
   /* Typography Animations */
   [data-animate='headline'] {
     opacity: 0;

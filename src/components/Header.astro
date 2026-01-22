@@ -1,5 +1,6 @@
 ---
 // Header component with sticky positioning and backdrop blur
+import { AnimatedCTA } from './AnimatedCTA';
 ---
 
 <header
@@ -14,30 +15,7 @@
     >
       <!-- Logo -->
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 md:w-12 md:h-12 relative">
-          <!-- Leaf icon placeholder - using SVG -->
-          <svg
-            class="w-full h-full text-forest-green transform group-hover:rotate-6 transition-transform duration-300"
-            viewBox="0 0 40 40"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M20 2C20 2 5 8 5 20C5 32 12 38 20 38C20 28 25 20 35 15C30 8 20 2 20 2Z"
-              fill="currentColor"
-            />
-            <path
-              d="M20 10C20 10 12 15 15 25"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              fill="none"
-            />
-          </svg>
-        </div>
-        <span class="font-serif text-2xl md:text-3xl font-semibold italic text-charcoal">
-          Trellis
-        </span>
+        <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[64px]" />
       </a>
 
       <!-- Desktop Navigation -->
@@ -64,13 +42,14 @@
 
       <!-- CTA Button -->
       <div class="flex items-center gap-4">
-        <button
+        <AnimatedCTA
+          client:load
           id="header-cta"
-          class="btn btn-primary text-sm md:text-base"
-          aria-label="Start building your design system"
+          variant="secondary"
+          size="sm"
         >
           Start Building
-        </button>
+        </AnimatedCTA>
 
         <!-- Mobile Menu Button -->
         <button
@@ -135,9 +114,12 @@
 <div class="h-20 md:h-24"></div>
 
 <style>
+  @reference "../styles/global.css";
+
   #header[data-scrolled='true'] {
-    @apply bg-cream/80 backdrop-blur-md shadow-sm;
+    @apply bg-white;
   }
+
 </style>
 
 <script>

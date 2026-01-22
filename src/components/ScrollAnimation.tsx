@@ -23,16 +23,16 @@ const ScrollAnimation = () => {
         <div className="container-custom w-full">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Side - Text (Sticky) */}
-            <div className="relative h-[400px] flex items-center">
+            <div className="relative h-[400px] flex items-center mx-12 lg:mx-24">
               {/* Step 1 Text */}
               <motion.div
-                className="absolute inset-0 flex flex-col justify-center"
+                className="absolute inset-0 flex flex-col justify-center gap-4"
                 style={{ opacity: step1Opacity }}
               >
-                <div className="text-forest-green font-sans font-semibold mb-2">
+                <div className="text-charcoal/70 font-sans">
                   Step 1
                 </div>
-                <h3 className="text-4xl md:text-5xl mb-4">Tell us about your brand</h3>
+                <h3 className="text-4xl md:text-5xl">Tell us about your brand</h3>
                 <p className="text-lg text-charcoal/70">
                   Answer a few quick questions about your brand identity, colors,
                   and style preferences.
@@ -41,13 +41,13 @@ const ScrollAnimation = () => {
 
               {/* Step 2 Text */}
               <motion.div
-                className="absolute inset-0 flex flex-col justify-center"
+                className="absolute inset-0 flex flex-col justify-center gap-4"
                 style={{ opacity: step2Opacity }}
               >
-                <div className="text-forest-green font-sans font-semibold mb-2">
+                <div className="text-charcoal/70 font-sans">
                   Step 2
                 </div>
-                <h3 className="text-4xl md:text-5xl mb-4">We generate your system</h3>
+                <h3 className="text-4xl md:text-5xl">We generate your system</h3>
                 <p className="text-lg text-charcoal/70">
                   Our engine creates tokens, components, Figma files, and documentation
                   tailored to your brand.
@@ -56,13 +56,13 @@ const ScrollAnimation = () => {
 
               {/* Step 3 Text */}
               <motion.div
-                className="absolute inset-0 flex flex-col justify-center"
+                className="absolute inset-0 flex flex-col justify-center gap-4"
                 style={{ opacity: step3Opacity }}
               >
-                <div className="text-forest-green font-sans font-semibold mb-2">
+                <div className="text-charcoal/70 font-sans">
                   Step 3
                 </div>
-                <h3 className="text-4xl md:text-5xl mb-4">Install in seconds</h3>
+                <h3 className="text-4xl md:text-5xl">Install in seconds</h3>
                 <p className="text-lg text-charcoal/70">
                   Download your monorepo, run one command, and you're ready to build.
                 </p>
@@ -70,13 +70,13 @@ const ScrollAnimation = () => {
 
               {/* Step 4 Text */}
               <motion.div
-                className="absolute inset-0 flex flex-col justify-center"
+                className="absolute inset-0 flex flex-col justify-center gap-4"
                 style={{ opacity: step4Opacity }}
               >
-                <div className="text-forest-green font-sans font-semibold mb-2">
+                <div className="text-charcoal/70 font-sans">
                   Step 4
                 </div>
-                <h3 className="text-4xl md:text-5xl mb-4">Customize endlessly</h3>
+                <h3 className="text-4xl md:text-5xl">Customize endlessly</h3>
                 <p className="text-lg text-charcoal/70">
                   It's your codebase. Modify tokens, add components, adjust styles—no
                   limits.
@@ -167,9 +167,8 @@ const ScrollAnimation = () => {
                   </motion.div>
                   <div className="text-xl font-semibold mb-2">Generating...</div>
                   <motion.div
-                    className="h-2 bg-white rounded-full overflow-hidden mb-6"
+                    className="h-2 bg-white rounded-full overflow-hidden mb-6 mx-auto"
                     initial={{ width: '80%' }}
-                    className="mx-auto"
                   >
                     <motion.div
                       className="h-full bg-forest-green"

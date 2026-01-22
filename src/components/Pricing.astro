@@ -1,5 +1,6 @@
 ---
 // Pricing section - Buy Once, Own Forever
+import { AnimatedCTA } from './AnimatedCTA';
 ---
 
 <section id="pricing" class="section-spacing bg-white">
@@ -14,7 +15,7 @@
     </div>
 
     <!-- Pricing Cards -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+    <div class="gap-8 max-w-5xl mx-auto">
       <!-- Available Now Card -->
       <div class="card relative border-2 border-forest-green">
         <!-- Badge -->
@@ -79,92 +80,15 @@
           </ul>
 
           <!-- CTA -->
-          <button
+          <AnimatedCTA
+            client:load
             id="pricing-cta"
-            class="btn btn-primary w-full text-lg"
-            aria-label="Start building your design system"
+            variant="primary"
+            size="lg"
+            className="w-full"
           >
             Start Building
-          </button>
-        </div>
-      </div>
-
-      <!-- Coming Soon Card -->
-      <div class="card relative border-2 border-charcoal/20 opacity-90">
-        <!-- Badge -->
-        <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span class="inline-flex items-center px-4 py-2 rounded-full bg-charcoal/10 text-charcoal text-sm font-semibold">
-            Coming Feb 2026
-          </span>
-        </div>
-
-        <div class="mt-4">
-          <!-- Price -->
-          <div class="mb-8">
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-6xl font-serif italic text-charcoal/50">TBD</span>
-            </div>
-            <p class="text-charcoal/60">Enhanced features & multi-framework support</p>
-          </div>
-
-          <!-- Features List -->
-          <ul class="space-y-4 mb-8">
-            <li class="flex items-start gap-3">
-              <span class="text-charcoal/40 mt-1 flex-shrink-0">✓</span>
-              <span class="text-charcoal/70">Everything in Available Now, plus:</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>Framework choice:</strong> Vue, Svelte, Solid</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>Multi-brand tokens:</strong> Manage multiple brands from one system</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>Advanced theming:</strong> Runtime theme switching</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>Component variants:</strong> 50+ pre-built patterns</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>CLI tool:</strong> Generate components from command line</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span><strong>Priority support:</strong> 90 days dedicated support</span>
-            </li>
-          </ul>
-
-          <!-- CTA -->
-          <button
-            class="btn btn-secondary w-full text-lg"
-            onclick="window.location.href='#waitlist'"
-            aria-label="Join the waitlist"
-          >
-            Join Waitlist
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Money Back Guarantee -->
-    <div class="mt-16 text-center max-w-2xl mx-auto">
-      <div class="inline-flex items-center gap-3 px-6 py-4 bg-forest-green/5 rounded-2xl border border-forest-green/20">
-        <svg class="w-8 h-8 text-forest-green flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-          ></path>
-        </svg>
-        <div class="text-left">
-          <div class="font-semibold text-charcoal">14-Day Money-Back Guarantee</div>
-          <div class="text-sm text-charcoal/70">Not satisfied? Get a full refund, no questions asked.</div>
+          </AnimatedCTA>
         </div>
       </div>
     </div>

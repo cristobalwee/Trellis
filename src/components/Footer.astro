@@ -3,40 +3,16 @@
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="bg-charcoal text-cream section-spacing">
+<footer class="bg-gray py-20">
   <div class="container-custom">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16">
+    <div class="flex flex-col md:flex-row justify-between gap-12 md:gap-16">
       <!-- Logo Section -->
-      <div class="md:col-span-4">
+      <div class="flex flex-col justify-between">
         <a href="/" class="flex items-center gap-3 group mb-6">
-          <div class="w-10 h-10 relative">
-            <!-- Leaf icon -->
-            <svg
-              class="w-full h-full text-forest-green-200 transform group-hover:rotate-6 transition-transform duration-300"
-              viewBox="0 0 40 40"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M20 2C20 2 5 8 5 20C5 32 12 38 20 38C20 28 25 20 35 15C30 8 20 2 20 2Z"
-                fill="currentColor"
-              />
-              <path
-                d="M20 10C20 10 12 15 15 25"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                fill="none"
-              />
-            </svg>
-          </div>
-          <span class="font-serif text-2xl font-semibold italic text-cream">
-            Trellis
-          </span>
+          <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[30px]" />
         </a>
-        <p class="text-cream/70 max-w-sm">
-          Build a design system in 10 minutes, not 6 months. Everything you need
-          to start building exceptional products.
+        <p class="text-charcoal/70 text-sm">
+          Copyright © {currentYear} Trellis. All rights reserved.
         </p>
       </div>
 
@@ -44,14 +20,14 @@ const currentYear = new Date().getFullYear();
       <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
         <!-- Product -->
         <div>
-          <h3 class="font-sans font-semibold text-cream mb-4 not-italic">
+          <h5 class="mb-4">
             Product
-          </h3>
+          </h5>
           <ul class="space-y-3">
             <li>
               <a
                 href="#how-it-works"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 How it works
               </a>
@@ -59,7 +35,7 @@ const currentYear = new Date().getFullYear();
             <li>
               <a
                 href="#pricing"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 Pricing
               </a>
@@ -67,7 +43,7 @@ const currentYear = new Date().getFullYear();
             <li>
               <a
                 href="#faq"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 FAQ
               </a>
@@ -77,14 +53,14 @@ const currentYear = new Date().getFullYear();
 
         <!-- Company -->
         <div>
-          <h3 class="font-sans font-semibold text-cream mb-4 not-italic">
+          <h5 class="mb-4">
             Company
-          </h3>
+          </h5>
           <ul class="space-y-3">
             <li>
               <a
                 href="#backstory"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 About
               </a>
@@ -92,7 +68,7 @@ const currentYear = new Date().getFullYear();
             <li>
               <a
                 href="mailto:hello@trellis.design"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 Contact
               </a>
@@ -102,7 +78,7 @@ const currentYear = new Date().getFullYear();
                 href="https://twitter.com/trellis"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 X / Twitter
               </a>
@@ -112,14 +88,14 @@ const currentYear = new Date().getFullYear();
 
         <!-- Legal -->
         <div>
-          <h3 class="font-sans font-semibold text-cream mb-4 not-italic">
+          <h5 class="mb-4">
             Legal
-          </h3>
+          </h5>
           <ul class="space-y-3">
             <li>
               <a
                 href="/privacy"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 Privacy Policy
               </a>
@@ -127,7 +103,7 @@ const currentYear = new Date().getFullYear();
             <li>
               <a
                 href="/terms"
-                class="text-cream/70 hover:text-forest-green-200 transition-colors"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
               >
                 Terms of Service
               </a>
@@ -135,19 +111,6 @@ const currentYear = new Date().getFullYear();
           </ul>
         </div>
       </div>
-    </div>
-
-    <!-- Bottom Bar -->
-    <div
-      class="mt-12 pt-8 border-t border-cream/20 flex flex-col md:flex-row justify-between items-center gap-4"
-    >
-      <p class="text-cream/50 text-sm">
-        &copy; {currentYear} Trellis. All rights reserved.
-      </p>
-      <p class="text-cream/50 text-sm">
-        Built with <span class="text-forest-green-200">♥</span> for designers and
-        developers
-      </p>
     </div>
   </div>
 </footer>
