@@ -65,7 +65,7 @@ html {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: auto; /* Lenis will handle smooth scroll */
+  scroll-behavior: auto; /* Locomotive Scroll (via Lenis) handles smooth scroll */
 }
 
 body {
@@ -173,7 +173,7 @@ a {
   transition: all 0.6s var(--ease-spring);
 }
 
-/* Lenis Smooth Scroll Overrides */
+/* Locomotive Scroll / Lenis Smooth Scroll Overrides */
 html.lenis {
   height: auto;
 }

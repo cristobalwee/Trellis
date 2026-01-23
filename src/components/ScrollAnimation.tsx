@@ -78,7 +78,7 @@ const ScrollAnimation = () => {
   const step4RightScale = useTransform(smoothProgress, [0.7, 0.8], [1, 1]);
 
   return (
-    <div ref={containerRef} className="relative bg-white" style={{ height: '400vh' }}>
+    <div ref={containerRef} className="relative bg-white">
       <div className="container-custom w-full relative">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           {/* Left Side - Natural Scroll Content */}
