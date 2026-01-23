@@ -1,5 +1,45 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, type ReactNode } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+
+const StepContent = ({ 
+  step, 
+  title, 
+  children 
+}: { 
+  step: string; 
+  title: string; 
+  children: ReactNode 
+}) => (
+  <div className="min-h-[60vh] flex flex-col justify-center gap-4 py-20">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay: 0, ease: [0.17, 0.84, 0.44, 1] }}
+      className="text-charcoal/70 font-sans"
+    >
+      {step}
+    </motion.div>
+    <motion.h3
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay: 0.1, ease: [0.17, 0.84, 0.44, 1] }}
+      className="text-4xl md:text-5xl"
+    >
+      {title}
+    </motion.h3>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay: 0.2, ease: [0.17, 0.84, 0.44, 1] }}
+      className="text-lg text-charcoal/70"
+    >
+      {children}
+    </motion.div>
+  </div>
+);
 
 const ScrollAnimation = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -10,86 +50,92 @@ const ScrollAnimation = () => {
     offset: ['start start', 'end end'],
   });
 
-  // Map scroll progress to step indices (0-25%, 25-50%, 50-75%, 75-100%)
-  const step1Opacity = useTransform(scrollYProgress, [0, 0.2, 0.25], [1, 1, 0]);
-  const step2Opacity = useTransform(scrollYProgress, [0.2, 0.25, 0.45, 0.5], [0, 1, 1, 0]);
-  const step3Opacity = useTransform(scrollYProgress, [0.45, 0.5, 0.7, 0.75], [0, 1, 1, 0]);
-  const step4Opacity = useTransform(scrollYProgress, [0.7, 0.75, 1], [0, 1, 1]);
+  // Create a smoother scroll progress for the animations
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  // Step 1 Transforms
+  const step1RightOpacity = useTransform(smoothProgress, [0, 0.1], [0, 1]);
+  const step1RightY = useTransform(smoothProgress, [0, 0.1, 0.2, 0.3], [50, 0, 0, -20]);
+  const step1RightScale = useTransform(smoothProgress, [0.2, 0.3], [1, 0.9]);
+
+  // Step 2 Transforms
+  const step2RightOpacity = useTransform(smoothProgress, [0.2, 0.3], [0, 1]);
+  const step2RightY = useTransform(smoothProgress, [0.2, 0.3, 0.45, 0.55], [100, 0, 0, -20]);
+  const step2RightScale = useTransform(smoothProgress, [0.45, 0.55], [1, 0.9]);
+
+  // Step 3 Transforms
+  const step3RightOpacity = useTransform(smoothProgress, [0.45, 0.55], [0, 1]);
+  const step3RightY = useTransform(smoothProgress, [0.45, 0.55, 0.7, 0.8], [100, 0, 0, -20]);
+  const step3RightScale = useTransform(smoothProgress, [0.7, 0.8], [1, 0.9]);
+
+  // Step 4 Transforms
+  const step4RightOpacity = useTransform(smoothProgress, [0.7, 0.8], [0, 1]);
+  const step4RightY = useTransform(smoothProgress, [0.7, 0.8], [100, 0]);
+  const step4RightScale = useTransform(smoothProgress, [0.7, 0.8], [1, 1]);
 
   return (
     <div ref={containerRef} className="relative bg-white" style={{ height: '400vh' }}>
-      {/* Sticky Container */}
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        <div className="container-custom w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Side - Text (Sticky) */}
-            <div className="relative h-[400px] flex items-center mx-12 lg:mx-24">
-              {/* Step 1 Text */}
-              <motion.div
-                className="absolute inset-0 flex flex-col justify-center gap-4"
-                style={{ opacity: step1Opacity }}
-              >
-                <div className="text-charcoal/70 font-sans">
-                  Step 1
-                </div>
-                <h3 className="text-4xl md:text-5xl">Tell us about your brand</h3>
-                <p className="text-lg text-charcoal/70">
-                  Answer a few quick questions about your brand identity, colors,
-                  and style preferences.
-                </p>
-              </motion.div>
+      <div className="container-custom w-full relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          {/* Left Side - Natural Scroll Content */}
+          <div className="relative z-10 py-[10vh]">
+            <StepContent step="Step 1" title="Tell us about your brand">
+              <p>
+                Answer a few quick questions about your brand identity, colors,
+                and style preferences. No design background or brand PDF required.
+              </p>
+            </StepContent>
 
-              {/* Step 2 Text */}
-              <motion.div
-                className="absolute inset-0 flex flex-col justify-center gap-4"
-                style={{ opacity: step2Opacity }}
-              >
-                <div className="text-charcoal/70 font-sans">
-                  Step 2
-                </div>
-                <h3 className="text-4xl md:text-5xl">We generate your system</h3>
-                <p className="text-lg text-charcoal/70">
-                  Our engine creates tokens, components, Figma files, and documentation
-                  tailored to your brand.
-                </p>
-              </motion.div>
+            <div className="h-[20vh]" /> {/* Spacing */}
 
-              {/* Step 3 Text */}
-              <motion.div
-                className="absolute inset-0 flex flex-col justify-center gap-4"
-                style={{ opacity: step3Opacity }}
-              >
-                <div className="text-charcoal/70 font-sans">
-                  Step 3
-                </div>
-                <h3 className="text-4xl md:text-5xl">Install in seconds</h3>
-                <p className="text-lg text-charcoal/70">
-                  Download your monorepo, run one command, and you're ready to build.
-                </p>
-              </motion.div>
+            <StepContent step="Step 2" title="Generate your design system">
+              <p className="mb-4">
+                In ~10 seconds, we generate everything, customized to your brand.
+              </p>
+              <ul className="list-none list-inside space-y-2">
+                <li><img src="/src/assets/check.svg" alt="Check" className="w-5 h-5 inline-block mr-2" />DTCG-compliant tokens and JSON file </li>
+                <li><img src="/src/assets/check.svg" alt="Check" className="w-5 h-5 inline-block mr-2" />Figma file with branded components</li>
+                <li><img src="/src/assets/check.svg" alt="Check" className="w-5 h-5 inline-block mr-2" />Production PNPM monorepo with Storybook</li>
+                <li><img src="/src/assets/check.svg" alt="Check" className="w-5 h-5 inline-block mr-2" />25 React components with Vitest</li>
+                <li><img src="/src/assets/check.svg" alt="Check" className="w-5 h-5 inline-block mr-2" />Complete Starlight documentation site</li>
+              </ul>
+            </StepContent>
 
-              {/* Step 4 Text */}
-              <motion.div
-                className="absolute inset-0 flex flex-col justify-center gap-4"
-                style={{ opacity: step4Opacity }}
-              >
-                <div className="text-charcoal/70 font-sans">
-                  Step 4
-                </div>
-                <h3 className="text-4xl md:text-5xl">Customize endlessly</h3>
-                <p className="text-lg text-charcoal/70">
-                  It's your codebase. Modify tokens, add components, adjust styles—no
-                  limits.
-                </p>
-              </motion.div>
-            </div>
+            <div className="h-[20vh]" /> {/* Spacing */}
 
-            {/* Right Side - Visuals */}
-            <div className="relative h-[500px] bg-cream rounded-3xl flex items-center justify-center p-8 shadow-lg">
+            <StepContent step="Step 3" title="Install and run locally">
+              <p>
+                Download, unzip, and run three commands – your system is running locally. Time elapsed: ~2 minutes.
+              </p>
+            </StepContent>
+
+            <div className="h-[20vh]" /> {/* Spacing */}
+
+            <StepContent step="Step 4" title="Customize and ship your system">
+              <p>
+                All components use your tokens. Change one value, update everywhere. Add new components using the same patterns. Your team can extend it however you want. You own the code. Forever.
+              </p>
+            </StepContent>
+            
+            <div className="h-[20vh]" /> {/* Bottom Padding */}
+          </div>
+
+          {/* Right Side - Sticky Visuals */}
+          <div className="sticky top-0 h-screen flex items-center">
+            <div className="relative h-[500px] w-full">
               {/* Step 1 Visual - Form */}
               <motion.div
-                className="absolute inset-8 flex flex-col justify-center"
-                style={{ opacity: step1Opacity }}
+                className="absolute inset-0 bg-cream rounded-3xl flex flex-col justify-center p-8 shadow-lg"
+                style={{ 
+                  opacity: step1RightOpacity, 
+                  y: step1RightY, 
+                  scale: step1RightScale,
+                  zIndex: 10
+                }}
               >
                 <div className="space-y-4">
                   <div>
@@ -154,14 +200,17 @@ const ScrollAnimation = () => {
 
               {/* Step 2 Visual - Generation Progress */}
               <motion.div
-                className="absolute inset-8 flex flex-col justify-center"
-                style={{ opacity: step2Opacity }}
+                className="absolute inset-0 bg-cream rounded-3xl flex flex-col justify-center p-8 shadow-lg"
+                style={{ 
+                  opacity: step2RightOpacity, 
+                  y: step2RightY, 
+                  scale: step2RightScale,
+                  zIndex: 20
+                }}
               >
                 <div className="text-center mb-8">
                   <motion.div
                     className="text-6xl mb-4"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   >
                     ⚙️
                   </motion.div>
@@ -208,8 +257,13 @@ const ScrollAnimation = () => {
 
               {/* Step 3 Visual - Terminal */}
               <motion.div
-                className="absolute inset-8 flex flex-col justify-center"
-                style={{ opacity: step3Opacity }}
+                className="absolute inset-0 bg-cream rounded-3xl flex flex-col justify-center p-8 shadow-lg"
+                style={{ 
+                  opacity: step3RightOpacity, 
+                  y: step3RightY, 
+                  scale: step3RightScale,
+                  zIndex: 30
+                }}
               >
                 <div className="bg-charcoal rounded-xl p-6 font-mono text-sm overflow-hidden">
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-cream/20">
@@ -267,8 +321,13 @@ const ScrollAnimation = () => {
 
               {/* Step 4 Visual - Component Preview */}
               <motion.div
-                className="absolute inset-8 flex flex-col justify-center"
-                style={{ opacity: step4Opacity }}
+                className="absolute inset-0 bg-cream rounded-3xl flex flex-col justify-center p-8 shadow-lg"
+                style={{ 
+                  opacity: step4RightOpacity, 
+                  y: step4RightY, 
+                  scale: step4RightScale,
+                  zIndex: 40
+                }}
               >
                 <div className="bg-white rounded-xl p-6 shadow-inner">
                   <div className="text-xs font-mono text-charcoal/50 mb-4">

@@ -6,76 +6,63 @@ import { AnimatedCTA } from './AnimatedCTA';
 <section id="pricing" class="section-spacing bg-white">
   <div class="container-custom">
     <!-- Section Header -->
-    <div class="text-center mb-16">
-      <h2 class="mb-4">Buy Once, Own Forever</h2>
-      <p class="text-xl text-charcoal/70 max-w-2xl mx-auto">
-        No subscriptions. No recurring fees. Purchase once and own your design
-        system forever.
+    <div class="text-center mb-16 flex flex-col gap-4">
+      <p class="text-charcoal/70 max-w-2xl mx-auto">
+        Pricing
       </p>
+      <h2>One payment.<br /><i>Everything included</i></h2>
     </div>
 
     <!-- Pricing Cards -->
-    <div class="gap-8 max-w-5xl mx-auto">
+    <div class="gap-8 max-w-2xl mx-auto">
       <!-- Available Now Card -->
       <div class="card relative border-2 border-forest-green">
         <!-- Badge -->
         <div class="absolute -top-4 left-1/2 -translate-x-1/2">
-          <span class="inline-flex items-center px-4 py-2 rounded-full bg-forest-green text-white text-sm font-semibold shadow-lg">
-            Available Now
+          <span class="inline-flex items-center px-4 py-2 rounded-lg bg-forest-green-50 text-forest-green font-semibold text-sm">
+            Beta launch – 50% off
           </span>
         </div>
 
         <div class="mt-4">
           <!-- Price -->
-          <div class="mb-8">
-            <div class="flex items-baseline gap-2 mb-2">
-              <span class="text-6xl font-serif italic">$149</span>
-              <span class="text-charcoal/60">USD</span>
+          <div class="mb-8 flex flex-col gap-4">
+            <div class="flex items-baseline gap-2">
+              <h3><span class="line-through text-charcoal/60">$149</span> $75</h3>
+              <span class="text-charcoal/60">/ forever</span>
             </div>
-            <p class="text-charcoal/60">One-time purchase • Lifetime access</p>
+            <p class="text-charcoal/60">Limited-time offer for beta customers</p>
           </div>
 
           <!-- Features List -->
           <ul class="space-y-4 mb-8">
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>Design tokens (DTCG-compliant)</span>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Full DTCG-compliant multi-theme tokens.json (light + dark mode)</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>25 React components with TypeScript</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>25 React components with TypeScript and Vitest</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>Figma file with variables</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Figma file with matching variables and components</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
               <span>Monorepo setup (pnpm + Turborepo)</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
               <span>Storybook 8 pre-configured</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>Starlight documentation site</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Complete Starlight documentation site</span>
             </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>Governance templates (Notion + GitHub)</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>Light & dark mode support</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>30 days email support</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-forest-green mt-1 flex-shrink-0">✓</span>
-              <span>14-day money-back guarantee</span>
+            <li class="flex items-start gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>MDX governance templates (importable into Notion + GitHub)</span>
             </li>
           </ul>
 
@@ -85,7 +72,6 @@ import { AnimatedCTA } from './AnimatedCTA';
             id="pricing-cta"
             variant="primary"
             size="lg"
-            className="w-full"
           >
             Start Building
           </AnimatedCTA>

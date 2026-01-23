@@ -22,11 +22,10 @@ import { AnimatedCTA } from './AnimatedCTA';
 
       <!-- Sub-headline -->
       <p
-        class="hero-subheadline text-xl md:text-2xl text-charcoal/70 mb-10 md:mb-12 max-w-3xl mx-auto"
+        class="hero-subheadline text-base md:text-lg lg:text-xl leading-tight text-charcoal/70 mb-10 md:mb-12 max-w-3xl mx-auto"
         data-animate="subheadline"
       >
-        Tokens, components, Figma, and complete documentation—customized to your
-        brand. Skip the 6-month setup and start building today.
+      Tokens, components, Figma library, and complete documentation, all customized to your brand. Skip the 6-month setup and start building today.
       </p>
 
       <!-- CTA Button -->
@@ -50,20 +49,20 @@ import { AnimatedCTA } from './AnimatedCTA';
   /* Typography Animations */
   [data-animate='headline'] {
     opacity: 0;
-    animation: fadeInUp 1s ease-out forwards;
-    animation-delay: 0.2s;
+    animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
+    animation-delay: 0.4s;
   }
 
   [data-animate='subheadline'] {
     opacity: 0;
-    animation: fadeInUp 1s ease-out forwards;
-    animation-delay: 0.4s;
+    animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
+    animation-delay: 0.55s;
   }
 
   [data-animate='cta'] {
     opacity: 0;
-    animation: fadeInUp 1s ease-out forwards;
-    animation-delay: 0.6s;
+    animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
+    animation-delay: 0.7s;
   }
 </style>
 

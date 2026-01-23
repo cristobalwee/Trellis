@@ -5,12 +5,12 @@ import { AnimatedCTA } from './AnimatedCTA';
 
 <header
   id="header"
-  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent"
   data-scrolled="false"
 >
   <div class="container-custom">
     <nav
-      class="flex items-center justify-between py-6 md:py-8"
+      class="flex items-center justify-between py-6 md:py-8 transition-all duration-300"
       aria-label="Main navigation"
     >
       <!-- Logo -->
@@ -117,9 +117,12 @@ import { AnimatedCTA } from './AnimatedCTA';
   @reference "../styles/global.css";
 
   #header[data-scrolled='true'] {
-    @apply bg-white;
+    @apply bg-white/90 backdrop-blur-md shadow-sm shadow-black/5;
   }
 
+  #header[data-scrolled='true'] nav {
+    @apply py-3 md:py-4;
+  }
 </style>
 
 <script>

@@ -125,9 +125,9 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
       <motion.img
         src={ASSETS.leaf2}
         alt=""
-        className={`absolute ${isSecondary ? 'top-0 -right-7 w-9 h-9' : '-top-2 -right-10 w-12 h-12'} pointer-events-none z-0 transform-origin-bottom-left`}
+        className={`absolute ${isSecondary ? 'top-0 -right-7 w-9 h-9' : '-top-2 -right-10 w-12 h-12'} pointer-events-none z-0`}
         initial={{ scale: 0, opacity: 0, x: -25, y: -15, rotate: 45 }}
-        animate={isHovered ? { scale: 1, opacity: 1, x: 0, y: 0, rotate: 0 } : { scale: 0, opacity: 0, x: -15, y: -15, rotate: 15 }}
+        animate={isHovered ? { scale: 1, opacity: 1, x: 0, y: 0, rotate: 0, transformOrigin: 'bottom' } : { scale: 0, opacity: 0, x: -25, y: -15, rotate: 15, transformOrigin: 'bottom' }}
         transition={{ type: 'spring', damping: 20, stiffness: 150, delay: 0.1 }}
       />
 
@@ -136,10 +136,6 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
         id={id}
         onClick={onClick}
         aria-label={ariaLabel}
-        whileHover={{ 
-          scale: 1.06,
-        }}
-        whileTap={{ scale: 0.98 }}
         className={`btn relative z-10 ${variantClasses} ${sizeClasses} ${className}`}
       >
         {children}

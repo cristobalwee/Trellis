@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
-import { motion, useSpring, useMotionValue, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useSpring, useMotionValue, useScroll, useMotionValueEvent, useTransform } from 'framer-motion';
 
 interface Position {
   x: number;
@@ -138,11 +138,13 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 54, y: 66, rotation: 10, scale: 0.8, delay: 0.6, type: 'pink' },
   ];
 
-const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling }: { 
+const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYProgress, cluster }: { 
   pos: Position; 
   mouseX: any; 
   mouseY: any;
   isScrolling: boolean;
+  scrollYProgress: any;
+  cluster: 'left' | 'right';
 }) => {
   const elementRef = useRef<HTMLDivElement>(null);
   
@@ -154,6 +156,22 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling }: {
   const swayOffset = useMemo(() => Math.random() * Math.PI, []);
   const swayDuration = useMemo(() => 3 + Math.random() * 2, []);
   const swayAmount = useMemo(() => 4 + Math.random() * 4, []);
+
+  // Staggered fade out from inside out
+  const fadeStart = useMemo(() => {
+    if (cluster === 'left') {
+      // higher x is more inside, should start first
+      return Math.max(0, (75 - pos.x) / 75 * 0.4);
+    } else {
+      // lower x is more inside, should start first
+      return Math.max(0, (pos.x - 25) / 75 * 0.4);
+    }
+  }, [pos.x, cluster]);
+
+  const fadeEnd = fadeStart + 0.3;
+
+  const scrollOpacity = useTransform(scrollYProgress, [fadeStart, fadeEnd], [1, 0]);
+  const scrollScale = useTransform(scrollYProgress, [fadeStart, fadeEnd], [pos.scale, 0]);
 
   useEffect(() => {
     const updateMovement = () => {
@@ -239,6 +257,8 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling }: {
           height: pos.type === 'bubble' ? 'auto' : 'clamp(60px, 8vw, 100px)',
           x: translateX,
           y: translateY,
+          opacity: scrollOpacity,
+          scale: scrollScale,
         }}
         className="cursor-pointer"
       >
@@ -266,10 +286,14 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling }: {
 });
 
 export const FloralDecoration = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
   const scrollTimeout = useRef<any>(null);
 
   useMotionValueEvent(scrollY, "change", () => {
@@ -297,7 +321,8 @@ export const FloralDecoration = () => {
 
   return (
     <div 
-      className="absolute inset-0 pointer-events-none select-none"
+      ref={containerRef}
+      className="absolute inset-0 pointer-events-none select-none overflow-hidden"
       onMouseMove={handleMouseMove}
     >
       {/* Left Corner Cluster */}
@@ -309,6 +334,8 @@ export const FloralDecoration = () => {
             mouseX={mouseX} 
             mouseY={mouseY} 
             isScrolling={isScrolling}
+            scrollYProgress={scrollYProgress}
+            cluster="left"
           />
         ))}
       </div>
@@ -323,6 +350,8 @@ export const FloralDecoration = () => {
               mouseX={mouseX} 
               mouseY={mouseY} 
               isScrolling={isScrolling}
+              scrollYProgress={scrollYProgress}
+              cluster="right"
             />
           ))}
         </div>
