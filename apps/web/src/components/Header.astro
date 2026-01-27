@@ -1,0 +1,120 @@
+---
+// Header component with sticky positioning and backdrop blur
+import { AnimatedCTA } from './AnimatedCTA';
+---
+
+<header
+  id="header"
+  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent"
+  data-scrolled="false"
+>
+  <div class="container-custom">
+    <nav
+      class="flex items-center justify-between py-6 md:py-8 transition-all duration-300"
+      aria-label="Main navigation"
+    >
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[64px] hidden md:block" />
+        <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[36px] h-full md:hidden" />
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        <a
+          href="#how-it-works"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          How it works
+        </a>
+        <a
+          href="#pricing"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          Pricing
+        </a>
+        <a
+          href="#faq"
+          class="text-charcoal hover:text-forest-green font-medium transition-colors"
+        >
+          FAQ
+        </a>
+      </div>
+
+      <!-- CTA Button -->
+      <div class="flex items-center gap-4">
+        <AnimatedCTA
+          client:load
+          id="header-cta"
+          variant="secondary"
+          size="sm"
+        >
+          Start Building
+        </AnimatedCTA>
+
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Spacer to prevent content from being hidden under fixed header -->
+<div class="h-20 md:h-24"></div>
+
+<style>
+  @reference "../styles/global.css";
+
+  #header[data-scrolled='true'] {
+    @apply bg-white/90 backdrop-blur-md shadow-sm shadow-black/5;
+  }
+
+  #header[data-scrolled='true'] nav {
+    @apply py-3 md:py-4;
+  }
+</style>
+
+<script>
+  // Header scroll effect
+  const header = document.getElementById('header');
+  let scrolled = false;
+
+  function handleScroll() {
+    const shouldBeScrolled = window.scrollY > 50;
+
+    if (shouldBeScrolled !== scrolled) {
+      scrolled = shouldBeScrolled;
+      header?.setAttribute('data-scrolled', String(scrolled));
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.querySelector('.menu-icon');
+  const closeIcon = document.querySelector('.close-icon');
+
+  mobileMenuBtn?.addEventListener('click', () => {
+    const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+    mobileMenuBtn.setAttribute('aria-expanded', String(!isExpanded));
+    mobileMenu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+
+  // Close mobile menu when clicking on links
+  document.querySelectorAll('.mobile-menu-link').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu?.classList.add('hidden');
+      menuIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+      mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Connect Header CTA to BrandIntake modal
+  const headerCTA = document.getElementById('header-cta');
+  headerCTA?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('openBrandIntake'));
+  });
+</script>

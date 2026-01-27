@@ -1,0 +1,18 @@
+---
+// FAQ and Backstory section
+import FAQAccordion from './FAQAccordion.tsx';
+---
+
+<section class="section-spacing">
+  <div class="container-custom">
+    <!-- FAQ Section -->
+    <div id="faq" class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="mb-4">FAQ's</h2>
+      </div>
+
+      <!-- FAQ Accordion (React Component) -->
+      <FAQAccordion client:only="react" />
+    </div>
+  </div>
+</section>

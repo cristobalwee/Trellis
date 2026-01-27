@@ -1,0 +1,230 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'GT Sectra';
+  src: url('/fonts/GT-Sectra-Display-Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GT Sectra';
+  src: url('/fonts/GT-Sectra-Display-Medium-Italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Theme Configuration (migrated from tailwind.config.js) */
+@theme {
+  /* Custom Colors - OKLCH format for opacity modifier support */
+  --color-forest-green-50: oklch(94.82% 0.033 156.54);
+  --color-forest-green-100: oklch(78.10% 0.101 154.59);
+  --color-forest-green-200: oklch(63% 0.14 130);
+  --color-forest-green-300: oklch(52% 0.11 132);
+  --color-forest-green-400: oklch(45% 0.109 151.87);
+  --color-forest-green-500: oklch(36.6% 0.095 134.7);
+  --color-forest-green-600: oklch(29% 0.07 135);
+  --color-forest-green-700: oklch(18% 0.04 135);
+  --color-forest-green-800: oklch(0% 0 0);
+  --color-forest-green-900: oklch(0% 0 0);
+  --color-forest-green-950: oklch(0% 0 0);
+  --color-forest-green: oklch(51.88% 0.109 151.87);
+  --color-cream: oklch(98.5% 0.006 85.7);
+  --color-charcoal: oklch(24.3% 0 0);
+  --color-gray: oklch(96.72% 0.000 0);
+
+  /* Custom Fonts */
+  --font-serif: 'GT Sectra', Georgia, serif;
+  --font-sans: 'Nunito Sans', system-ui, sans-serif;
+
+  /* Custom Spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-128: 32rem;
+}
+
+/* CSS Custom Properties for animations and fallback colors */
+:root {
+  --color-forest-green: #2E7A48;
+  --color-cream: #FDFBF7;
+  --color-charcoal: #444444;
+  --color-black: #111111;
+  --color-white: #FFFFFF;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Base Typography */
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: auto; /* Locomotive Scroll (via Lenis) handles smooth scroll */
+}
+
+body {
+  @apply text-charcoal;
+  overflow-x: hidden;
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  line-height: 1.2;
+  @apply text-black;
+}
+
+h1 {
+  @apply text-4xl md:text-6xl lg:text-7xl xl:text-7xl 2xl:text-8xl;
+}
+
+h2 {
+  @apply text-4xl md:text-5xl lg:text-6xl;
+}
+
+h3 {
+  @apply text-3xl md:text-4xl lg:text-5xl;
+}
+
+h4 {
+  @apply text-2xl md:text-3xl;
+}
+
+h5 {
+  @apply text-base md:text-lg;
+}
+
+/* Body Text */
+p {
+  font-family: var(--font-sans);
+  line-height: 1.7;
+}
+
+/* Links */
+a {
+  @apply transition-colors duration-200;
+}
+
+/* Button Styles */
+.btn {
+  @apply inline-flex items-center justify-center rounded-full font-sans font-medium transition-all duration-300;
+  cursor: pointer;
+}
+
+.btn-sm {
+  @apply text-sm px-6 py-3;
+}
+
+.btn-primary {
+  @apply bg-forest-green text-white shadow-lg hover:shadow-xl active:scale-95 hover:bg-forest-green-400 hover:scale-105 transition-all duration-250;
+}
+
+.btn-secondary {
+  @apply border-1 border-forest-green hover:border-forest-green-400 text-black bg-white active:scale-95;
+}
+
+.btn-ghost {
+  @apply text-charcoal hover:text-forest-green active:scale-95;
+}
+
+/* Container */
+.container-custom {
+  @apply max-w-7xl mx-auto px-8 md:px-12 2xl:px-0;
+}
+
+/* Section Spacing */
+.section-spacing {
+  @apply py-16 md:py-24 lg:py-48;
+}
+
+/* Card */
+.card {
+  @apply bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 transition-all duration-300;
+}
+
+/* Text Gradients */
+.text-gradient-green {
+  @apply bg-gradient-to-r from-forest-green to-forest-green-300 bg-clip-text text-transparent;
+}
+
+/* Backdrop Blur */
+.backdrop-blur-custom {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.transition-spring {
+  transition: all 0.6s var(--ease-spring);
+}
+
+/* Locomotive Scroll / Lenis Smooth Scroll Overrides */
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Animation Keyframes */
+@keyframes bloom {
+  0% {
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}

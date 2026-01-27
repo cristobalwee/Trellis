@@ -1,0 +1,116 @@
+---
+// Footer component
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-gray py-20">
+  <div class="container-custom">
+    <div class="flex flex-col md:flex-row justify-between gap-12 md:gap-16">
+      <!-- Logo Section -->
+      <div class="flex flex-col justify-between">
+        <a href="/" class="flex items-center gap-3 group mb-6">
+          <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[30px]" />
+        </a>
+        <p class="text-charcoal/70 text-sm">
+          Copyright © {currentYear} Trellis. All rights reserved.
+        </p>
+      </div>
+
+      <!-- Links Grid -->
+      <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+        <!-- Product -->
+        <div>
+          <h5 class="mb-4">
+            Product
+          </h5>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="#how-it-works"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                How it works
+              </a>
+            </li>
+            <li>
+              <a
+                href="#pricing"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                Pricing
+              </a>
+            </li>
+            <li>
+              <a
+                href="#faq"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                FAQ
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h5 class="mb-4">
+            Company
+          </h5>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="#backstory"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                About
+              </a>
+            </li>
+            <li>
+              <a
+                href="mailto:hello@trellis.design"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                Contact
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://twitter.com/trellis"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                X / Twitter
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <h5 class="mb-4">
+            Legal
+          </h5>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="/privacy"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                Privacy Policy
+              </a>
+            </li>
+            <li>
+              <a
+                href="/terms"
+                class="text-charcoal font-light hover:text-forest-green-200 transition-colors"
+              >
+                Terms of Service
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

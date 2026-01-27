@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Footer from '../components/Footer.astro';
+import BrandIntake from '../components/BrandIntake.tsx';
+import ScrollAnimationSection from '../components/ScrollAnimationSection.astro';
+import Comparison from '../components/Comparison.astro';
+import Pricing from '../components/Pricing.astro';
+import FAQ from '../components/FAQ.astro';
+import Backstory from '../components/Backstory.astro';
+import CTA from '../components/CTA.astro';
+---
+
+<BaseLayout>
+  <Header />
+  <main>
+    <Hero />
+
+    <!-- Brand Intake Modal (React Island) -->
+    <BrandIntake client:only="react" />
+    <Comparison />
+
+    <!-- Interactive Scroll Animation -->
+    <ScrollAnimationSection />
+    <Pricing />
+    <Backstory />
+    <FAQ />
+    <CTA />
+  </main>
+  <Footer />
+</BaseLayout>

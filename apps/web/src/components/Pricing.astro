@@ -1,0 +1,86 @@
+---
+// Pricing section - Buy Once, Own Forever
+import { AnimatedCTA } from './AnimatedCTA';
+---
+
+<section id="pricing" class="section-spacing bg-white">
+  <div class="container-custom">
+    <!-- Section Header -->
+    <div class="text-center mb-16 flex flex-col gap-4">
+      <p class="text-charcoal/70 max-w-2xl mx-auto">
+        Pricing
+      </p>
+      <h2>One payment.<br /><i>Everything included</i></h2>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="gap-8 max-w-xl mx-auto">
+      <!-- Available Now Card -->
+      <div class="card relative border-2 border-forest-green">
+        <!-- Badge -->
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+          <span class="inline-flex items-center px-4 py-2 rounded-lg bg-forest-green-50 text-forest-green font-semibold text-sm">
+            Launch discount
+          </span>
+        </div>
+
+        <div class="mt-4">
+          <!-- Price -->
+          <div class="mb-8 flex flex-col gap-4">
+            <div class="flex items-baseline gap-2">
+              <h3><span class="line-through text-charcoal/60">$149</span> $75</h3>
+              <span class="text-charcoal/60">/ forever</span>
+            </div>
+            <p class="text-charcoal/60">Limited-time offer for first 100 customers</p>
+          </div>
+
+          <!-- Features List -->
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Full DTCG-compliant multi-theme tokens.json (light + dark mode)</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>25 React components with TypeScript and Vitest</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Figma file with matching variables and components</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Monorepo setup (pnpm + Turborepo)</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>Complete Storybook 8 branded documentation site</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+              <span>MDX governance docs (importable into Notion + GitHub)</span>
+            </li>
+          </ul>
+
+          <!-- CTA -->
+          <AnimatedCTA
+            client:load
+            id="pricing-cta"
+            variant="primary"
+            size="lg"
+          >
+            Start Building
+          </AnimatedCTA>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Connect Pricing CTA to BrandIntake modal
+  const pricingCTA = document.getElementById('pricing-cta');
+  pricingCTA?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('openBrandIntake'));
+  });
+</script>
