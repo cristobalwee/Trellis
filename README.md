@@ -33,8 +33,7 @@ trellis/
 │   │   ├── Footer.astro           # Footer with links
 │   │   ├── Hero.astro             # Hero with floral animations
 │   │   ├── BrandIntake.tsx        # 5-step modal (React)
-│   │   ├── ScrollAnimation.tsx    # 4-step scroll animation (React)
-│   │   ├── ScrollAnimationSection.astro
+│   │   ├── ScrollAnimationSection.astro   # 2-step vertical layout (Astro)
 │   │   ├── Deliverables.astro     # Feature grid
 │   │   ├── Comparison.astro       # Comparison table
 │   │   ├── Pricing.astro          # Pricing cards
@@ -71,15 +70,12 @@ trellis/
    - Keyboard navigation (Enter/Escape)
    - Form validation and state management
 
-3. **Interactive Scroll Animation** (React)
-   - 4-step scroll-linked animation
-   - Left side: Sticky text descriptions
-   - Right side: Animated visuals
-     - Step 1: Form typing animation
-     - Step 2: Progress bar + file generation
-     - Step 3: Terminal window with install commands
-     - Step 4: Component preview with tokens
-   - Uses Framer Motion's `useScroll` and `useTransform` hooks
+3. **How it Works Section** (Astro)
+   - 2-step vertical scroll layout
+   - Step 1: Design your system (Text Left, Content Right)
+   - Step 2: Run locally, ship forever (Text Right, Content Left)
+   - Clean, straightforward vertical stacking without complex stickiness
+   - Server-side rendered for optimal performance
 
 4. **Deliverables Section**
    - 6-card grid showcasing features
@@ -122,7 +118,6 @@ trellis/
 - **Floral "Blooming":** CSS keyframes with scale, rotate, opacity
 - **Typography Fade-In:** Staggered delays on headline, sub-headline, CTA
 - **Card Animations:** Intersection Observer triggers on scroll
-- **Scroll-Linked:** Framer Motion useScroll for 4-step animation
 - **Accordion:** Framer Motion AnimatePresence for smooth expand/collapse
 - **Modal:** Spring physics for slide-in entrance
 

@@ -13,11 +13,6 @@ const faqs: FAQItem[] = [
       "Absolutely. This is your codebase, not a locked library. You own the code, the tokens, the components—everything. Modify anything you want. There are no proprietary formats or dependencies that lock you in. It's just well-structured, documented code that follows industry best practices.",
   },
   {
-    question: 'Do I really need documentation and governance?',
-    answer:
-      "Yes, especially as your team grows. A design system without documentation is just a component library. Without governance, it becomes inconsistent and unmaintainable. Trellis includes Starlight docs, contribution guidelines, and GitHub templates so your system can scale from 1 to 100 contributors without falling apart.",
-  },
-  {
     question: 'Who is Trellis for?',
     answer:
       "Trellis is for product teams that need a design system but don't want to spend months building infrastructure. Perfect for startups launching products, agencies building for multiple clients, or in-house teams at mid-size companies. If you're a solo developer, you might be better off with a component library. If you're an enterprise with 50+ designers, you'll need something more custom.",
@@ -30,7 +25,7 @@ const faqs: FAQItem[] = [
   {
     question: 'Can I get a refund?',
     answer:
-      "Yes. 14-day money-back guarantee, no questions asked. If Trellis isn't the right fit for your team, just send an email and I'll refund your purchase. No hoops to jump through, no forms to fill out. I want you to be confident in your purchase.",
+      "Unfortunately, we don't have a refund policy; Trellis is a one-time purchase, not a subscription. You fully own the generated code, tokens, and figma file forever.",
   },
   {
     question: 'Is this better than building from scratch?',
@@ -57,22 +52,22 @@ const FAQAccordion = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {faqs.map((faq, index) => (
         <div
           key={index}
-          className="bg-white rounded-2xl border border-charcoal/10 overflow-hidden transition-all hover:border-charcoal/20"
+          className="bg-white border-b border-charcoal/10 overflow-hidden transition-all hover:border-charcoal/20"
         >
           <button
             onClick={() => toggleAccordion(index)}
-            className="w-full px-6 md:px-8 py-5 md:py-6 flex items-center justify-between gap-4 text-left hover:bg-cream/50 transition-colors"
+            className="w-full px-4 md:px-8 py-6 md:py-8 flex items-center justify-between gap-4 text-left hover:px-10 hover:cursor-pointer transition-all duration-300"
             aria-expanded={openIndex === index}
           >
             <span className="font-semibold text-lg md:text-xl pr-4">
               {faq.question}
             </span>
             <motion.svg
-              className="w-6 h-6 flex-shrink-0 text-forest-green"
+              className="w-6 h-6 flex-shrink-0 text-charcoal"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -97,7 +92,7 @@ const FAQAccordion = () => {
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className="overflow-hidden"
               >
-                <div className="px-6 md:px-8 pb-5 md:pb-6 pt-0">
+                <div className="px-4 md:px-8 pb-5 md:pb-6 pt-0">
                   <p className="text-charcoal/70 leading-relaxed">
                     {faq.answer}
                   </p>

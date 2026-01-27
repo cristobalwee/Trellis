@@ -15,7 +15,8 @@ import { AnimatedCTA } from './AnimatedCTA';
     >
       <!-- Logo -->
       <a href="/" class="flex items-center gap-3 group">
-        <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[64px]" />
+        <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[64px] hidden md:block" />
+        <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[36px] h-full md:hidden" />
       </a>
 
       <!-- Desktop Navigation -->
@@ -51,62 +52,8 @@ import { AnimatedCTA } from './AnimatedCTA';
           Start Building
         </AnimatedCTA>
 
-        <!-- Mobile Menu Button -->
-        <button
-          id="mobile-menu-btn"
-          class="md:hidden p-2 text-charcoal hover:text-forest-green"
-          aria-label="Toggle menu"
-          aria-expanded="false"
-        >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              class="menu-icon"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"></path>
-            <path
-              class="close-icon hidden"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
       </div>
     </nav>
-
-    <!-- Mobile Menu -->
-    <div
-      id="mobile-menu"
-      class="md:hidden hidden bg-cream border-t border-gray-200 pb-6"
-    >
-      <div class="flex flex-col gap-4 pt-6">
-        <a
-          href="#how-it-works"
-          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
-        >
-          How it works
-        </a>
-        <a
-          href="#pricing"
-          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
-        >
-          Pricing
-        </a>
-        <a
-          href="#faq"
-          class="text-charcoal hover:text-forest-green font-medium transition-colors py-2 mobile-menu-link"
-        >
-          FAQ
-        </a>
-      </div>
-    </div>
   </div>
 </header>
 

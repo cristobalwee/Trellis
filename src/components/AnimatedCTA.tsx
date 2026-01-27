@@ -87,9 +87,7 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
 
   const sizeClasses = size === 'sm' 
     ? 'text-sm px-6 py-3' 
-    : size === 'lg' 
-      ? 'text-lg px-12 py-5' 
-      : 'px-8 py-4';
+    : 'text-lg px-8 py-4';
 
   const isFullWidth = className.includes('w-full');
   const isSecondary = variant === 'secondary';
