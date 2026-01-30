@@ -21,6 +21,21 @@ const BrandIntake = () => {
 
   const totalSteps = 5;
 
+  const Stepper = ({ current: currentStep, total: totalSteps }: { current: number; total: number }) => (
+    <div className="flex items-center gap-1.5 md:gap-3">
+      {Array.from({ length: totalSteps }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-1 rounded-full transition-all duration-500 ${
+            i + 1 <= currentStep 
+              ? 'w-6 md:w-12 bg-forest-green' 
+              : 'w-2 md:w-4 bg-charcoal/10'
+          }`}
+        />
+      ))}
+    </div>
+  );
+
   // Listen for open event from Hero/Header CTAs
   useEffect(() => {
     const handleOpen = () => {
@@ -96,82 +111,38 @@ const BrandIntake = () => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex flex-col bg-white shadow-xl"
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 35, stiffness: 200 }}
         >
-          {/* Backdrop */}
-          <motion.div
-            className="absolute inset-0 bg-charcoal/80 backdrop-blur-lg"
-            onClick={handleClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-
-          {/* Modal Content */}
-          <motion.div
-            className="relative bg-cream rounded-3xl w-full max-w-2xl mx-4 shadow-2xl overflow-hidden"
-            initial={{ scale: 0.9, y: 50 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 50 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          >
-            {/* Close Button */}
-            <button
-              onClick={handleClose}
-              className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-charcoal/10 hover:bg-charcoal/20 transition-colors"
-              aria-label="Close"
-            >
-              <svg
-                className="w-5 h-5 text-charcoal"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Progress Bar */}
-            <div className="h-1 bg-charcoal/10">
-              <motion.div
-                className="h-full bg-forest-green"
-                initial={{ width: '0%' }}
-                animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-
-            {/* Content */}
-            <div className="p-8 md:p-12 min-h-[500px] flex flex-col">
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-y-auto relative">
+            <div className="max-w-4xl mx-auto px-6 py-12 md:py-[20vh]">
               <AnimatePresence mode="wait">
                 {/* Step 1: Brand Name */}
                 {currentStep === 1 && (
                   <motion.div
                     key="step1"
-                    className="flex-1 flex flex-col justify-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   >
-                    <h2 className="text-4xl md:text-5xl mb-4">What's your brand name?</h2>
-                    <p className="text-charcoal/60 mb-8">This will be used throughout your design system.</p>
+                    <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 01</span>
+                    <h2 className="text-5xl md:text-7xl mb-6">What's your brand name?</h2>
+                    <p className="text-xl text-charcoal/60 mb-12 max-w-xl">This will be used throughout your design system and documentation.</p>
                     <input
                       type="text"
                       value={brandData.brandName}
                       onChange={(e) => setBrandData({ ...brandData, brandName: e.target.value })}
                       placeholder="Acme Inc."
-                      className="text-2xl font-serif italic p-4 bg-white rounded-xl border-2 border-charcoal/10 focus:border-forest-green focus:outline-none transition-colors"
+                      className="text-4xl md:text-6xl font-serif italic p-0 bg-transparent border-none focus:outline-none placeholder:text-charcoal/10"
                       autoFocus
                     />
+                    <div className="h-px w-full bg-charcoal/10 mt-4" />
                   </motion.div>
                 )}
 
@@ -179,28 +150,29 @@ const BrandIntake = () => {
                 {currentStep === 2 && (
                   <motion.div
                     key="step2"
-                    className="flex-1 flex flex-col justify-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   >
-                    <h2 className="text-4xl md:text-5xl mb-4">Choose your primary color</h2>
-                    <p className="text-charcoal/60 mb-8">This will define your brand's visual identity.</p>
-                    <div className="flex flex-col md:flex-row gap-8 items-center">
-                      <div className="flex-1">
+                    <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 02</span>
+                    <h2 className="text-5xl md:text-7xl mb-6">Choose your primary color</h2>
+                    <p className="text-xl text-charcoal/60 mb-12 max-w-xl">This color will define your brand's primary visual identity and theme.</p>
+                    <div className="flex flex-col md:flex-row gap-12 items-start">
+                      <div className="flex-1 w-full max-w-md">
                         <HexColorPicker
                           color={brandData.primaryColor}
                           onChange={(color) => setBrandData({ ...brandData, primaryColor: color })}
-                          style={{ width: '100%', height: '240px' }}
+                          style={{ width: '100%', height: '300px' }}
                         />
                       </div>
-                      <div className="text-center">
+                      <div className="flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm border border-charcoal/5">
                         <div
-                          className="w-32 h-32 rounded-2xl shadow-lg mb-4"
+                          className="w-48 h-48 rounded-2xl shadow-inner mb-6 transition-colors duration-200"
                           style={{ backgroundColor: brandData.primaryColor }}
                         />
-                        <div className="font-mono text-lg font-semibold">{brandData.primaryColor}</div>
+                        <div className="font-mono text-2xl font-semibold tracking-tight">{brandData.primaryColor}</div>
                       </div>
                     </div>
                   </motion.div>
@@ -210,31 +182,36 @@ const BrandIntake = () => {
                 {currentStep === 3 && (
                   <motion.div
                     key="step3"
-                    className="flex-1 flex flex-col justify-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   >
-                    <h2 className="text-4xl md:text-5xl mb-4">Select your typography style</h2>
-                    <p className="text-charcoal/60 mb-8">Choose the aesthetic that matches your brand.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 03</span>
+                    <h2 className="text-5xl md:text-7xl mb-6">Select your typography style</h2>
+                    <p className="text-xl text-charcoal/60 mb-12 max-w-xl">Choose the aesthetic that best matches your brand's personality.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {[
-                        { id: 'modern-sans', label: 'Modern Sans', preview: 'Aa' },
-                        { id: 'classic-serif', label: 'Classic Serif', preview: 'Aa' },
-                        { id: 'geometric', label: 'Geometric', preview: 'Aa' },
+                        { id: 'modern-sans', label: 'Modern Sans', preview: 'Aa', desc: 'Clean, professional, and highly readable.' },
+                        { id: 'classic-serif', label: 'Classic Serif', preview: 'Aa', desc: 'Elegant, timeless, and sophisticated.' },
+                        { id: 'geometric', label: 'Geometric', preview: 'Aa', desc: 'Modern, playful, and mathematically precise.' },
                       ].map((option) => (
                         <button
                           key={option.id}
                           onClick={() => setBrandData({ ...brandData, typography: option.id as any })}
-                          className={`p-6 rounded-xl border-2 transition-all ${
+                          className={`p-8 rounded-3xl border-2 text-left transition-all duration-300 ${
                             brandData.typography === option.id
-                              ? 'border-forest-green bg-forest-green/5'
-                              : 'border-charcoal/10 hover:border-charcoal/30'
+                              ? 'border-forest-green bg-forest-green/5 ring-4 ring-forest-green/10'
+                              : 'border-charcoal/5 bg-white hover:border-charcoal/20'
                           }`}
                         >
-                          <div className="text-5xl mb-2">{option.preview}</div>
-                          <div className="font-medium">{option.label}</div>
+                          <div className={`text-6xl mb-6 ${
+                            option.id === 'modern-sans' ? 'font-sans' : 
+                            option.id === 'classic-serif' ? 'font-serif' : 'font-sans'
+                          }`}>{option.preview}</div>
+                          <div className="font-semibold text-xl mb-2">{option.label}</div>
+                          <div className="text-charcoal/50 text-sm">{option.desc}</div>
                         </button>
                       ))}
                     </div>
@@ -245,42 +222,43 @@ const BrandIntake = () => {
                 {currentStep === 4 && (
                   <motion.div
                     key="step4"
-                    className="flex-1 flex flex-col justify-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   >
-                    <h2 className="text-4xl md:text-5xl mb-4">Which framework?</h2>
-                    <p className="text-charcoal/60 mb-8">Select your preferred JavaScript framework.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 04</span>
+                    <h2 className="text-5xl md:text-7xl mb-6">Which framework?</h2>
+                    <p className="text-xl text-charcoal/60 mb-12 max-w-xl">Select your preferred JavaScript framework for the implementation.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <button
                         onClick={() => setBrandData({ ...brandData, framework: 'react' })}
-                        className={`p-6 rounded-xl border-2 transition-all ${
+                        className={`p-8 rounded-3xl border-2 text-left transition-all duration-300 ${
                           brandData.framework === 'react'
-                            ? 'border-forest-green bg-forest-green/5'
-                            : 'border-charcoal/10 hover:border-charcoal/30'
+                            ? 'border-forest-green bg-forest-green/5 ring-4 ring-forest-green/10'
+                            : 'border-charcoal/5 bg-white hover:border-charcoal/20'
                         }`}
                       >
-                        <div className="text-3xl mb-2">⚛️</div>
-                        <div className="font-medium">React</div>
-                        <div className="text-sm text-charcoal/50 mt-1">Available Now</div>
+                        <div className="text-4xl mb-6">⚛️</div>
+                        <div className="font-semibold text-xl mb-2">React</div>
+                        <div className="inline-flex px-2 py-1 rounded bg-forest-green/10 text-forest-green text-xs font-bold uppercase tracking-wider">Available Now</div>
                       </button>
                       <button
                         disabled
-                        className="p-6 rounded-xl border-2 border-charcoal/10 opacity-50 cursor-not-allowed"
+                        className="p-8 rounded-3xl border-2 border-charcoal/5 bg-charcoal/5 opacity-50 cursor-not-allowed text-left"
                       >
-                        <div className="text-3xl mb-2">🌱</div>
-                        <div className="font-medium">Vue</div>
-                        <div className="text-sm text-charcoal/50 mt-1">Coming Feb 2026</div>
+                        <div className="text-4xl mb-6">🌱</div>
+                        <div className="font-semibold text-xl mb-2">Vue</div>
+                        <div className="text-sm text-charcoal/40">Coming Feb 2026</div>
                       </button>
                       <button
                         disabled
-                        className="p-6 rounded-xl border-2 border-charcoal/10 opacity-50 cursor-not-allowed"
+                        className="p-8 rounded-3xl border-2 border-charcoal/5 bg-charcoal/5 opacity-50 cursor-not-allowed text-left"
                       >
-                        <div className="text-3xl mb-2">🔥</div>
-                        <div className="font-medium">Svelte</div>
-                        <div className="text-sm text-charcoal/50 mt-1">Coming Feb 2026</div>
+                        <div className="text-4xl mb-6">🔥</div>
+                        <div className="font-semibold text-xl mb-2">Svelte</div>
+                        <div className="text-sm text-charcoal/40">Coming Feb 2026</div>
                       </button>
                     </div>
                   </motion.div>
@@ -290,82 +268,131 @@ const BrandIntake = () => {
                 {currentStep === 5 && (
                   <motion.div
                     key="step5"
-                    className="flex-1 flex flex-col justify-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
+                    className="flex flex-col"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                   >
-                    <h2 className="text-4xl md:text-5xl mb-6">Ready to build?</h2>
-                    <div className="bg-white rounded-xl p-6 mb-6 space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-charcoal/60">Brand Name</span>
-                        <span className="font-semibold">{brandData.brandName}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-charcoal/60">Primary Color</span>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-6 h-6 rounded"
-                            style={{ backgroundColor: brandData.primaryColor }}
-                          />
-                          <span className="font-mono text-sm">{brandData.primaryColor}</span>
+                    <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 05</span>
+                    <h2 className="text-5xl md:text-7xl mb-6">Ready to build?</h2>
+                    <p className="text-xl text-charcoal/60 mb-12 max-w-xl">Review your selections and complete your purchase to get started.</p>
+                    
+                    <div className="bg-white rounded-3xl p-8 md:p-12 mb-12 shadow-sm border border-charcoal/5 grid grid-cols-1 md:grid-cols-2 gap-12">
+                      <div className="space-y-8">
+                        <div>
+                          <span className="text-charcoal/40 text-sm uppercase tracking-wider font-bold block mb-2">Brand Name</span>
+                          <span className="text-3xl font-serif italic">{brandData.brandName}</span>
+                        </div>
+                        <div>
+                          <span className="text-charcoal/40 text-sm uppercase tracking-wider font-bold block mb-2">Primary Color</span>
+                          <div className="flex items-center gap-4">
+                            <div
+                              className="w-10 h-10 rounded-xl"
+                              style={{ backgroundColor: brandData.primaryColor }}
+                            />
+                            <span className="font-mono text-xl">{brandData.primaryColor}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-charcoal/60">Typography</span>
-                        <span className="font-semibold capitalize">{brandData.typography?.replace('-', ' ')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-charcoal/60">Framework</span>
-                        <span className="font-semibold capitalize">{brandData.framework}</span>
+                      <div className="space-y-8">
+                        <div>
+                          <span className="text-charcoal/40 text-sm uppercase tracking-wider font-bold block mb-2">Typography</span>
+                          <span className="text-2xl font-semibold capitalize">{brandData.typography?.replace('-', ' ')}</span>
+                        </div>
+                        <div>
+                          <span className="text-charcoal/40 text-sm uppercase tracking-wider font-bold block mb-2">Framework</span>
+                          <span className="text-2xl font-semibold capitalize">{brandData.framework}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-baseline gap-2 mb-6">
-                      <span className="text-5xl font-serif italic">$149</span>
-                      <span className="text-charcoal/60">one-time purchase</span>
+
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-6xl font-serif italic">$149</span>
+                        <span className="text-charcoal/60">one-time purchase</span>
+                      </div>
                     </div>
-                    <button
-                      className="btn btn-primary w-full text-lg"
-                      onClick={() => {
-                        // Placeholder for payment integration
-                        alert('Payment integration coming soon! Your selection has been saved.');
-                        handleClose();
-                      }}
-                    >
-                      Complete Purchase
-                    </button>
-                    <button onClick={handleBack} className="btn btn-ghost w-full mt-4">
-                      Go Back
-                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
+            </div>
+          </main>
 
-              {/* Navigation */}
-              {currentStep < 5 && (
-                <div className="flex justify-between items-center mt-8 pt-6 border-t border-charcoal/10">
-                  <button
-                    onClick={handleBack}
-                    disabled={currentStep === 1}
-                    className="text-charcoal/60 hover:text-charcoal disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-                  >
-                    ← Back
-                  </button>
-                  <div className="text-sm text-charcoal/40">
-                    Step {currentStep} of {totalSteps}
-                  </div>
-                  <button
-                    onClick={handleNext}
-                    disabled={!canProceed()}
-                    className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next →
-                  </button>
-                </div>
+          {/* Fixed Footer */}
+          <footer className="bg-white border-t border-charcoal/5 px-6 md:px-12 py-6">
+            <div className="max-w-4xl mx-auto flex justify-between items-center">
+              <button
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="text-charcoal/60 hover:text-charcoal font-medium disabled:opacity-20 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+
+              <div className="hidden md:block text-charcoal/30 text-sm font-medium uppercase tracking-widest">
+                {currentStep} / {totalSteps}
+              </div>
+
+              {currentStep < 5 ? (
+                <button
+                  onClick={handleNext}
+                  disabled={!canProceed()}
+                  className="btn btn-primary px-10 py-4 text-lg"
+                >
+                  Continue
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ) : (
+                <button
+                  className="btn btn-primary px-12 py-4 text-lg"
+                  onClick={() => {
+                    alert('Payment integration coming soon!');
+                    handleClose();
+                  }}
+                >
+                  Complete Purchase
+                </button>
               )}
             </div>
-          </motion.div>
+          </footer>
+          {/* Header */}
+          <header className="flex items-center justify-between container-custom py-6 md:py-8 fixed left-0 right-0 top-0">
+            <div className="flex-1">
+              <img src="/src/assets/logo_icon.svg" alt="Trellis" className="w-8 h-8" />
+            </div>
+            
+            <div className="flex-2 flex justify-center">
+              <Stepper current={currentStep} total={totalSteps} />
+            </div>
+
+            <div className="flex-1 flex justify-end">
+              <button
+                onClick={handleClose}
+                className="w-10 h-10 flex items-center justify-end rounded-full text-charcoal/40 hover:text-charcoal transition-colors"
+                aria-label="Close"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          </header>
         </motion.div>
       )}
     </AnimatePresence>
