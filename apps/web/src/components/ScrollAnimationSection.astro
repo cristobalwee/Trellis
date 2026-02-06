@@ -1,5 +1,7 @@
 ---
 import { TrellisScrollAnimation } from './TrellisScrollAnimation';
+import ShowcaseConfigurator from './Showcase/ShowcaseConfigurator';
+import ShowcaseComponents from './Showcase/ShowcaseComponents';
 ---
 
 <section id="how-it-works" class="bg-white py-24 md:py-32 overflow-hidden relative">
@@ -13,47 +15,12 @@ import { TrellisScrollAnimation } from './TrellisScrollAnimation';
           <h2 class="text-4xl md:text-5xl lg:text-6xl mb-8">Customize your design system</h2>
           <div class="text-lg md:text-xl text-charcoal/70 space-y-6 max-w-xl">
             <p>
-              Answer a few quick questions about your brand identity, colors,
-              and style preferences. No design background or brand PDF required.
+              Configure your system based on brand colors, identity, and expressiveness. Select pre-made settings or fine-tune to your liking.
             </p>
           </div>
         </div>
         <div class="order-2 lg:order-2">
-          <div class="bg-cream rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden border border-charcoal/5">
-            <div class="space-y-8">
-              <div>
-                <label class="block text-xs font-bold tracking-widest mb-3 text-charcoal/40">Brand Identity</label>
-                <div class="h-14 bg-white rounded-xl border border-charcoal/10 px-5 flex items-center font-serif italic text-xl text-forest-green">
-                  Acme Design Co.
-                </div>
-              </div>
-              
-              <div>
-                <label class="block text-xs font-bold tracking-widest mb-3 text-charcoal/40">Brand Colors</label>
-                <div class="flex flex-wrap gap-3">
-                  {['#2D5016', '#E63946', '#457B9D', '#F4A261', '#2A9D8F'].map((color) => (
-                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl shadow-sm border-4 border-white" style={`background-color: ${color}`} />
-                  ))}
-                </div>
-              </div>
-
-              <div class="pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { icon: '📦', label: 'tokens.json' },
-                  { icon: '🎨', label: 'figma.fig' },
-                  { icon: '⚛️', label: 'components.zip' }
-                ].map((item) => (
-                  <div class="bg-white rounded-xl p-4 text-center shadow-sm border border-charcoal/5">
-                    <div class="text-2xl mb-1">{item.icon}</div>
-                    <div class="text-xs font-mono text-charcoal/60">{item.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <!-- Decorative element -->
-            <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-forest-green/5 rounded-full blur-3xl"></div>
-          </div>
+          <ShowcaseConfigurator client:visible />
         </div>
       </div>
 
@@ -76,64 +43,7 @@ import { TrellisScrollAnimation } from './TrellisScrollAnimation';
           </div>
         </div>
         <div class="order-2 lg:order-1">
-          <div class="bg-charcoal rounded-3xl p-6 md:p-10 font-mono text-sm shadow-2xl relative overflow-hidden">
-            <div class="flex items-center gap-2 mb-8 pb-5 border-b border-white/10">
-              <div class="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
-              <div class="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-              <div class="w-3 h-3 rounded-full bg-[#27C93F]"></div>
-              <span class="text-white/30 ml-3 text-xs tracking-tight">terminal — trellis-project</span>
-            </div>
-            
-            <div class="space-y-8">
-              <div class="space-y-2">
-                <div class="flex gap-3">
-                  <span class="text-forest-green-200 font-bold">~</span>
-                  <span class="text-white">pnpm install</span>
-                </div>
-                <div class="pl-6 text-white/40 text-xs">
-                  Packages: <span class="text-forest-green-200">+247</span>
-                  <div class="mt-1">✓ Dependencies resolved in 1.4s</div>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <div class="flex gap-3">
-                  <span class="text-forest-green-200 font-bold">~</span>
-                  <span class="text-white">pnpm dev</span>
-                </div>
-                <div class="pl-6 space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-forest-green-200 animate-pulse"></span>
-                    <span class="text-white/60 text-xs">Tokens compiled</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-forest-green-200 animate-pulse"></span>
-                    <span class="text-white/60 text-xs">Storybook ready at :6006</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-forest-green-200 animate-pulse"></span>
-                    <span class="text-white/60 text-xs">Docs ready at :3000</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Status badges -->
-            <div class="mt-10 flex gap-3">
-              <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex-1">
-                <div class="text-forest-green-200 text-xl font-bold mb-0.5">100</div>
-                <div class="text-[9px] text-white/40 uppercase font-bold tracking-widest">Perf</div>
-              </div>
-              <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex-1">
-                <div class="text-forest-green-200 text-xl font-bold mb-0.5">0ms</div>
-                <div class="text-[9px] text-white/40 uppercase font-bold tracking-widest">Hydration</div>
-              </div>
-              <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 flex-1">
-                <div class="text-forest-green-200 text-xl font-bold mb-0.5">A+</div>
-                <div class="text-[9px] text-white/40 uppercase font-bold tracking-widest">A11y</div>
-              </div>
-            </div>
-          </div>
+          <ShowcaseComponents client:visible />
         </div>
       </div>
     </div>
