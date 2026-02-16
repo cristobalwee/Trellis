@@ -1,95 +1,351 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Settings, Upload, X, ChevronDown } from 'lucide-react';
 import { $brandConfig, updateConfig } from './store';
 
-const POPULAR_FONTS = [
-  'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 
-  'Playfair Display', 'Merriweather', 'Lora', 'IBM Plex Sans', 'Space Grotesk'
+// ---------------------------------------------------------------------------
+// Google Fonts list (popular subset)
+// ---------------------------------------------------------------------------
+
+const GOOGLE_FONTS = [
+  'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
+  'Playfair Display', 'Merriweather', 'Lora', 'IBM Plex Sans', 'Space Grotesk',
+  'Poppins', 'Raleway', 'Nunito', 'Source Sans 3', 'Ubuntu',
+  'Oswald', 'Noto Sans', 'Rubik', 'Work Sans', 'DM Sans',
+  'Manrope', 'Outfit', 'Plus Jakarta Sans', 'Lexend', 'Sora',
+  'Figtree', 'Geist', 'Onest', 'Instrument Sans', 'General Sans',
+  'Fraunces', 'Crimson Pro', 'Libre Baskerville', 'Cormorant Garamond', 'EB Garamond',
+  'Space Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Source Code Pro',
 ];
 
-const Step3Typography = () => {
-  const config = useStore($brandConfig);
-  const [searchTerm, setSearchTerm] = useState('');
+// ---------------------------------------------------------------------------
+// Preset type scale
+// ---------------------------------------------------------------------------
 
-  const filteredFonts = POPULAR_FONTS.filter(font => 
-    font.toLowerCase().includes(searchTerm.toLowerCase())
+const TYPE_SCALE = [
+  { token: '7xl', rem: '4.5rem',   px: 72, note: 'Display' },
+  { token: '6xl', rem: '3.75rem',  px: 60 },
+  { token: '5xl', rem: '3rem',     px: 48 },
+  { token: '4xl', rem: '2.25rem',  px: 36 },
+  { token: '3xl', rem: '1.875rem', px: 30 },
+  { token: '2xl', rem: '1.5rem',   px: 24 },
+  { token: 'xl',  rem: '1.25rem',  px: 20 },
+  { token: 'lg',  rem: '1.125rem', px: 18, note: 'Lead paragraphs' },
+  { token: 'base', rem: '1rem',    px: 16, note: 'Body text' },
+  { token: 'sm',  rem: '0.875rem', px: 14, note: 'Secondary text, labels' },
+  { token: 'xs',  rem: '0.75rem',  px: 12, note: 'Captions, fine print' },
+  { token: 'xxs', rem: '0.625rem', px: 10, note: 'Smallest — semibold+ for readability' },
+];
+
+// ---------------------------------------------------------------------------
+// Font search dropdown (simple; combobox upgrade later)
+// ---------------------------------------------------------------------------
+
+interface FontSearchProps {
+  value: string;
+  onChange: (font: string) => void;
+  label: string;
+  customFontName?: string;
+}
+
+const FontSearch: React.FC<FontSearchProps> = ({ value, onChange, label, customFontName }) => {
+  const [search, setSearch] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = GOOGLE_FONTS.filter((f) =>
+    f.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const fontScaleSteps = [
-    { label: 'Display Large', size: Math.pow(config.fontScale, 4) * 16 },
-    { label: 'Display Small', size: Math.pow(config.fontScale, 3) * 16 },
-    { label: 'Heading Large', size: Math.pow(config.fontScale, 2) * 16 },
-    { label: 'Heading Small', size: config.fontScale * 16 },
-    { label: 'Body Text', size: 16 },
-    { label: 'Caption', size: 16 / config.fontScale },
-  ];
+  const displayValue = customFontName || value;
 
   return (
-    <motion.div
-      key="step3"
-      className="flex flex-col"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-    >
-      <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 03</span>
-      <h2 className="text-5xl md:text-7xl mb-6">Set your typography.</h2>
-      <p className="text-xl text-charcoal/60 mb-12 max-w-xl">
-        Select a primary font and fine-tune your typographic scale.
+    <div className="space-y-3">
+      <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
+        {label}
+      </label>
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <input
+            ref={inputRef}
+            type="text"
+            value={isOpen ? search : displayValue}
+            onFocus={() => {
+              setIsOpen(true);
+              setSearch('');
+            }}
+            onBlur={() => {
+              // Delay to allow click on dropdown item
+              setTimeout(() => setIsOpen(false), 200);
+            }}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search Google Fonts…"
+            className="w-full text-xl md:text-2xl font-medium p-0 bg-transparent border-none focus:outline-none placeholder:text-charcoal/10"
+          />
+          <ChevronDown
+            size={16}
+            className={`text-charcoal/30 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </div>
+        <div className="h-px w-full bg-charcoal/10 mt-3" />
+
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-xl border border-charcoal/5 p-2 z-10 max-h-60 overflow-y-auto"
+            >
+              {filtered.length === 0 && (
+                <div className="px-4 py-3 text-sm text-charcoal/40">No fonts found.</div>
+              )}
+              {filtered.map((font) => (
+                <button
+                  key={font}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // prevent blur before click fires
+                    onChange(font);
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                  className={`w-full text-left px-4 py-2.5 hover:bg-charcoal/5 rounded-xl transition-colors text-sm ${
+                    font === value ? 'font-bold text-forest-green' : 'text-charcoal'
+                  }`}
+                >
+                  {font}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Custom font upload
+// ---------------------------------------------------------------------------
+
+interface FontUploadProps {
+  label: string;
+  fontName?: string;
+  onUpload: (name: string, file: File) => void;
+  onClear: () => void;
+}
+
+const FontUpload: React.FC<FontUploadProps> = ({ label, fontName, onUpload, onClear }) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const name = file.name.replace(/\.[^.]+$/, '');
+    onUpload(name, file);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal/60">
+        {label}
+      </span>
+      {fontName ? (
+        <div className="flex items-center gap-2 bg-forest-green/5 border border-forest-green/20 rounded-lg px-3 py-2">
+          <span className="text-sm font-medium text-forest-green flex-1 truncate">
+            {fontName}
+          </span>
+          <button
+            onClick={() => {
+              onClear();
+              if (fileRef.current) fileRef.current.value = '';
+            }}
+            className="text-charcoal/30 hover:text-charcoal/60 transition-colors"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="flex items-center gap-2 px-3 py-2 border border-dashed border-charcoal/20 rounded-lg text-sm text-charcoal/60 hover:border-charcoal/40 hover:text-charcoal/80 transition-colors cursor-pointer"
+        >
+          <Upload size={14} />
+          Upload font file
+        </button>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".ttf,.otf,.woff,.woff2"
+        className="hidden"
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+const Step3Typography: React.FC = () => {
+  const config = useStore($brandConfig);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+
+  // Local state for custom font files (can't persist File objects)
+  const [customFontFile, setCustomFontFile] = useState<File | null>(null);
+  const [customHeadingFile, setCustomHeadingFile] = useState<File | null>(null);
+  const [customBodyFile, setCustomBodyFile] = useState<File | null>(null);
+
+  // Load a custom font via FontFace API
+  const loadCustomFont = useCallback(async (name: string, file: File) => {
+    const url = URL.createObjectURL(file);
+    try {
+      const face = new FontFace(name, `url(${url})`);
+      await face.load();
+      document.fonts.add(face);
+    } catch {
+      // silently fail — font just won't render
+    }
+  }, []);
+
+  // Handlers for font selection
+  const handlePrimaryFontChange = useCallback((font: string) => {
+    if (config.useSingleTypeface) {
+      updateConfig({ primaryFont: font, headingFont: font, customFontName: undefined });
+    } else {
+      updateConfig({ primaryFont: font, customBodyFontName: undefined });
+    }
+  }, [config.useSingleTypeface]);
+
+  const handleHeadingFontChange = useCallback((font: string) => {
+    updateConfig({ headingFont: font, customHeadingFontName: undefined });
+  }, []);
+
+  const handleToggleSingleTypeface = useCallback(() => {
+    const next = !config.useSingleTypeface;
+    if (next) {
+      // Switching to single: unify to primary
+      updateConfig({
+        useSingleTypeface: true,
+        headingFont: config.primaryFont,
+        customHeadingFontName: undefined,
+        customBodyFontName: undefined,
+      });
+    } else {
+      updateConfig({
+        useSingleTypeface: false,
+        customFontName: undefined,
+      });
+    }
+  }, [config.useSingleTypeface, config.primaryFont]);
+
+  // Custom font upload handlers
+  const handleCustomFontUpload = useCallback(
+    async (name: string, file: File) => {
+      await loadCustomFont(name, file);
+      setCustomFontFile(file);
+      if (config.useSingleTypeface) {
+        updateConfig({ customFontName: name, primaryFont: name, headingFont: name });
+      }
+    },
+    [config.useSingleTypeface, loadCustomFont],
+  );
+
+  const handleCustomHeadingUpload = useCallback(
+    async (name: string, file: File) => {
+      await loadCustomFont(name, file);
+      setCustomHeadingFile(file);
+      updateConfig({ customHeadingFontName: name, headingFont: name });
+    },
+    [loadCustomFont],
+  );
+
+  const handleCustomBodyUpload = useCallback(
+    async (name: string, file: File) => {
+      await loadCustomFont(name, file);
+      setCustomBodyFile(file);
+      updateConfig({ customBodyFontName: name, primaryFont: name });
+    },
+    [loadCustomFont],
+  );
+
+  const clearCustomFont = useCallback(() => {
+    setCustomFontFile(null);
+    updateConfig({ customFontName: undefined, primaryFont: 'Inter', headingFont: 'Inter' });
+  }, []);
+
+  const clearCustomHeadingFont = useCallback(() => {
+    setCustomHeadingFile(null);
+    updateConfig({ customHeadingFontName: undefined, headingFont: 'Inter' });
+  }, []);
+
+  const clearCustomBodyFont = useCallback(() => {
+    setCustomBodyFile(null);
+    updateConfig({ customBodyFontName: undefined, primaryFont: 'Inter' });
+  }, []);
+
+  // Resolve which fonts to show in preview
+  const bodyFont = config.primaryFont;
+  const headingFont = config.useSingleTypeface ? config.primaryFont : config.headingFont;
+
+  return (
+    <div className="flex flex-col animate-in fade-in duration-500">
+      <span className="text-charcoal/80 font-medium mb-4 text-sm">Step 3</span>
+      <h2 className="text-5xl md:text-7xl mb-6">Set your typography</h2>
+      <p className="text-xl text-charcoal/80 mb-12">
+        Choose your typeface{config.useSingleTypeface ? '' : 's'} and preview the
+        preset type scale.
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        {/* Font Selection */}
-        <div className="space-y-12">
-          <div className="space-y-6">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">Primary Font</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchTerm || config.primaryFont}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  updateConfig({ primaryFont: e.target.value });
-                }}
-                placeholder="Search Google Fonts..."
-                className="w-full text-2xl md:text-3xl font-medium p-0 bg-transparent border-none focus:outline-none placeholder:text-charcoal/10"
+      <div className="flex flex-col gap-16">
+        {/* ----------------------------------------------------------------- */}
+        {/* Font selection */}
+        {/* ----------------------------------------------------------------- */}
+        <div className="flex flex-col gap-8">
+          {config.useSingleTypeface ? (
+            <FontSearch
+              label="Typeface"
+              value={config.primaryFont}
+              onChange={handlePrimaryFontChange}
+              customFontName={config.customFontName}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <FontSearch
+                label="Heading Typeface"
+                value={config.headingFont}
+                onChange={handleHeadingFontChange}
+                customFontName={config.customHeadingFontName}
               />
-              <div className="h-px w-full bg-charcoal/10 mt-4" />
-              
-              {searchTerm && (
-                <div className="absolute top-full left-0 right-0 mt-4 bg-white rounded-2xl shadow-xl border border-charcoal/5 p-4 z-10 max-h-60 overflow-y-auto">
-                  {filteredFonts.map(font => (
-                    <button
-                      key={font}
-                      onClick={() => {
-                        updateConfig({ primaryFont: font });
-                        setSearchTerm('');
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-charcoal/5 rounded-xl transition-colors font-medium"
-                    >
-                      {font}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <FontSearch
+                label="Body Typeface"
+                value={config.primaryFont}
+                onChange={handlePrimaryFontChange}
+                customFontName={config.customBodyFontName}
+              />
             </div>
-          </div>
+          )}
 
-          <div className="space-y-6">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">Font Weights</label>
-            <div className="flex flex-wrap gap-3">
-              {[300, 400, 500, 600, 700, 800, 900].map(weight => (
+          {/* Font weights */}
+          <div className="space-y-3">
+            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
+              Font Weights
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[300, 400, 500, 600, 700, 800, 900].map((weight) => (
                 <button
                   key={weight}
                   onClick={() => {
-                    const newWeights = config.fontWeights.includes(weight)
-                      ? config.fontWeights.filter(w => w !== weight)
+                    const next = config.fontWeights.includes(weight)
+                      ? config.fontWeights.filter((w) => w !== weight)
                       : [...config.fontWeights, weight].sort();
-                    updateConfig({ fontWeights: newWeights });
+                    updateConfig({ fontWeights: next });
                   }}
-                  className={`px-4 py-3 rounded-xl text-sm font-mono transition-all border-2 ${
+                  className={`px-4 py-2.5 rounded-xl text-sm font-mono transition-all border-2 cursor-pointer ${
                     config.fontWeights.includes(weight)
                       ? 'border-forest-green bg-forest-green/5 text-forest-green font-bold'
                       : 'border-charcoal/5 text-charcoal/40 hover:border-charcoal/20'
@@ -101,54 +357,163 @@ const Step3Typography = () => {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">Font Scale</label>
-              <span className="text-sm font-mono text-charcoal/40">{config.fontScale.toFixed(3)}</span>
-            </div>
-            <input
-              type="range"
-              min="1.067"
-              max="1.618"
-              step="0.001"
-              value={config.fontScale}
-              onChange={(e) => updateConfig({ fontScale: parseFloat(e.target.value) })}
-              className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
-            />
-            <div className="flex justify-between text-[10px] text-charcoal/30 font-bold uppercase tracking-widest">
-              <span>Minor Second</span>
-              <span>Golden Ratio</span>
-            </div>
+          {/* Advanced drawer toggle */}
+          <div>
+            <button
+              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer ${
+                isAdvancedOpen
+                  ? 'bg-forest-green/10 text-forest-green'
+                  : 'bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10'
+              }`}
+            >
+              <Settings size={14} />
+              Advanced
+            </button>
+
+            <AnimatePresence initial={false}>
+              {isAdvancedOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 p-6 bg-charcoal/5 rounded-xl space-y-8">
+                    {/* Toggle: single vs dual typeface */}
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-bold text-charcoal">
+                          Use separate heading typeface
+                        </span>
+                        <span className="text-xs text-charcoal/60">
+                          Choose a different font for headings and body text.
+                        </span>
+                      </div>
+                      <button
+                        role="switch"
+                        aria-checked={!config.useSingleTypeface}
+                        onClick={handleToggleSingleTypeface}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
+                          !config.useSingleTypeface ? 'bg-forest-green' : 'bg-charcoal/20'
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform mt-0.5 ${
+                            !config.useSingleTypeface ? 'translate-x-[22px]' : 'translate-x-0.5'
+                          }`}
+                        />
+                      </button>
+                    </label>
+
+                    {/* Custom font upload */}
+                    <div className="space-y-4 pt-4 border-t border-charcoal/10">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-bold text-charcoal">
+                          Custom Fonts
+                        </span>
+                        <span className="text-xs text-charcoal/60">
+                          Upload .ttf, .otf, .woff, or .woff2 files to use a custom font instead
+                          of Google Fonts.
+                        </span>
+                      </div>
+
+                      {config.useSingleTypeface ? (
+                        <FontUpload
+                          label="Font File"
+                          fontName={config.customFontName}
+                          onUpload={handleCustomFontUpload}
+                          onClear={clearCustomFont}
+                        />
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FontUpload
+                            label="Heading Font File"
+                            fontName={config.customHeadingFontName}
+                            onUpload={handleCustomHeadingUpload}
+                            onClear={clearCustomHeadingFont}
+                          />
+                          <FontUpload
+                            label="Body Font File"
+                            fontName={config.customBodyFontName}
+                            onUpload={handleCustomBodyUpload}
+                            onClear={clearCustomBodyFont}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
-        {/* Preview Scale */}
-        <div className="space-y-8 p-8 bg-white rounded-3xl border border-charcoal/5 shadow-sm">
-          <label className="text-xs font-bold uppercase tracking-widest text-charcoal/40">Type Scale Specimen</label>
-          <div className="space-y-8">
-            {fontScaleSteps.map((step, i) => (
-              <div key={i} className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30">{step.label}</span>
-                  <span className="text-[10px] font-mono text-charcoal/20">{Math.round(step.size)}px</span>
-                </div>
-                <p 
-                  style={{ 
-                    fontSize: `${step.size}px`,
-                    fontFamily: `'${config.primaryFont}', sans-serif`,
-                    fontWeight: config.fontWeights[Math.floor(config.fontWeights.length / 2)] || 400,
-                    lineHeight: 1.2
-                  }}
-                  className="text-charcoal truncate"
+        {/* ----------------------------------------------------------------- */}
+        {/* Preset type scale */}
+        {/* ----------------------------------------------------------------- */}
+        <div className="space-y-6">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
+              Type Scale
+            </label>
+            <p className="text-sm text-charcoal/60">
+              A fixed scale used across all generated tokens.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-charcoal/5 shadow-sm overflow-hidden divide-y divide-charcoal/5">
+            {TYPE_SCALE.map((step) => {
+              const isHeading = step.px >= 24;
+              const font = isHeading ? headingFont : bodyFont;
+              const weight =
+                config.fontWeights[Math.floor(config.fontWeights.length / 2)] || 400;
+
+              return (
+                <div
+                  key={step.token}
+                  className="flex items-baseline gap-4 md:gap-8 px-6 py-4"
                 >
-                  The quick brown fox jumps over the lazy dog
-                </p>
-              </div>
-            ))}
+                  {/* Token */}
+                  <span className="w-12 shrink-0 text-xs font-mono font-bold text-charcoal/30 text-right">
+                    {step.token}
+                  </span>
+
+                  {/* Size */}
+                  <span className="w-24 shrink-0 text-xs font-mono text-charcoal/40">
+                    {step.rem}
+                    <span className="hidden md:inline text-charcoal/20 ml-1">
+                      ({step.px}px)
+                    </span>
+                  </span>
+
+                  {/* Specimen */}
+                  <p
+                    style={{
+                      fontSize: `${step.px}px`,
+                      fontFamily: `'${font}', sans-serif`,
+                      fontWeight: weight,
+                      lineHeight: 1.2,
+                    }}
+                    className="text-charcoal truncate flex-1 min-w-0"
+                  >
+                    Aa
+                  </p>
+
+                  {/* Note */}
+                  {step.note && (
+                    <span className="hidden lg:block text-xs text-charcoal/30 shrink-0 max-w-48 text-right">
+                      {step.note}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,18 +1,7 @@
 import { persistentMap } from '@nanostores/persistent';
+import type { ColorRamp } from '../Showcase/colorUtils';
 
-export interface ColorRamp {
-  50: string;
-  100: string;
-  200: string;
-  300: string;
-  400: string;
-  500: string;
-  600: string;
-  700: string;
-  800: string;
-  900: string;
-  1000: string;
-}
+export type { ColorRamp };
 
 export interface BrandConfig {
   // Step 1: Identity
@@ -28,8 +17,23 @@ export interface BrandConfig {
   secondaryColor?: string;
   secondaryRamp?: ColorRamp;
   useCustomSecondary: boolean;
+  secondaryGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
+
+  tertiaryColor?: string;
+  useTertiary: boolean;
+  useCustomTertiary: boolean;
+  tertiaryGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
+  tertiaryRamp?: ColorRamp;
+  
   neutralTint: 'pure' | 'cool' | 'warm' | 'brand-tinted';
   neutralRamp?: ColorRamp;
+  
+  accentColor?: string;
+  useAccent: boolean;
+  useCustomAccent: boolean;
+  accentGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
+  accentRamp?: ColorRamp;
+
   saturation: number; // 0-100
   uniformity: number; // 0-100
   statusColors: {
@@ -41,6 +45,11 @@ export interface BrandConfig {
 
   // Step 3: Typography
   primaryFont: string;
+  headingFont: string;
+  useSingleTypeface: boolean;
+  customFontName?: string;
+  customHeadingFontName?: string;
+  customBodyFontName?: string;
   fontWeights: number[];
   fontScale: number;
 
@@ -61,7 +70,14 @@ export const initialConfig: BrandConfig = {
   companySize: '',
   primaryColor: '#2D5016',
   useCustomSecondary: false,
+  secondaryGenerationMode: 'complementary',
+  useTertiary: false,
+  useCustomTertiary: false,
+  tertiaryGenerationMode: 'analogous',
   neutralTint: 'brand-tinted',
+  useAccent: false,
+  useCustomAccent: false,
+  accentGenerationMode: 'triadic',
   saturation: 100,
   uniformity: 100,
   statusColors: {
@@ -71,6 +87,8 @@ export const initialConfig: BrandConfig = {
     info: '#3b82f6',
   },
   primaryFont: 'Inter',
+  headingFont: 'Inter',
+  useSingleTypeface: true,
   fontWeights: [400, 500, 600, 700],
   fontScale: 1.25,
   roundness: 'rounded',

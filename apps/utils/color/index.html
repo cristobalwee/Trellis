@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Ramp Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .input-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 32px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="color"] {
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+    }
+
+    input[type="text"] {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      width: 140px;
+      text-transform: uppercase;
+    }
+
+    input[type="number"] {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      width: 110px;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 200px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .slider-value {
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      color: #666;
+      font-weight: 400;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #3b82f6;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #3b82f6;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .base-position {
+      margin-left: auto;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .base-position span {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .ramp-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .copy-all-btn {
+      display: flex;
+      gap: 8px;
+    }
+
+    .copy-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      background: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover {
+      background: #e8e8e8;
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+      color: white;
+      border-color: #10b981;
+    }
+
+    .ramp-grid {
+      display: grid;
+      --cols: 10;
+      grid-template-columns: repeat(min(var(--cols), 10), 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .ramp-grid {
+        grid-template-columns: repeat(min(var(--cols), 5), 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .ramp-grid {
+        grid-template-columns: repeat(min(var(--cols), 2), 1fr);
+      }
+    }
+
+    .shade {
+      position: relative;
+    }
+
+    .shade-preview {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shade-preview:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .shade-preview.is-base::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 3px solid currentColor;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .shade-preview .base-indicator {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .shade-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .shade-values {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .shade-value {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+      color: #444;
+      cursor: pointer;
+      padding: 4px 6px;
+      background: #f8f8f8;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .shade-value:hover {
+      background: #e8e8e8;
+    }
+
+    .shade-value.copied {
+      background: #10b981;
+      color: white;
+    }
+
+    .shade-value .value-type {
+      color: #999;
+      font-size: 9px;
+      text-transform: uppercase;
+      min-width: 28px;
+    }
+
+    .shade-value.copied .value-type {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1a1a1a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Color Ramp Generator</h1>
+    <p class="subtitle">Generate perceptually uniform color ramps using OKLCH</p>
+
+    <div class="input-section">
+      <div class="input-group">
+        <div class="input-wrapper">
+          <label for="baseColor">Base Color</label>
+          <div class="color-picker-wrapper">
+            <input type="color" id="colorPicker" value="#3b82f6">
+            <input type="text" id="baseColor" value="#3b82f6" placeholder="#3b82f6">
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <label for="stepCount">Steps</label>
+          <input type="number" id="stepCount" min="4" max="12" value="10">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Chroma Falloff</span>
+            <span class="slider-value" id="chromaFalloffValue">80%</span>
+          </div>
+          <input type="range" id="chromaFalloff" min="0" max="100" value="80">
+        </div>
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>Lightness falloff</span>
+            <span class="slider-value" id="uniformityValue">0%</span>
+          </div>
+          <input type="range" id="uniformity" min="0" max="100" value="0">
+        </div>
+        <div class="base-position">
+          Base position: <span id="basePositionLabel">500</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ramp-section">
+      <div class="section-header">
+        <h2 class="section-title">Color Ramp</h2>
+        <div class="copy-all-btn">
+          <button class="copy-btn" onclick="copyAllHex()">Copy All HEX</button>
+          <button class="copy-btn" onclick="copyAllOklch()">Copy All OKLCH</button>
+          <button class="copy-btn" onclick="copyAsCSS()">Copy as CSS</button>
+        </div>
+      </div>
+      <div class="ramp-grid" id="rampGrid"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied!</div>
+
+  <script>
+    // OKLCH conversion utilities
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16) / 255,
+        g: parseInt(result[2], 16) / 255,
+        b: parseInt(result[3], 16) / 255
+      } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+      const toHex = (c) => {
+        const hex = Math.round(Math.max(0, Math.min(255, c * 255))).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      };
+      return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
+
+    // Linear RGB to/from sRGB
+    function srgbToLinear(c) {
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    function linearToSrgb(c) {
+      return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+    }
+
+    // RGB to OKLab
+    function rgbToOklab(r, g, b) {
+      const lr = srgbToLinear(r);
+      const lg = srgbToLinear(g);
+      const lb = srgbToLinear(b);
+
+      const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb;
+      const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb;
+      const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb;
+
+      const l_ = Math.cbrt(l);
+      const m_ = Math.cbrt(m);
+      const s_ = Math.cbrt(s);
+
+      return {
+        L: 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+        a: 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+        b: 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
+      };
+    }
+
+    // OKLab to RGB
+    function oklabToRgb(L, a, b) {
+      const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+      const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+      const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+
+      const l = l_ * l_ * l_;
+      const m = m_ * m_ * m_;
+      const s = s_ * s_ * s_;
+
+      const r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+      const g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+      const bl = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+
+      return {
+        r: linearToSrgb(r),
+        g: linearToSrgb(g),
+        b: linearToSrgb(bl)
+      };
+    }
+
+    // OKLab to OKLCH
+    function oklabToOklch(L, a, b) {
+      const C = Math.sqrt(a * a + b * b);
+      let H = Math.atan2(b, a) * 180 / Math.PI;
+      if (H < 0) H += 360;
+      return { L, C, H };
+    }
+
+    // OKLCH to OKLab
+    function oklchToOklab(L, C, H) {
+      const hRad = H * Math.PI / 180;
+      return {
+        L,
+        a: C * Math.cos(hRad),
+        b: C * Math.sin(hRad)
+      };
+    }
+
+    // Hex to OKLCH
+    function hexToOklch(hex) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return null;
+      const lab = rgbToOklab(rgb.r, rgb.g, rgb.b);
+      return oklabToOklch(lab.L, lab.a, lab.b);
+    }
+
+    // OKLCH to Hex
+    function oklchToHex(L, C, H) {
+      const lab = oklchToOklab(L, C, H);
+      const rgb = oklabToRgb(lab.L, lab.a, lab.b);
+      return rgbToHex(rgb.r, rgb.g, rgb.b);
+    }
+
+    // Check if color is in gamut
+    function isInGamut(r, g, b) {
+      return r >= -0.001 && r <= 1.001 && g >= -0.001 && g <= 1.001 && b >= -0.001 && b <= 1.001;
+    }
+
+    // Find maximum chroma for given L and H that stays in gamut
+    function maxChromaForLH(L, H) {
+      let low = 0;
+      let high = 0.4;
+
+      while (high - low > 0.001) {
+        const mid = (low + high) / 2;
+        const lab = oklchToOklab(L, mid, H);
+        const rgb = oklabToRgb(lab.L, lab.a, lab.b);
+
+        if (isInGamut(rgb.r, rgb.g, rgb.b)) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+
+      return low;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getStepCount() {
+      const raw = parseInt(document.getElementById('stepCount').value, 10);
+      return clamp(Number.isFinite(raw) ? raw : 10, 4, 12);
+    }
+
+    function getUniformityFactor() {
+      // 0% = current behavior, 100% = more contrast (bigger L gaps), clamped to safe caps.
+      const raw = parseInt(document.getElementById('uniformity').value, 10);
+      const t = clamp(Number.isFinite(raw) ? raw : 0, 0, 100) / 100;
+      return 1 + t * 1.2; // up to 2.2x stretch around the midpoint
+    }
+
+    // Target lightness values for 10 steps (keep existing behavior)
+    const legacyTargetLightness10 = [
+      0.97,
+      0.90,
+      0.83,
+      0.76,
+      0.69,
+      0.62,
+      0.55,
+      0.48,
+      0.41,
+      0.34
+    ];
+
+    function baselineLightnessForSteps(steps) {
+      if (steps === 10) return legacyTargetLightness10.slice();
+
+      const maxL = legacyTargetLightness10[0];
+      const minL = legacyTargetLightness10[legacyTargetLightness10.length - 1];
+      const out = [];
+      const gamma = 1.05;
+
+      for (let i = 0; i < steps; i++) {
+        const t = steps === 1 ? 0 : i / (steps - 1);
+        const curved = Math.pow(t, gamma);
+        out.push(maxL + (minL - maxL) * curved);
+      }
+
+      return out;
+    }
+
+    function applyUniformity(lightnessArray, factor) {
+      // Stretch values around the midpoint and clamp to fixed caps.
+      const CAP_MIN = 0.05;
+      const CAP_MAX = 0.99;
+      const baseMin = lightnessArray[lightnessArray.length - 1];
+      const baseMax = lightnessArray[0];
+      const mid = (baseMin + baseMax) / 2;
+      return lightnessArray.map(L => clamp(mid + (L - mid) * factor, CAP_MIN, CAP_MAX));
+    }
+
+    function closestIndex(values, target) {
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < values.length; i++) {
+        const dist = Math.abs(values[i] - target);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIdx = i;
+        }
+      }
+      return bestIdx;
+    }
+
+    // Generate color ramp
+    function generateRamp(baseHex) {
+      const baseOklch = hexToOklch(baseHex);
+      if (!baseOklch) return null;
+
+      const { L, C, H } = baseOklch;
+      const steps = getStepCount();
+      const targetLightness = applyUniformity(
+        baselineLightnessForSteps(steps),
+        getUniformityFactor()
+      );
+      const basePosition = closestIndex(targetLightness, L);
+
+      // Uniform chroma steps: decrease linearly from base toward extremes
+      // Falloff slider controls how much chroma reduces (0% = flat, 100% = to zero)
+      const falloff = parseInt(document.getElementById('chromaFalloff').value) / 100;
+      const maxDistance = Math.max(basePosition, (steps - 1) - basePosition);
+      const chromaStep = maxDistance > 0 ? (C * falloff) / maxDistance : 0;
+
+      const ramp = [];
+
+      for (let i = 0; i < steps; i++) {
+        let shadeL, shadeC;
+
+        // Calculate lightness
+        if (i === basePosition) {
+          shadeL = L;
+        } else {
+          shadeL = targetLightness[i];
+
+          // Adjust lightness to smoothly transition through base color
+          const baseLTarget = targetLightness[basePosition];
+          const lDiff = L - baseLTarget;
+          const distance = Math.abs(i - basePosition);
+          const weight = 1 - (distance / steps);
+          shadeL = targetLightness[i] + (lDiff * weight * 0.5);
+          shadeL = Math.max(0.05, Math.min(0.99, shadeL));
+        }
+
+        // Calculate chroma: uniform steps from base
+        const distance = Math.abs(i - basePosition);
+        shadeC = C - (distance * chromaStep);
+        shadeC = Math.max(shadeC, C * (1 - falloff)); // Minimum based on falloff
+
+        // Clamp chroma to gamut
+        const maxChroma = maxChromaForLH(shadeL, H);
+        shadeC = Math.min(shadeC, maxChroma);
+
+        const hex = oklchToHex(shadeL, shadeC, H);
+
+        ramp.push({
+          step: i === 0 ? 50 : i * 100,
+          hex: hex.toUpperCase(),
+          oklch: {
+            L: shadeL,
+            C: shadeC,
+            H: H
+          },
+          isBase: i === basePosition
+        });
+      }
+
+      return { ramp, basePosition };
+    }
+
+    // Format OKLCH for display
+    function formatOklch(oklch) {
+      const L = (oklch.L * 100).toFixed(1);
+      const C = oklch.C.toFixed(3);
+      const H = oklch.H.toFixed(1);
+      return `oklch(${L}% ${C} ${H})`;
+    }
+
+    // Current ramp data
+    let currentRamp = null;
+
+    // Render the ramp
+    function renderRamp() {
+      const baseColor = document.getElementById('baseColor').value;
+      const result = generateRamp(baseColor);
+
+      if (!result) return;
+
+      currentRamp = result.ramp;
+      const basePosition = result.basePosition;
+
+      const grid = document.getElementById('rampGrid');
+      grid.style.setProperty('--cols', String(currentRamp.length));
+
+      document.getElementById('basePositionLabel').textContent = basePosition === 0 ? 50 : basePosition * 100;
+      grid.innerHTML = '';
+
+      currentRamp.forEach((shade, index) => {
+        const shadeEl = document.createElement('div');
+        shadeEl.className = 'shade';
+
+        // Determine text color based on lightness
+        const textColor = shade.oklch.L > 0.6 ? '#000000' : '#ffffff';
+
+        shadeEl.innerHTML = `
+          <div class="shade-preview ${shade.isBase ? 'is-base' : ''}"
+               style="background-color: ${shade.hex}; color: ${textColor};"
+               onclick="copyValue('${shade.hex}')"
+               title="Click to copy HEX">
+            ${shade.isBase ? '<div class="base-indicator"></div>' : ''}
+          </div>
+          <div class="shade-label">${shade.step}</div>
+          <div class="shade-values">
+            <div class="shade-value" onclick="copyValue('${shade.hex}', this)">
+              <span class="value-type">HEX</span>
+              <span>${shade.hex}</span>
+            </div>
+            <div class="shade-value" onclick="copyValue('${formatOklch(shade.oklch)}', this)">
+              <span class="value-type">LCH</span>
+              <span>${(shade.oklch.L * 100).toFixed(0)}% ${shade.oklch.C.toFixed(2)}</span>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(shadeEl);
+      });
+    }
+
+    // Copy utilities
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function copyValue(value, element) {
+      navigator.clipboard.writeText(value).then(() => {
+        showToast(`Copied: ${value}`);
+        if (element) {
+          element.classList.add('copied');
+          setTimeout(() => element.classList.remove('copied'), 1000);
+        }
+      });
+    }
+
+    function copyAllHex() {
+      if (!currentRamp) return;
+      const values = currentRamp.map(s => `${s.step}: "${s.hex}"`).join('\n');
+      navigator.clipboard.writeText(values).then(() => {
+        showToast('Copied all HEX values');
+        const btn = event.target;
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = 'Copy All HEX';
+        }, 1500);
+      });
+    }
+
+    function copyAllOklch() {
+      if (!currentRamp) return;
+      const values = currentRamp.map(s => `${s.step}: "${formatOklch(s.oklch)}"`).join('\n');
+      navigator.clipboard.writeText(values).then(() => {
+        showToast('Copied all OKLCH values');
+        const btn = event.target;
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = 'Copy All OKLCH';
+        }, 1500);
+      });
+    }
+
+    function copyAsCSS() {
+      if (!currentRamp) return;
+      const lines = currentRamp.map(s => `  --color-${s.step}: ${s.hex};`);
+      const css = `:root {\n${lines.join('\n')}\n}`;
+      navigator.clipboard.writeText(css).then(() => {
+        showToast('Copied as CSS variables');
+        const btn = event.target;
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = 'Copy as CSS';
+        }, 1500);
+      });
+    }
+
+    // Event listeners
+    document.getElementById('baseColor').addEventListener('input', (e) => {
+      let value = e.target.value.trim();
+      if (!value.startsWith('#')) value = '#' + value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+        document.getElementById('colorPicker').value = value;
+        renderRamp();
+      }
+    });
+
+    document.getElementById('colorPicker').addEventListener('input', (e) => {
+      document.getElementById('baseColor').value = e.target.value;
+      renderRamp();
+    });
+
+    document.getElementById('chromaFalloff').addEventListener('input', (e) => {
+      document.getElementById('chromaFalloffValue').textContent = e.target.value + '%';
+      renderRamp();
+    });
+
+    document.getElementById('uniformity').addEventListener('input', (e) => {
+      document.getElementById('uniformityValue').textContent = e.target.value + '%';
+      renderRamp();
+    });
+
+    document.getElementById('stepCount').addEventListener('input', (e) => {
+      const clamped = clamp(parseInt(e.target.value, 10) || 10, 4, 12);
+      if (String(clamped) !== String(e.target.value)) {
+        e.target.value = clamped;
+      }
+      renderRamp();
+    });
+
+    // Initial render
+    renderRamp();
+  </script>
+</body>
+</html>

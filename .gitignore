@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # Turborepo
 .turbo/
+
+.pnpm-store/
+.vscode/

@@ -1,0 +1,341 @@
+import { converter, formatHex, displayable } from 'culori';
+import { STEPS, type ColorRamp } from '../Showcase/colorUtils';
+
+export const toOklch = converter('oklch');
+
+// ========== Generation Modes (for secondary color) ===========================
+
+export const GENERATION_MODES = [
+  { id: 'complementary', label: 'Complementary', offset: 180 },
+  { id: 'split-complementary', label: 'Split Complementary', offset: 150 },
+  { id: 'triadic', label: 'Triadic', offset: 120 },
+  { id: 'analogous', label: 'Analogous', offset: 30 },
+  { id: 'tetradic', label: 'Tetradic', offset: 90 },
+  { id: 'monochromatic', label: 'Monochromatic', offset: 0 },
+] as const;
+
+export type GenerationMode = (typeof GENERATION_MODES)[number]['id'];
+
+export function getGeneratedColor(baseHex: string, mode: GenerationMode): string {
+  const base = toOklch(baseHex);
+  if (!base) return baseHex;
+
+  const modeConfig = GENERATION_MODES.find((m) => m.id === mode);
+  const offset = modeConfig ? modeConfig.offset : 180;
+
+  return (
+    formatHex({
+      mode: 'oklch',
+      l: base.l,
+      c: base.c,
+      h: ((base.h || 0) + offset) % 360,
+    }) || baseHex
+  );
+}
+
+// ========== Named Hue System =================================================
+//
+// 12 canonical OKLCH hue angles that form a perceptually balanced color wheel.
+// The primary color replaces the nearest slot; semantic hues (Red, Green, Blue,
+// Yellow) are always retained to guarantee stable baselines for feedback colors.
+
+export interface NamedHue {
+  name: string;
+  hue: number;
+}
+
+export const NAMED_HUES: NamedHue[] = [
+  { name: 'Red', hue: 25 },
+  { name: 'Orange', hue: 55 },
+  { name: 'Amber', hue: 75 },
+  { name: 'Yellow', hue: 95 },
+  { name: 'Lime', hue: 130 },
+  { name: 'Green', hue: 150 },
+  { name: 'Teal', hue: 175 },
+  { name: 'Cyan', hue: 200 },
+  { name: 'Blue', hue: 255 },
+  { name: 'Indigo', hue: 280 },
+  { name: 'Purple', hue: 305 },
+  { name: 'Pink', hue: 350 },
+];
+
+/** Hues that are always retained regardless of hue selection. */
+export const SEMANTIC_HUES = ['Red', 'Green', 'Blue', 'Yellow'];
+
+// ========== Gamut Utilities ==================================================
+
+function isInGamut(L: number, C: number, H: number): boolean {
+  return displayable({ mode: 'oklch', l: L, c: C, h: H });
+}
+
+/** Find the maximum chroma that fits in sRGB for a given lightness and hue. */
+export function maxChromaForLH(L: number, H: number): number {
+  let low = 0;
+  let high = 0.4;
+
+  while (high - low > 0.001) {
+    const mid = (low + high) / 2;
+    if (isInGamut(L, mid, H)) low = mid;
+    else high = mid;
+  }
+
+  return low;
+}
+
+// ========== Hue Selection ====================================================
+
+function angularDistance(h1: number, h2: number): number {
+  const diff = Math.abs(h1 - h2);
+  return Math.min(diff, 360 - diff);
+}
+
+function findNearestHue(hue: number): NamedHue {
+  let nearest = NAMED_HUES[0];
+  let minDist = angularDistance(hue, nearest.hue);
+
+  for (const nh of NAMED_HUES) {
+    const dist = angularDistance(hue, nh.hue);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = nh;
+    }
+  }
+
+  return nearest;
+}
+
+export interface HueSlot {
+  name: string;
+  hue: number;
+  isPrimary: boolean;
+  isOriginal: boolean;
+}
+
+export interface HueSelection {
+  selected: HueSlot[];
+  dropped: { name: string; reason: string }[];
+  primaryName: string;
+}
+
+/**
+ * Select 9 chromatic hues from the 12 named hues using a greedy algorithm.
+ *
+ * The primary's actual hue replaces the nearest named slot. Semantic hues
+ * (Red, Green, Blue, Yellow) are locked in. The remaining slots are chosen
+ * to maximise the minimum angular distance between any two selected hues,
+ * ensuring a well-distributed palette.
+ */
+export function selectHues(primaryHue: number): HueSelection {
+  const nearestNamed = findNearestHue(primaryHue);
+
+  const candidates: HueSlot[] = NAMED_HUES.map((h) => ({
+    name: h.name,
+    hue: h.name === nearestNamed.name ? primaryHue : h.hue,
+    isPrimary: h.name === nearestNamed.name,
+    isOriginal: h.name !== nearestNamed.name,
+  }));
+
+  // Start with the primary slot + locked semantic hues
+  const selected: HueSlot[] = [];
+  const primaryCandidate = candidates.find((c) => c.name === nearestNamed.name)!;
+  selected.push(primaryCandidate);
+
+  for (const semantic of SEMANTIC_HUES) {
+    if (semantic !== nearestNamed.name) {
+      const candidate = candidates.find((c) => c.name === semantic)!;
+      selected.push(candidate);
+    }
+  }
+
+  // Remaining candidates for greedy selection
+  const remaining = candidates.filter((c) => !selected.includes(c));
+
+  // Greedy: pick the hue with the greatest minimum distance to selected set
+  while (selected.length < 9 && remaining.length > 0) {
+    let bestCandidate: HueSlot | null = null;
+    let bestMinDist = -1;
+
+    for (const candidate of remaining) {
+      let minDist = Infinity;
+      for (const sel of selected) {
+        minDist = Math.min(minDist, angularDistance(candidate.hue, sel.hue));
+      }
+      if (minDist > bestMinDist) {
+        bestMinDist = minDist;
+        bestCandidate = candidate;
+      }
+    }
+
+    if (bestCandidate) {
+      selected.push(bestCandidate);
+      remaining.splice(remaining.indexOf(bestCandidate), 1);
+    }
+  }
+
+  // Record which hues were dropped and why
+  const dropped = remaining.map((r) => {
+    let closestSelected = selected[0];
+    let closestDist = angularDistance(r.hue, closestSelected.hue);
+    for (const s of selected) {
+      const dist = angularDistance(r.hue, s.hue);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestSelected = s;
+      }
+    }
+    return { name: r.name, reason: `too close to ${closestSelected.name}` };
+  });
+
+  selected.sort((a, b) => a.hue - b.hue);
+
+  return { selected, dropped, primaryName: nearestNamed.name };
+}
+
+// ========== Ramp Generation ==================================================
+
+const RAMP_STEPS = STEPS.length; // 11 steps matching the ColorRamp type
+
+function clampValue(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Generate baseline lightness values for N steps using a gentle gamma curve
+ * from bright (0.97) to dark (0.34).
+ */
+function baselineLightness(steps: number): number[] {
+  const maxL = 0.97;
+  const minL = 0.34;
+  const gamma = 1.05;
+  const out: number[] = [];
+
+  for (let i = 0; i < steps; i++) {
+    const t = steps === 1 ? 0 : i / (steps - 1);
+    out.push(maxL + (minL - maxL) * Math.pow(t, gamma));
+  }
+
+  return out;
+}
+
+/**
+ * Stretch lightness values around their midpoint to increase contrast.
+ * factor=1 means no change; higher values push extremes further apart.
+ */
+function applyUniformity(lightnessArray: number[], factor: number): number[] {
+  const CAP_MIN = 0.05;
+  const CAP_MAX = 0.99;
+  const baseMin = lightnessArray[lightnessArray.length - 1];
+  const baseMax = lightnessArray[0];
+  const mid = (baseMin + baseMax) / 2;
+  return lightnessArray.map((L) => clampValue(mid + (L - mid) * factor, CAP_MIN, CAP_MAX));
+}
+
+function closestIndex(values: number[], target: number): number {
+  let bestIdx = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < values.length; i++) {
+    const dist = Math.abs(values[i] - target);
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestIdx = i;
+    }
+  }
+  return bestIdx;
+}
+
+/**
+ * Generate a gamut-safe OKLCH color ramp.
+ *
+ * @param hue          OKLCH hue angle
+ * @param baseChroma   Chroma at the base lightness position
+ * @param baseL        The base lightness (typically the primary's L)
+ * @param chromaFalloff 0–1: how much chroma decreases toward ramp extremes
+ * @param uniformity   0–100: higher = more uniform lightness distribution
+ *                     (100 = perfectly uniform, 0 = max contrast stretch)
+ */
+export function generateOklchRamp(
+  hue: number,
+  baseChroma: number,
+  baseL: number,
+  chromaFalloff: number = 0.8,
+  uniformity: number = 100,
+): ColorRamp {
+  const steps = RAMP_STEPS;
+
+  // Map uniformity (100 = uniform, 0 = high contrast) to stretch factor
+  const uniformityFactor = 1 + ((100 - uniformity) / 100) * 1.2;
+  const targetLightness = applyUniformity(baselineLightness(steps), uniformityFactor);
+  const basePosition = closestIndex(targetLightness, baseL);
+
+  // Chroma decreases linearly from base position toward extremes
+  const maxDistance = Math.max(basePosition, steps - 1 - basePosition);
+  const chromaStep = maxDistance > 0 ? (baseChroma * chromaFalloff) / maxDistance : 0;
+
+  const ramp: Partial<ColorRamp> = {};
+
+  for (let i = 0; i < steps; i++) {
+    let shadeL: number;
+    let shadeC: number;
+
+    if (i === basePosition) {
+      shadeL = baseL;
+    } else {
+      // Smooth transition through the base color position
+      const baseLTarget = targetLightness[basePosition];
+      const lDiff = baseL - baseLTarget;
+      const distance = Math.abs(i - basePosition);
+      const weight = 1 - distance / steps;
+      shadeL = targetLightness[i] + lDiff * weight * 0.5;
+      shadeL = clampValue(shadeL, 0.05, 0.99);
+    }
+
+    // Chroma: uniform steps from base, with a floor based on falloff
+    const distance = Math.abs(i - basePosition);
+    shadeC = baseChroma - distance * chromaStep;
+    shadeC = Math.max(shadeC, baseChroma * (1 - chromaFalloff));
+
+    // Clamp chroma to fit in sRGB gamut
+    const maxC = maxChromaForLH(shadeL, hue);
+    shadeC = Math.min(shadeC, maxC);
+
+    const hex = formatHex({ mode: 'oklch', l: shadeL, c: shadeC, h: hue });
+    ramp[STEPS[i] as keyof ColorRamp] = hex || '#808080';
+  }
+
+  return ramp as ColorRamp;
+}
+
+/**
+ * Generate a neutral ramp tinted according to the chosen strategy.
+ */
+export function generateNeutralRamp(
+  primaryHue: number,
+  mode: 'pure' | 'cool' | 'warm' | 'brand-tinted',
+  baseL: number,
+  chromaFalloff: number = 0.8,
+  uniformity: number = 100,
+): ColorRamp {
+  let hue = 0;
+  let chroma = 0;
+
+  switch (mode) {
+    case 'pure':
+      chroma = 0;
+      break;
+    case 'warm':
+      hue = 75;
+      chroma = 0.01;
+      break;
+    case 'cool':
+      hue = 260;
+      chroma = 0.01;
+      break;
+    case 'brand-tinted':
+      hue = primaryHue;
+      // Slightly reduce tint for yellow-green hues which can feel overpowering
+      chroma = primaryHue >= 70 && primaryHue <= 140 ? 0.008 : 0.015;
+      break;
+  }
+
+  return generateOklchRamp(hue, chroma, baseL, chromaFalloff, uniformity);
+}

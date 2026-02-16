@@ -93,7 +93,7 @@ const FAQAccordion = () => {
                 className="overflow-hidden"
               >
                 <div className="px-4 md:px-8 pb-5 md:pb-6 pt-0">
-                  <p className="text-charcoal/70 leading-relaxed">
+                  <p className="text-charcoal/80 leading-relaxed">
                     {faq.answer}
                   </p>
                 </div>

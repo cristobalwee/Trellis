@@ -24,7 +24,7 @@ export const VisualPicker: React.FC<VisualPickerProps> = ({
   compact = false,
 }) => (
   <div className="flex flex-col gap-2">
-    <label className="text-[12px] text-charcoal/70">
+    <label className="text-[12px] text-charcoal/80">
       {label}
     </label>
     <div className={`grid gap-3 ${compact ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig } from './store';
 
@@ -21,17 +20,10 @@ const Step5Preview = () => {
   }[config.density];
 
   return (
-    <motion.div
-      key="step5"
-      className="flex flex-col"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-    >
-      <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 05</span>
-      <h2 className="text-5xl md:text-7xl mb-6">Review & Build.</h2>
-      <p className="text-xl text-charcoal/60 mb-12 max-w-xl">
+    <div className="flex flex-col">
+      <span className="text-charcoal/80 mb-4">Step 5</span>
+      <h2 className="text-5xl md:text-7xl mb-6">Review and purchase</h2>
+      <p className="text-xl text-charcoal/80 mb-12 max-w-xl">
         Here's a preview of how your components will look. Ready to generate your library?
       </p>
 
@@ -188,7 +180,7 @@ const Step5Preview = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

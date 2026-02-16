@@ -118,7 +118,7 @@ a {
 
 /* Button Styles */
 .btn {
-  @apply inline-flex items-center justify-center rounded-full font-sans font-medium transition-all duration-300;
+  @apply inline-flex items-center justify-center rounded-full font-sans font-medium transition-all duration-300 will-change-transform;
   cursor: pointer;
 }
 
@@ -131,7 +131,7 @@ a {
 }
 
 .btn-secondary {
-  @apply border-1 border-forest-green hover:border-forest-green-400 text-black bg-white active:scale-95;
+  @apply border-1 border-charcoal/20 hover:border-forest-green-400 text-black bg-white active:scale-95 hover:scale-105 transition-all duration-250;
 }
 
 .btn-ghost {

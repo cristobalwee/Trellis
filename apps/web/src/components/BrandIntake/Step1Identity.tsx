@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import slugify from 'slugify';
 import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig } from './store';
@@ -23,85 +22,76 @@ const Step1Identity = () => {
   }, [config.brandName]);
 
   return (
-    <motion.div
-      key="step1"
-      className="flex flex-col"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-    >
-      <span className="text-forest-green font-medium mb-4 tracking-wider uppercase text-sm">Step 01</span>
-      <h2 className="text-5xl md:text-7xl mb-6">Let's define your brand.</h2>
-      <p className="text-xl text-charcoal/60 mb-12 max-w-xl">
-        This info will be used to generate your design system and package metadata.
+    <form id="brand-intake-step1" className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
+      <span className="text-charcoal/80 mb-4 text-base">Step 1</span>
+      <h2 className="text-5xl md:text-7xl mb-6">Let's start with the basics</h2>
+      <p className="text-xl text-charcoal/80 mb-16">
+        We’ll need to know more about your brand identity and development preferences in order to generate your system appropriately.
       </p>
 
       <div className="space-y-12">
         {/* Brand Name */}
         <div className="flex flex-col">
-          <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40 mb-4">Brand Name</label>
+          <label className="text-base text-charcoal mb-4 font-medium">Brand Name<span className="text-red-500">*</span></label>
           <input
             type="text"
             value={config.brandName}
             onChange={(e) => updateConfig({ brandName: e.target.value })}
             placeholder="Acme Inc."
-            className="text-4xl md:text-6xl font-serif italic p-0 bg-transparent border-none focus:outline-none placeholder:text-charcoal/10"
+            className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
+            required
             autoFocus
           />
-          <div className="h-px w-full bg-charcoal/10 mt-4" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Package Scope */}
           <div className="flex flex-col">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40 mb-4">Package Scope</label>
-            <div className="flex items-center text-2xl md:text-3xl font-mono">
-              <span className="text-charcoal/30">@</span>
+            <label className="text-base text-charcoal mb-4 font-medium">What should we call your system?<span className="text-red-500">*</span></label>
+            <div className="flex items-stretch text-2xl md:text-3xl">
               <input
                 type="text"
                 value={config.packageScope.replace(/^@/, '')}
                 onChange={(e) => updateConfig({ packageScope: `@${e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')}` })}
                 placeholder="acme"
-                className="bg-transparent border-none focus:outline-none placeholder:text-charcoal/10 w-full"
+                className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50 w-full"
+                required
               />
             </div>
-            <div className="h-px w-full bg-charcoal/10 mt-4" />
-            <p className="text-xs text-charcoal/40 mt-2">Used for npm/pnpm scope (e.g., @acme/design-system)</p>
+            <p className="text-sm text-charcoal/80 mt-4">Used for npm/pnpm scope (e.g., @acme/design-system)</p>
           </div>
 
           {/* Company Size */}
           <div className="flex flex-col">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40 mb-4">Company Size</label>
+            <label className="text-base text-charcoal mb-4 font-medium">Company Size</label>
             <select
               value={config.companySize}
               onChange={(e) => updateConfig({ companySize: e.target.value })}
-              className="text-2xl md:text-3xl bg-transparent border-none focus:outline-none appearance-none cursor-pointer"
+              className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
             >
               <option value="" disabled>Select size...</option>
               {COMPANY_SIZES.map((size) => (
                 <option key={size} value={size}>{size}</option>
               ))}
             </select>
-            <div className="h-px w-full bg-charcoal/10 mt-4" />
           </div>
         </div>
 
         {/* Logo Upload - Placeholder for now */}
         <div className="flex flex-col">
-          <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40 mb-4">Logo (Optional)</label>
-          <div className="border-2 border-dashed border-charcoal/10 rounded-3xl p-12 flex flex-col items-center justify-center hover:border-forest-green/20 transition-colors cursor-pointer group">
+          <label className="text-base text-charcoal mb-4 font-medium">Logo</label>
+          <div className="border-2 border-dashed border-charcoal/20 rounded-3xl p-12 flex flex-col items-center justify-center hover:border-forest-green/20 transition-colors cursor-pointer group">
             <div className="w-16 h-16 rounded-full bg-charcoal/5 flex items-center justify-center mb-4 group-hover:bg-forest-green/5 transition-colors">
-              <svg className="w-8 h-8 text-charcoal/40 group-hover:text-forest-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-charcoal/80 group-hover:text-forest-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
             </div>
-            <p className="text-charcoal/40 font-medium">Upload brand logo</p>
-            <p className="text-xs text-charcoal/30 mt-1">SVG, PNG, or JPG (max 2MB)</p>
+            <p className="text-charcoal font-medium">Upload brand logo</p>
+            <p className="text-xs text-charcoal/80 mt-1">SVG, PNG, or JPG (max 2MB)</p>
           </div>
         </div>
       </div>
-    </motion.div>
+    </form>
   );
 };
 

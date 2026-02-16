@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OKLCH Color Ramp Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f8f8;
+      padding: 24px;
+      line-height: 1.4;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .input-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .color-input-wrapper {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 48px;
+      height: 36px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    input[type="text"] {
+      width: 90px;
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    select {
+      height: 36px;
+      padding: 0 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      background: white;
+    }
+
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 180px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    .slider-value {
+      font-family: monospace;
+      color: #666;
+      font-weight: 400;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #3b82f6;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #3b82f6;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .primary-info {
+      font-size: 13px;
+      color: #666;
+      font-family: monospace;
+      padding: 8px 12px;
+      background: #f0f0f0;
+      border-radius: 4px;
+    }
+
+    .dropped-info {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 16px;
+      padding: 8px 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+
+    .dropped-info strong {
+      color: #666;
+    }
+
+    .ramps-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ramp-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .ramp-row.primary-row {
+      border: 2px solid #333;
+    }
+
+    .ramp-row.neutral-row {
+      margin-top: 12px;
+      border-style: dashed;
+    }
+
+    .ramp-label {
+      width: 80px;
+      flex-shrink: 0;
+      font-size: 14px;
+      font-weight: 500;
+      padding-top: 12px;
+    }
+
+    .ramp-label .hue-angle {
+      font-size: 11px;
+      color: #888;
+      font-weight: normal;
+      font-family: monospace;
+    }
+
+    .primary-badge {
+      display: inline-block;
+      font-size: 9px;
+      background: #333;
+      color: white;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .swatches {
+      display: flex;
+      gap: 4px;
+    }
+
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .swatch-color {
+      width: 60px;
+      height: 48px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .swatch-value {
+      font-family: monospace;
+      font-size: 9px;
+      color: #666;
+      margin-top: 4px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .divider {
+      height: 1px;
+      background: #ddd;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>OKLCH Color Ramp Generator</h1>
+  <p class="subtitle">Generate 10 perceptually uniform color ramps from a single primary color</p>
+
+  <div class="input-area">
+    <div class="input-group">
+      <label>Primary Color</label>
+      <div class="color-input-wrapper">
+        <input type="color" id="colorPicker" value="#3b82f6">
+        <input type="text" id="hexInput" value="#3b82f6">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Neutral Mode</label>
+      <select id="neutralMode">
+        <option value="pure">Pure Gray</option>
+        <option value="warm">Warm</option>
+        <option value="cool">Cool</option>
+        <option value="brand" selected>Brand Tinted</option>
+      </select>
+    </div>
+
+    <div class="input-group slider-group">
+      <div class="slider-label">
+        <span>Chroma Falloff</span>
+        <span class="slider-value" id="chromaFalloffValue">80%</span>
+      </div>
+      <input type="range" id="chromaFalloff" min="0" max="100" value="80">
+    </div>
+
+    <div class="input-group slider-group">
+      <div class="slider-label">
+        <span>Lightness Falloff</span>
+        <span class="slider-value" id="uniformityValue">0%</span>
+      </div>
+      <input type="range" id="uniformity" min="0" max="100" value="0">
+    </div>
+
+    <div class="primary-info" id="primaryInfo">
+      Primary hue: --
+    </div>
+  </div>
+
+  <div class="dropped-info" id="droppedInfo">
+    Dropped hues: --
+  </div>
+
+  <div class="ramps-container" id="rampsContainer"></div>
+
+  <script>
+    // ========== Color Conversion Utilities ==========
+
+    // Named hues with OKLCH hue angles
+    const NAMED_HUES = [
+      { name: 'Red', hue: 25 },
+      { name: 'Orange', hue: 55 },
+      { name: 'Amber', hue: 75 },
+      { name: 'Yellow', hue: 95 },
+      { name: 'Lime', hue: 130 },
+      { name: 'Green', hue: 150 },
+      { name: 'Teal', hue: 175 },
+      { name: 'Cyan', hue: 200 },
+      { name: 'Blue', hue: 255 },
+      { name: 'Indigo', hue: 280 },
+      { name: 'Purple', hue: 305 },
+      { name: 'Pink', hue: 350 }
+    ];
+
+    const SEMANTIC_HUES = ['Red', 'Green', 'Blue', 'Yellow'];
+
+    // sRGB to linear RGB
+    function srgbToLinear(c) {
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    // Linear RGB to sRGB
+    function linearToSrgb(c) {
+      return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+    }
+
+    // Linear sRGB to OKLab
+    function linearSrgbToOklab(r, g, b) {
+      const l_ = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+      const m_ = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+      const s_ = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+
+      const l = Math.cbrt(l_);
+      const m = Math.cbrt(m_);
+      const s = Math.cbrt(s_);
+
+      return {
+        L: 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+        a: 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+        b: 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+      };
+    }
+
+    // OKLab to linear sRGB
+    function oklabToLinearSrgb(L, a, b) {
+      const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+      const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+      const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+
+      const l = l_ * l_ * l_;
+      const m = m_ * m_ * m_;
+      const s = s_ * s_ * s_;
+
+      return {
+        r: +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        g: -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        b: -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+      };
+    }
+
+    // OKLab to OKLCH
+    function oklabToOklch(L, a, b) {
+      const C = Math.sqrt(a * a + b * b);
+      let H = Math.atan2(b, a) * 180 / Math.PI;
+      if (H < 0) H += 360;
+      return { L, C, H };
+    }
+
+    // OKLCH to OKLab
+    function oklchToOklab(L, C, H) {
+      const hRad = H * Math.PI / 180;
+      return {
+        L,
+        a: C * Math.cos(hRad),
+        b: C * Math.sin(hRad)
+      };
+    }
+
+    // Hex to OKLCH
+    function hexToOklch(hex) {
+      hex = hex.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16) / 255;
+      const g = parseInt(hex.substr(2, 2), 16) / 255;
+      const b = parseInt(hex.substr(4, 2), 16) / 255;
+
+      const linR = srgbToLinear(r);
+      const linG = srgbToLinear(g);
+      const linB = srgbToLinear(b);
+
+      const lab = linearSrgbToOklab(linR, linG, linB);
+      return oklabToOklch(lab.L, lab.a, lab.b);
+    }
+
+    // Check if OKLCH color is in sRGB gamut
+    function isInGamut(L, C, H) {
+      const lab = oklchToOklab(L, C, H);
+      const rgb = oklabToLinearSrgb(lab.L, lab.a, lab.b);
+      const tolerance = 0.0001;
+      return rgb.r >= -tolerance && rgb.r <= 1 + tolerance &&
+             rgb.g >= -tolerance && rgb.g <= 1 + tolerance &&
+             rgb.b >= -tolerance && rgb.b <= 1 + tolerance;
+    }
+
+    // Clamp chroma to fit in gamut
+    function clampChroma(L, C, H) {
+      if (isInGamut(L, C, H)) return C;
+
+      let low = 0;
+      let high = C;
+
+      while (high - low > 0.001) {
+        const mid = (low + high) / 2;
+        if (isInGamut(L, mid, H)) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+
+      return low;
+    }
+
+    // ========== Hue Selection Logic ==========
+
+    // Angular distance on 360° wheel
+    function angularDistance(h1, h2) {
+      const diff = Math.abs(h1 - h2);
+      return Math.min(diff, 360 - diff);
+    }
+
+    // Find nearest named hue
+    function findNearestHue(hue) {
+      let nearest = NAMED_HUES[0];
+      let minDist = angularDistance(hue, nearest.hue);
+
+      for (const nh of NAMED_HUES) {
+        const dist = angularDistance(hue, nh.hue);
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = nh;
+        }
+      }
+
+      return nearest;
+    }
+
+    // Select 9 chromatic hues using greedy algorithm
+    function selectHues(primaryHue) {
+      const nearestNamed = findNearestHue(primaryHue);
+
+      // Create modified hue list with primary's actual hue replacing the nearest
+      const candidates = NAMED_HUES.map(h => ({
+        name: h.name,
+        hue: h.name === nearestNamed.name ? primaryHue : h.hue,
+        isOriginal: h.name !== nearestNamed.name
+      }));
+
+      // Start with locked hues: primary (already snapped) + semantic hues
+      const selected = [];
+      const primaryCandidate = candidates.find(c => c.name === nearestNamed.name);
+      primaryCandidate.isPrimary = true;
+      selected.push(primaryCandidate);
+
+      // Add semantic hues that aren't already the primary
+      for (const semantic of SEMANTIC_HUES) {
+        if (semantic !== nearestNamed.name) {
+          const candidate = candidates.find(c => c.name === semantic);
+          selected.push(candidate);
+        }
+      }
+
+      // Get remaining candidates
+      const remaining = candidates.filter(c => !selected.includes(c));
+
+      // Greedy selection: pick hue with maximum minimum distance to selected
+      const dropped = [];
+      while (selected.length < 9 && remaining.length > 0) {
+        let bestCandidate = null;
+        let bestMinDist = -1;
+
+        for (const candidate of remaining) {
+          let minDist = Infinity;
+          for (const sel of selected) {
+            const dist = angularDistance(candidate.hue, sel.hue);
+            minDist = Math.min(minDist, dist);
+          }
+
+          if (minDist > bestMinDist) {
+            bestMinDist = minDist;
+            bestCandidate = candidate;
+          }
+        }
+
+        if (bestCandidate) {
+          selected.push(bestCandidate);
+          remaining.splice(remaining.indexOf(bestCandidate), 1);
+        }
+      }
+
+      // Remaining candidates are dropped
+      for (const r of remaining) {
+        // Find which selected hue it was too close to
+        let closestSelected = selected[0];
+        let closestDist = angularDistance(r.hue, closestSelected.hue);
+
+        for (const s of selected) {
+          const dist = angularDistance(r.hue, s.hue);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestSelected = s;
+          }
+        }
+
+        dropped.push({
+          name: r.name,
+          reason: `too close to ${closestSelected.name}`
+        });
+      }
+
+      // Sort by hue angle
+      selected.sort((a, b) => a.hue - b.hue);
+
+      return { selected, dropped, primaryName: nearestNamed.name };
+    }
+
+    // ========== Ramp Algorithm Helpers ==========
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getUniformityFactor() {
+      // 0% = default spacing, 100% = more contrast (bigger L gaps near extremes)
+      const raw = parseInt(document.getElementById('uniformity').value, 10);
+      const t = clamp(Number.isFinite(raw) ? raw : 0, 0, 100) / 100;
+      return 1 + t * 1.2; // up to 2.2x stretch around the midpoint
+    }
+
+    // Target lightness values for 10 steps
+    const legacyTargetLightness10 = [
+      0.97, 0.90, 0.83, 0.76, 0.69,
+      0.62, 0.55, 0.48, 0.41, 0.34
+    ];
+
+    function baselineLightnessForSteps(steps) {
+      if (steps === 10) return legacyTargetLightness10.slice();
+
+      const maxL = legacyTargetLightness10[0];
+      const minL = legacyTargetLightness10[legacyTargetLightness10.length - 1];
+      const out = [];
+      const gamma = 1.05;
+
+      for (let i = 0; i < steps; i++) {
+        const t = steps === 1 ? 0 : i / (steps - 1);
+        const curved = Math.pow(t, gamma);
+        out.push(maxL + (minL - maxL) * curved);
+      }
+
+      return out;
+    }
+
+    function applyUniformity(lightnessArray, factor) {
+      // Stretch values around the midpoint and clamp to fixed caps.
+      const CAP_MIN = 0.05;
+      const CAP_MAX = 0.99;
+      const baseMin = lightnessArray[lightnessArray.length - 1];
+      const baseMax = lightnessArray[0];
+      const mid = (baseMin + baseMax) / 2;
+      return lightnessArray.map(L => clamp(mid + (L - mid) * factor, CAP_MIN, CAP_MAX));
+    }
+
+    function closestIndex(values, target) {
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < values.length; i++) {
+        const dist = Math.abs(values[i] - target);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIdx = i;
+        }
+      }
+      return bestIdx;
+    }
+
+    // Find maximum chroma for a given lightness and hue that stays in sRGB gamut
+    function maxChromaForLH(L, H) {
+      let low = 0;
+      let high = 0.4;
+
+      while (high - low > 0.001) {
+        const mid = (low + high) / 2;
+        if (isInGamut(L, mid, H)) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+
+      return low;
+    }
+
+    // ========== Ramp Generation ==========
+
+    function generateRamp(hue, baseChroma, baseL) {
+      const steps = 10;
+      const chromaFalloff = parseInt(document.getElementById('chromaFalloff').value) / 100;
+      const uniformityFactor = getUniformityFactor();
+      const targetLightness = applyUniformity(baselineLightnessForSteps(steps), uniformityFactor);
+      const basePosition = closestIndex(targetLightness, baseL);
+
+      // Chroma steps: decrease linearly from base toward extremes
+      // Falloff slider controls how much chroma reduces (0% = flat, 100% = to zero)
+      const maxDistance = Math.max(basePosition, (steps - 1) - basePosition);
+      const chromaStep = maxDistance > 0 ? (baseChroma * chromaFalloff) / maxDistance : 0;
+
+      const ramp = [];
+
+      for (let i = 0; i < steps; i++) {
+        let shadeL, shadeC;
+
+        // Calculate lightness
+        if (i === basePosition) {
+          shadeL = baseL;
+        } else {
+          shadeL = targetLightness[i];
+
+          // Adjust lightness to smoothly transition through base color
+          const baseLTarget = targetLightness[basePosition];
+          const lDiff = baseL - baseLTarget;
+          const distance = Math.abs(i - basePosition);
+          const weight = 1 - (distance / steps);
+          shadeL = targetLightness[i] + (lDiff * weight * 0.5);
+          shadeL = Math.max(0.05, Math.min(0.99, shadeL));
+        }
+
+        // Calculate chroma: uniform steps from base
+        const distance = Math.abs(i - basePosition);
+        shadeC = baseChroma - (distance * chromaStep);
+        shadeC = Math.max(shadeC, baseChroma * (1 - chromaFalloff)); // Minimum based on falloff
+
+        // Clamp chroma to gamut
+        const maxC = maxChromaForLH(shadeL, hue);
+        shadeC = Math.min(shadeC, maxC);
+
+        ramp.push({
+          L: shadeL,
+          C: shadeC,
+          H: hue
+        });
+      }
+
+      return ramp;
+    }
+
+    function generateNeutralRamp(primaryHue, mode, baseL) {
+      let hue = 0;
+      let chroma = 0;
+
+      switch (mode) {
+        case 'pure':
+          chroma = 0;
+          break;
+        case 'warm':
+          hue = 75;
+          chroma = 0.01;
+          break;
+        case 'cool':
+          hue = 260;
+          chroma = 0.01;
+          break;
+        case 'brand':
+          hue = primaryHue;
+          chroma = (primaryHue >= 70 && primaryHue <= 140) ? 0.008 : 0.015;
+          break;
+      }
+
+      return generateRamp(hue, chroma, baseL);
+    }
+
+    // ========== UI Rendering ==========
+
+    function formatOklch(L, C, H) {
+      return `oklch(${(L * 100).toFixed(1)}% ${C.toFixed(3)} ${H.toFixed(1)})`;
+    }
+
+    function formatOklchShort(L, C, H) {
+      return `${(L * 100).toFixed(0)}% ${C.toFixed(2)} ${H.toFixed(0)}°`;
+    }
+
+    function renderSwatch(color) {
+      const oklchStr = `oklch(${color.L} ${color.C} ${color.H})`;
+      return `
+        <div class="swatch">
+          <div class="swatch-color" style="background: ${oklchStr}"></div>
+          <div class="swatch-value">${formatOklchShort(color.L, color.C, color.H)}</div>
+        </div>
+      `;
+    }
+
+    function renderRampRow(name, hue, ramp, isPrimary, isNeutral) {
+      const swatchesHtml = ramp.map(c => renderSwatch(c)).join('');
+      const rowClass = isPrimary ? 'ramp-row primary-row' : (isNeutral ? 'ramp-row neutral-row' : 'ramp-row');
+      const badge = isPrimary ? '<span class="primary-badge">PRIMARY</span>' : '';
+      const hueAngle = isNeutral ? '' : `<div class="hue-angle">${hue.toFixed(1)}°</div>`;
+
+      return `
+        <div class="${rowClass}">
+          <div class="ramp-label">
+            ${name}${badge}
+            ${hueAngle}
+          </div>
+          <div class="swatches">
+            ${swatchesHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function generate() {
+      const hex = document.getElementById('hexInput').value;
+      const neutralMode = document.getElementById('neutralMode').value;
+
+      // Convert primary to OKLCH
+      const primaryOklch = hexToOklch(hex);
+
+      // Update primary info
+      document.getElementById('primaryInfo').textContent =
+        `Primary hue: ${primaryOklch.H.toFixed(1)}° | L: ${(primaryOklch.L * 100).toFixed(1)}% | C: ${primaryOklch.C.toFixed(3)}`;
+
+      // Select hues
+      const { selected, dropped, primaryName } = selectHues(primaryOklch.H);
+
+      // Update dropped info
+      if (dropped.length > 0) {
+        const droppedStr = dropped.map(d => `${d.name} (${d.reason})`).join(', ');
+        document.getElementById('droppedInfo').innerHTML = `<strong>Dropped hues:</strong> ${droppedStr}`;
+      } else {
+        document.getElementById('droppedInfo').innerHTML = `<strong>Dropped hues:</strong> None`;
+      }
+
+      // Generate ramps
+      const container = document.getElementById('rampsContainer');
+      let html = '';
+
+      // Compute the primary's saturation ratio: how chromatic it is relative
+      // to the maximum chroma achievable at its lightness & hue.  Non-primary
+      // hues use this ratio against *their own* max chroma so they stay
+      // vibrant even when the primary is muted.
+      const primaryMaxC = maxChromaForLH(primaryOklch.L, primaryOklch.H);
+      const saturationRatio = primaryMaxC > 0 ? primaryOklch.C / primaryMaxC : 0;
+
+      // Chromatic ramps
+      for (const hueInfo of selected) {
+        const hueMaxC = maxChromaForLH(primaryOklch.L, hueInfo.hue);
+        const baseChroma = hueMaxC * saturationRatio;
+        const ramp = generateRamp(hueInfo.hue, baseChroma, primaryOklch.L);
+        html += renderRampRow(hueInfo.name, hueInfo.hue, ramp, hueInfo.isPrimary, false);
+      }
+
+      // Neutral ramp
+      const neutralRamp = generateNeutralRamp(primaryOklch.H, neutralMode, primaryOklch.L);
+      const neutralLabel = {
+        'pure': 'Neutral',
+        'warm': 'Neutral (Warm)',
+        'cool': 'Neutral (Cool)',
+        'brand': 'Neutral (Brand)'
+      }[neutralMode];
+      html += renderRampRow(neutralLabel, 0, neutralRamp, false, true);
+
+      container.innerHTML = html;
+    }
+
+    // ========== Event Handlers ==========
+
+    document.getElementById('colorPicker').addEventListener('input', (e) => {
+      document.getElementById('hexInput').value = e.target.value;
+      generate();
+    });
+
+    document.getElementById('hexInput').addEventListener('input', (e) => {
+      let val = e.target.value;
+      if (!val.startsWith('#')) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        document.getElementById('colorPicker').value = val;
+        generate();
+      }
+    });
+
+    document.getElementById('neutralMode').addEventListener('change', generate);
+
+    document.getElementById('chromaFalloff').addEventListener('input', (e) => {
+      document.getElementById('chromaFalloffValue').textContent = e.target.value + '%';
+      generate();
+    });
+
+    document.getElementById('uniformity').addEventListener('input', (e) => {
+      document.getElementById('uniformityValue').textContent = e.target.value + '%';
+      generate();
+    });
+
+    // Initial generation
+    generate();
+  </script>
+</body>
+</html>
