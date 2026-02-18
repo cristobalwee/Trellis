@@ -22,15 +22,19 @@ export function generateRamp(
   baseHex: string,
   saturation = 100,
   uniformity = 100,
-  isNeutral = false
+  isNeutral = false,
+  lightnessShift = 100
 ): ColorRamp {
   const base = toOklch(baseHex);
   const ramp: Partial<ColorRamp> = {};
 
+  const lShift = (lightnessShift - 100) / 200; // -0.5 to +0.5
+
   STEPS.forEach((step) => {
     const t = (step - 50) / 950; // 0 to 1
     const exponent = 1 + (100 - uniformity) / 100;
-    const lightness = 0.98 - Math.pow(t, exponent) * (0.98 - 0.32);
+    let lightness = 0.98 - Math.pow(t, exponent) * (0.98 - 0.32);
+    lightness = Math.max(0.05, Math.min(0.99, lightness + lShift));
 
     let chroma = base?.c || 0;
     if (isNeutral) {

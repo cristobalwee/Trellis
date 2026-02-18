@@ -37,6 +37,7 @@ const AdditionalColorRow: React.FC<ColorSlot> = ({ name, hue, ramp }) => {
 const Step2Colors: React.FC = () => {
   const config = useStore($brandConfig);
   const derived = useColorRamps(config);
+  console.log(derived);
 
   // --- Memoized callbacks ---------------------------------------------------
 

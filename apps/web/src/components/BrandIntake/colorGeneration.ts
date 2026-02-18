@@ -61,6 +61,7 @@ export const NAMED_HUES: NamedHue[] = [
 
 /** Hues that are always retained regardless of hue selection. */
 export const SEMANTIC_HUES = ['Red', 'Green', 'Blue', 'Yellow'];
+const SEMANTIC_OCCUPATION_THRESHOLD = 24;
 
 // ========== Gamut Utilities ==================================================
 
@@ -80,6 +81,78 @@ export function maxChromaForLH(L: number, H: number): number {
   }
 
   return low;
+}
+
+// ========== Additional Hue Seeding ===========================================
+
+export interface AdditionalRampSeed {
+  baseL: number;
+  baseChroma: number;
+}
+
+interface AdditionalHueProfile {
+  baseL: number;
+  baseChroma: number;
+  minL: number;
+  maxL: number;
+  minC: number;
+  maxC: number;
+}
+
+/**
+ * Baseline perceptual anchors for additional ramps.
+ * Core semantic colors stay close to these targets so they preserve meaning.
+ */
+const ADDITIONAL_HUE_PROFILES: Record<string, AdditionalHueProfile> = {
+  Red: { baseL: 0.62, baseChroma: 0.19, minL: 0.56, maxL: 0.68, minC: 0.14, maxC: 0.24 },
+  Yellow: { baseL: 0.82, baseChroma: 0.18, minL: 0.76, maxL: 0.9, minC: 0.13, maxC: 0.24 },
+  Green: { baseL: 0.71, baseChroma: 0.17, minL: 0.64, maxL: 0.79, minC: 0.12, maxC: 0.23 },
+  Blue: { baseL: 0.6, baseChroma: 0.16, minL: 0.54, maxL: 0.68, minC: 0.11, maxC: 0.22 },
+};
+
+const DEFAULT_ADDITIONAL_PROFILE: AdditionalHueProfile = {
+  baseL: 0.66,
+  baseChroma: 0.15,
+  minL: 0.58,
+  maxL: 0.78,
+  minC: 0.1,
+  maxC: 0.21,
+};
+
+/**
+ * Compute seeded base lightness/chroma for additional ramps.
+ *
+ * Ramps are anchored to stable hue-specific targets and only mildly influenced
+ * by the primary's characteristics to keep semantic colors recognizable.
+ */
+export function getAdditionalRampSeed(
+  slotName: string,
+  hue: number,
+  primaryL: number,
+  saturationRatio: number,
+): AdditionalRampSeed {
+  const profile = ADDITIONAL_HUE_PROFILES[slotName] ?? DEFAULT_ADDITIONAL_PROFILE;
+
+  // Keep lightness centered around hue defaults with only subtle primary bias.
+  const normalizedPrimaryL = clampValue(primaryL, 0, 1);
+  const lightnessBias = (normalizedPrimaryL - 0.62) * 0.12;
+  const baseL = clampValue(profile.baseL + lightnessBias, profile.minL, profile.maxL);
+
+  // Keep chroma near semantic defaults; let saturation nudge within a tight band.
+  const normalizedSaturation = clampValue(saturationRatio, 0, 1.35);
+  const saturationBias = (normalizedSaturation - 0.7) * 0.3;
+  const seededChroma = clampValue(
+    profile.baseChroma * (1 + saturationBias),
+    profile.minC,
+    profile.maxC,
+  );
+
+  // Final safety clamp against sRGB gamut at the seeded base lightness.
+  const maxC = maxChromaForLH(baseL, hue);
+  return {
+    baseL,
+    baseChroma: Math.min(seededChroma, maxC),
+  };
 }
 
 // ========== Hue Selection ====================================================
@@ -121,12 +194,15 @@ export interface HueSelection {
  * Select 9 chromatic hues from the 12 named hues using a greedy algorithm.
  *
  * The primary's actual hue replaces the nearest named slot. Semantic hues
- * (Red, Green, Blue, Yellow) are locked in. The remaining slots are chosen
- * to maximise the minimum angular distance between any two selected hues,
- * ensuring a well-distributed palette.
+ * (Red, Green, Blue, Yellow) are locked in unless either the primary or
+ * secondary hue is already close to that semantic target. In that case, the
+ * semantic ramp is omitted to avoid near-duplicate clashes and another hue is
+ * selected instead. Remaining slots are chosen to maximise the minimum angular
+ * distance between any two selected hues, ensuring a well-distributed palette.
  */
-export function selectHues(primaryHue: number): HueSelection {
+export function selectHues(primaryHue: number, secondaryHue?: number): HueSelection {
   const nearestNamed = findNearestHue(primaryHue);
+  const secondary = typeof secondaryHue === 'number' ? secondaryHue : null;
 
   const candidates: HueSlot[] = NAMED_HUES.map((h) => ({
     name: h.name,
@@ -135,20 +211,39 @@ export function selectHues(primaryHue: number): HueSelection {
     isOriginal: h.name !== nearestNamed.name,
   }));
 
+  const semanticCandidates = candidates.filter((c) => SEMANTIC_HUES.includes(c.name));
+  const occupiedSemanticBy = new Map<string, 'primary' | 'secondary'>();
+  for (const semantic of semanticCandidates) {
+    const primaryDistance = angularDistance(primaryHue, semantic.hue);
+    const secondaryDistance = secondary !== null ? angularDistance(secondary, semantic.hue) : Infinity;
+    const minDistance = Math.min(primaryDistance, secondaryDistance);
+    if (minDistance <= SEMANTIC_OCCUPATION_THRESHOLD) {
+      occupiedSemanticBy.set(
+        semantic.name,
+        primaryDistance <= secondaryDistance ? 'primary' : 'secondary',
+      );
+    }
+  }
+
   // Start with the primary slot + locked semantic hues
   const selected: HueSlot[] = [];
   const primaryCandidate = candidates.find((c) => c.name === nearestNamed.name)!;
   selected.push(primaryCandidate);
 
   for (const semantic of SEMANTIC_HUES) {
-    if (semantic !== nearestNamed.name) {
+    if (semantic !== nearestNamed.name && !occupiedSemanticBy.has(semantic)) {
       const candidate = candidates.find((c) => c.name === semantic)!;
       selected.push(candidate);
     }
   }
 
   // Remaining candidates for greedy selection
-  const remaining = candidates.filter((c) => !selected.includes(c));
+  const excludedSemanticNames = new Set(
+    Array.from(occupiedSemanticBy.keys()).filter((name) => name !== nearestNamed.name),
+  );
+  const remaining = candidates.filter(
+    (c) => !selected.includes(c) && !excludedSemanticNames.has(c.name),
+  );
 
   // Greedy: pick the hue with the greatest minimum distance to selected set
   while (selected.length < 9 && remaining.length > 0) {
@@ -173,7 +268,15 @@ export function selectHues(primaryHue: number): HueSelection {
   }
 
   // Record which hues were dropped and why
-  const dropped = remaining.map((r) => {
+  const dropped = Array.from(occupiedSemanticBy.entries())
+    .filter(([name]) => name !== nearestNamed.name)
+    .map(([name, source]) => ({
+      name,
+      reason: `covered by ${source}`,
+    }));
+
+  dropped.push(
+    ...remaining.map((r) => {
     let closestSelected = selected[0];
     let closestDist = angularDistance(r.hue, closestSelected.hue);
     for (const s of selected) {
@@ -183,8 +286,9 @@ export function selectHues(primaryHue: number): HueSelection {
         closestSelected = s;
       }
     }
-    return { name: r.name, reason: `too close to ${closestSelected.name}` };
-  });
+      return { name: r.name, reason: `too close to ${closestSelected.name}` };
+    }),
+  );
 
   selected.sort((a, b) => a.hue - b.hue);
 

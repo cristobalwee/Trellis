@@ -24,7 +24,7 @@ const Step1Identity = () => {
   return (
     <form id="brand-intake-step1" className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
       <span className="text-charcoal/80 mb-4 text-base">Step 1</span>
-      <h2 className="text-5xl md:text-7xl mb-6">Let's start with the basics</h2>
+      <h2 className="text-5xl md:text-6xl xl:text-7xl mb-6">Let's start with the basics</h2>
       <p className="text-xl text-charcoal/80 mb-16">
         We’ll need to know more about your brand identity and development preferences in order to generate your system appropriately.
       </p>
@@ -38,7 +38,7 @@ const Step1Identity = () => {
             value={config.brandName}
             onChange={(e) => updateConfig({ brandName: e.target.value })}
             placeholder="Acme Inc."
-            className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
+            className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
             required
             autoFocus
           />
@@ -54,7 +54,7 @@ const Step1Identity = () => {
                 value={config.packageScope.replace(/^@/, '')}
                 onChange={(e) => updateConfig({ packageScope: `@${e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')}` })}
                 placeholder="acme"
-                className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50 w-full"
+                className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50 w-full"
                 required
               />
             </div>
@@ -67,7 +67,7 @@ const Step1Identity = () => {
             <select
               value={config.companySize}
               onChange={(e) => updateConfig({ companySize: e.target.value })}
-              className="text-xl md:text-2xl px-8 py-6 rounded-3xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
+              className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
             >
               <option value="" disabled>Select size...</option>
               {COMPANY_SIZES.map((size) => (

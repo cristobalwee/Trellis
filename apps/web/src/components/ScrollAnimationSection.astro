@@ -1,51 +1,18 @@
 ---
-import { TrellisScrollAnimation } from './TrellisScrollAnimation';
-import ShowcaseConfigurator from './Showcase/ShowcaseConfigurator';
-import ShowcaseComponents from './Showcase/ShowcaseComponents';
+import LandingPlayground from './LivePlayground/LandingPlayground';
 ---
 
-<section id="how-it-works" class="bg-white py-24 md:py-32 overflow-hidden relative">
-  <TrellisScrollAnimation client:visible />
-  <div class="container-custom relative z-10">
-    <div class="space-y-32 md:space-y-48">
-      <!-- Step 1: Text Left, Content Right -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center py-24 md:py-32">
-        <div class="order-1 lg:order-1 md:px-12">
-          <div class="text-charcoal/80 mb-4">Step 1</div>
-          <h2 class="text-4xl md:text-5xl lg:text-6xl mb-8">Customize your design system</h2>
-          <div class="text-lg md:text-xl text-charcoal/80 space-y-6 max-w-xl">
-            <p>
-              Configure your system based on brand colors, identity, and expressiveness. Select pre-made settings or fine-tune to your liking.
-            </p>
-          </div>
-        </div>
-        <div class="order-2 lg:order-2">
-          <ShowcaseConfigurator client:visible />
-        </div>
-      </div>
-
-      <!-- Step 2: Text Right, Content Left -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center py-24 md:py-32">
-        <div class="order-1 lg:order-2 md:px-12">
-          <div class="text-charcoal/80 mb-4">Step 2</div>
-          <h2 class="text-4xl md:text-5xl lg:text-6xl mb-8">Generate, run, and ship</h2>
-          <div class="text-lg md:text-xl text-charcoal/80 space-y-6 max-w-xl">
-            <p class="mb-4">
-              In ~10 seconds, we generate everything for you to run locally and ship instantly.
-            </p>
-            <ul class="list-none list-inside space-y-2">
-              <li><img src="/src/assets/check.svg" alt="Check" class="w-5 h-5 inline-block mr-2" />DTCG-compliant tokens and JSON file </li>
-              <li><img src="/src/assets/check.svg" alt="Check" class="w-5 h-5 inline-block mr-2" />Figma file with branded components</li>
-              <li><img src="/src/assets/check.svg" alt="Check" class="w-5 h-5 inline-block mr-2" />Production PNPM monorepo with Storybook</li>
-              <li><img src="/src/assets/check.svg" alt="Check" class="w-5 h-5 inline-block mr-2" />25 React components with Vitest</li>
-              <li><img src="/src/assets/check.svg" alt="Check" class="w-5 h-5 inline-block mr-2" />Complete branded documentation</li>
-            </ul>
-          </div>
-        </div>
-        <div class="order-2 lg:order-1">
-          <ShowcaseComponents client:visible />
-        </div>
-      </div>
+<section id="how-it-works" class="section-spacing bg-white">
+  <div class="container-custom">
+    <!-- Section Header -->
+    <div class="text-center mb-16 flex flex-col gap-4">
+      <h2 class="max-w-2xl mx-auto">Configure your brand, ship forever</h2>
+      <p class="text-base md:text-lg text-charcoal/80 mx-auto max-w-xl">
+        Input your brand colors, identity, and expressiveness. Select pre-made settings or fine-tune to your liking – we'll handle the rest.
+      </p>
     </div>
+
+    <!-- Live Playground -->
+    <LandingPlayground client:visible />
   </div>
 </section>

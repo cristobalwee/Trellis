@@ -221,17 +221,6 @@ const BrandIntake = () => {
             <div className="flex-1">
               <img src="/src/assets/logo_icon.svg" alt="Trellis" className="w-8 h-8" />
             </div>
-            
-            <div className="flex-2 flex justify-center">
-              <Stepper 
-                current={currentStep} 
-                onStepClick={(step) => {
-                  if (step === currentStep) return;
-                  setDirection(step > currentStep ? 'forward' : 'back');
-                  updateConfig({ currentStep: step });
-                }}
-              />
-            </div>
 
             <div className="flex-1 flex justify-end">
               <button
@@ -247,8 +236,8 @@ const BrandIntake = () => {
           </header>
 
           {/* Main Content Area */}
-          <main className="flex-1 overflow-y-scroll min-h-fit pt-[8vh] pb-48 w-full">
-            <div className="max-w-5xl mx-auto px-6 w-full">
+          <main className="flex-1 overflow-y-scroll min-h-fit pt-[5vh] pb-48 w-full">
+            <div className="max-w-5xl mx-auto px-6 md:px-12 w-full">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={currentStep}
@@ -289,13 +278,13 @@ const BrandIntake = () => {
                 <button
                   onClick={handleBack}
                   disabled={currentStep === 1}
-                  className={`text-lg px-8 py-4 btn btn-secondary ${currentStep > 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                  className={`text-lg btn btn-secondary ${currentStep > 1 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleNext}
-                  className="text-lg px-8 py-4 btn btn-primary"
+                  className="text-lg btn btn-primary"
                 >
                   {currentStep < TOTAL_STEPS ? 'Continue' : 'Finish'}
                 </button>

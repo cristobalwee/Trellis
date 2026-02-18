@@ -8,6 +8,7 @@ import {
   selectHues,
   generateOklchRamp,
   generateNeutralRamp,
+  getAdditionalRampSeed,
   maxChromaForLH,
   type HueSlot,
   type HueSelection,
@@ -55,8 +56,19 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     return naturalRatio * (saturation / 100);
   }, [primaryL, primaryH, primaryC, saturation]);
 
+  // --- Secondary --------------------------------------------------------------
+  const secondaryColor = useMemo(() => {
+    if (config.useCustomSecondary && config.secondaryColor) return config.secondaryColor;
+    return getGeneratedColor(primaryColor, config.secondaryGenerationMode || 'complementary');
+  }, [primaryColor, config.useCustomSecondary, config.secondaryColor, config.secondaryGenerationMode]);
+
+  const secondaryH = useMemo(() => {
+    const sec = toOklch(secondaryColor);
+    return sec?.h;
+  }, [secondaryColor]);
+
   // --- Hue selection ----------------------------------------------------------
-  const hueSelection = useMemo(() => selectHues(primaryH), [primaryH]);
+  const hueSelection = useMemo(() => selectHues(primaryH, secondaryH), [primaryH, secondaryH]);
 
   // --- Primary ramp -----------------------------------------------------------
   const primaryRamp = useMemo(
@@ -70,12 +82,6 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
       ),
     [primaryH, primaryC, primaryL, saturation, uniformity],
   );
-
-  // --- Secondary --------------------------------------------------------------
-  const secondaryColor = useMemo(() => {
-    if (config.useCustomSecondary && config.secondaryColor) return config.secondaryColor;
-    return getGeneratedColor(primaryColor, config.secondaryGenerationMode || 'complementary');
-  }, [primaryColor, config.useCustomSecondary, config.secondaryColor, config.secondaryGenerationMode]);
 
   const secondaryRamp = useMemo(() => {
     const sec = toOklch(secondaryColor);
@@ -103,12 +109,16 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     return hueSelection.selected
       .filter((slot) => !slot.isPrimary)
       .map((slot: HueSlot) => {
-        const hueMaxC = maxChromaForLH(primaryL, slot.hue);
-        const baseChroma = hueMaxC * saturationRatio;
+        const { baseL, baseChroma } = getAdditionalRampSeed(
+          slot.name,
+          slot.hue,
+          primaryL,
+          saturationRatio,
+        );
         const ramp = generateOklchRamp(
           slot.hue,
           baseChroma,
-          primaryL,
+          baseL,
           CHROMA_FALLOFF,
           uniformity,
         );

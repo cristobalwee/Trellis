@@ -15,8 +15,8 @@ interface VisualPickerProps {
 }
 
 const VisualPicker = ({ label, value, options, onChange }: VisualPickerProps) => (
-  <div className="space-y-6">
-    <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">{label}</label>
+  <div className="flex flex-col gap-3">
+    <label className="text-base text-charcoal">{label}</label>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {options.map((option) => (
         <button
@@ -32,7 +32,7 @@ const VisualPicker = ({ label, value, options, onChange }: VisualPickerProps) =>
             {option.preview}
           </div>
           <div className="font-bold text-lg mb-1">{option.label}</div>
-          <div className="text-charcoal/50 text-xs leading-relaxed">{option.description}</div>
+          <div className="text-charcoal/80 text-sm leading-relaxed">{option.description}</div>
         </button>
       ))}
     </div>
@@ -45,8 +45,8 @@ const Step4Style = () => {
   return (
     <div className="flex flex-col">
       <span className="text-charcoal/80 mb-4">Step 4</span>
-      <h2 className="text-5xl md:text-7xl mb-6">Define the vibe</h2>
-      <p className="text-xl text-charcoal/80 mb-12 max-w-xl">
+      <h2 className="text-5xl md:text-7xl mb-6">Configure your styles</h2>
+      <p className="text-xl text-charcoal/80 mb-12">
         Select the visual characteristics that match your brand's personality
       </p>
 
@@ -119,7 +119,7 @@ const Step4Style = () => {
         />
 
         <VisualPicker
-          label="Expressiveness"
+          label="Motion"
           value={config.expressiveness}
           onChange={(val) => updateConfig({ expressiveness: val })}
           options={[

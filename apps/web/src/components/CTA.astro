@@ -30,7 +30,7 @@ import { AnimatedCTA } from './AnimatedCTA';
           variant="primary"
           size="lg"
         >
-          Get started – $75
+          Get started – $99
         </AnimatedCTA>
       </div>
     </div>
@@ -61,10 +61,11 @@ import { AnimatedCTA } from './AnimatedCTA';
 
 <script>
   // Connect Hero CTA to BrandIntake modal
-  const heroCTA = document.getElementById('hero-cta');
-
-  heroCTA?.addEventListener('click', () => {
-    // Dispatch custom event to open BrandIntake modal
-    window.dispatchEvent(new CustomEvent('openBrandIntake'));
+  // Use event delegation so this works regardless of React hydration timing
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest('#hero-cta');
+    if (target) {
+      window.dispatchEvent(new CustomEvent('openBrandIntake'));
+    }
   });
 </script>
