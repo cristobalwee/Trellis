@@ -151,7 +151,7 @@ a {
 
 /* Section Spacing */
 .section-spacing {
-  @apply py-16 md:py-24 lg:py-48;
+  @apply py-24 lg:py-48;
 }
 
 /* Card */

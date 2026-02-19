@@ -61,8 +61,8 @@ const FontSearch: React.FC<FontSearchProps> = ({ value, onChange, label, customF
   const displayValue = customFontName || value;
 
   return (
-    <div className="space-y-3">
-      <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
+    <div className="flex flex-col gap-3">
+      <label className="text-base text-charcoal font-medium">
         {label}
       </label>
       <div className="relative">
@@ -81,14 +81,13 @@ const FontSearch: React.FC<FontSearchProps> = ({ value, onChange, label, customF
             }}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search Google Fonts…"
-            className="w-full text-xl md:text-2xl font-medium p-0 bg-transparent border-none focus:outline-none placeholder:text-charcoal/10"
+            className="text-xl w-full px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
           />
           <ChevronDown
             size={16}
             className={`text-charcoal/30 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           />
         </div>
-        <div className="h-px w-full bg-charcoal/10 mt-3" />
 
         <AnimatePresence>
           {isOpen && (
@@ -297,8 +296,7 @@ const Step3Typography: React.FC = () => {
       <span className="text-charcoal/80 font-medium mb-4 text-sm">Step 3</span>
       <h2 className="text-5xl md:text-7xl mb-6">Set your typography</h2>
       <p className="text-xl text-charcoal/80 mb-12">
-        Choose your typeface{config.useSingleTypeface ? '' : 's'} and preview the
-        preset type scale.
+        Choose your typeface{config.useSingleTypeface ? '' : 's'} and preview the preset type scale.
       </p>
 
       <div className="flex flex-col gap-16">
@@ -331,8 +329,8 @@ const Step3Typography: React.FC = () => {
           )}
 
           {/* Font weights */}
-          <div className="space-y-3">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
+          <div className="flex flex-col gap-3">
+            <label className="text-base text-charcoal font-medium">
               Font Weights
             </label>
             <div className="flex flex-wrap gap-2">

@@ -128,6 +128,7 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
           )}
         </div>
       </div>
+      <div className="border-t border-charcoal/10" />
 
       {/* Colors */}
       <div className="flex flex-col gap-8">

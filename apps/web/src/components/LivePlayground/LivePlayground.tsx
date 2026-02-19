@@ -42,7 +42,7 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
     <div className="flex flex-col items-center">
       {/* Dark Mode Toggle - above container */}
       {showExternalDarkModeToggle && (
-        <div className="rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex flex-row justify-between items-center self-center w-full">
+        <div className="rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex-row justify-between items-center self-center w-full hidden md:flex">
           <p className="text-xs">Dark mode included</p>
           <DarkModeToggle
             isDark={config.isDarkMode}
