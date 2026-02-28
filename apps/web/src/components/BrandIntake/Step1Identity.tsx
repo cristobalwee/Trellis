@@ -2,13 +2,15 @@ import React, { useEffect } from 'react';
 import slugify from 'slugify';
 import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig } from './store';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
 
-const COMPANY_SIZES = [
-  'Solo / Freelancer',
-  'Small Studio (2-10)',
-  'Startup (11-50)',
-  'Scaleup (51-200)',
-  'Enterprise (200+)',
+const COMPANY_SIZE_OPTIONS = [
+  { value: 'Solo / Freelancer', label: 'Solo / Freelancer' },
+  { value: 'Small Studio (2-10)', label: 'Small Studio (2-10)' },
+  { value: 'Startup (11-50)', label: 'Startup (11-50)' },
+  { value: 'Scaleup (51-200)', label: 'Scaleup (51-200)' },
+  { value: 'Enterprise (200+)', label: 'Enterprise (200+)' },
 ];
 
 const Step1Identity = () => {
@@ -26,19 +28,17 @@ const Step1Identity = () => {
       <span className="text-charcoal/80 mb-4 text-base">Step 1</span>
       <h2 className="text-5xl md:text-6xl xl:text-7xl mb-6">Let's start with the basics</h2>
       <p className="text-xl text-charcoal/80 mb-16">
-        We’ll need to know more about your brand identity and development preferences in order to generate your system appropriately.
+        We'll need to know more about your brand identity and development preferences in order to generate your system appropriately.
       </p>
 
       <div className="space-y-12">
         {/* Brand Name */}
         <div className="flex flex-col">
           <label className="text-base text-charcoal mb-4 font-medium">Brand Name<span className="text-red-500">*</span></label>
-          <input
-            type="text"
+          <Input
             value={config.brandName}
-            onChange={(e) => updateConfig({ brandName: e.target.value })}
-            placeholder="Acme Inc."
-            className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
+            onChange={(e) => updateConfig({ brandName: (e.target as HTMLInputElement).value })}
+            placeholder="e.g. Acme Inc."
             required
             autoFocus
           />
@@ -48,32 +48,24 @@ const Step1Identity = () => {
           {/* Package Scope */}
           <div className="flex flex-col">
             <label className="text-base text-charcoal mb-4 font-medium">What should we call your system?<span className="text-red-500">*</span></label>
-            <div className="flex items-stretch text-2xl md:text-3xl">
-              <input
-                type="text"
-                value={config.packageScope.replace(/^@/, '')}
-                onChange={(e) => updateConfig({ packageScope: `@${e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')}` })}
-                placeholder="acme"
-                className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50 w-full"
-                required
-              />
-            </div>
+            <Input
+              value={config.packageScope.replace(/^@/, '')}
+              onChange={(e) => updateConfig({ packageScope: `@${(e.target as HTMLInputElement).value.toLowerCase().replace(/[^a-z0-9-]/g, '')}` })}
+              placeholder="e.g. Lattice"
+              required
+            />
             <p className="text-sm text-charcoal/80 mt-4">Used for npm/pnpm scope (e.g., @acme/design-system)</p>
           </div>
 
           {/* Company Size */}
           <div className="flex flex-col">
             <label className="text-base text-charcoal mb-4 font-medium">Company Size</label>
-            <select
+            <Select
               value={config.companySize}
-              onChange={(e) => updateConfig({ companySize: e.target.value })}
-              className="text-xl px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
-            >
-              <option value="" disabled>Select size...</option>
-              {COMPANY_SIZES.map((size) => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
+              onValueChange={(value) => updateConfig({ companySize: value })}
+              options={COMPANY_SIZE_OPTIONS}
+              placeholder="Select size..."
+            />
           </div>
         </div>
 

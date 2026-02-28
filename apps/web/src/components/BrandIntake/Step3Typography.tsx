@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Upload, X, ChevronDown } from 'lucide-react';
+import { Settings, Upload, X } from 'lucide-react';
 import { $brandConfig, updateConfig } from './store';
+import { Combobox } from '../ui/Combobox';
 
 // ---------------------------------------------------------------------------
 // Google Fonts list (popular subset)
@@ -37,93 +38,6 @@ const TYPE_SCALE = [
   { token: 'xs',  rem: '0.75rem',  px: 12, note: 'Captions, fine print' },
   { token: 'xxs', rem: '0.625rem', px: 10, note: 'Smallest — semibold+ for readability' },
 ];
-
-// ---------------------------------------------------------------------------
-// Font search dropdown (simple; combobox upgrade later)
-// ---------------------------------------------------------------------------
-
-interface FontSearchProps {
-  value: string;
-  onChange: (font: string) => void;
-  label: string;
-  customFontName?: string;
-}
-
-const FontSearch: React.FC<FontSearchProps> = ({ value, onChange, label, customFontName }) => {
-  const [search, setSearch] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const filtered = GOOGLE_FONTS.filter((f) =>
-    f.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const displayValue = customFontName || value;
-
-  return (
-    <div className="flex flex-col gap-3">
-      <label className="text-base text-charcoal font-medium">
-        {label}
-      </label>
-      <div className="relative">
-        <div className="flex items-center gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={isOpen ? search : displayValue}
-            onFocus={() => {
-              setIsOpen(true);
-              setSearch('');
-            }}
-            onBlur={() => {
-              // Delay to allow click on dropdown item
-              setTimeout(() => setIsOpen(false), 200);
-            }}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search Google Fonts…"
-            className="text-xl w-full px-6 py-4 rounded-2xl border border-charcoal/20 focus:outline-blue-500 placeholder:text-charcoal/50"
-          />
-          <ChevronDown
-            size={16}
-            className={`text-charcoal/30 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          />
-        </div>
-
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-xl border border-charcoal/5 p-2 z-10 max-h-60 overflow-y-auto"
-            >
-              {filtered.length === 0 && (
-                <div className="px-4 py-3 text-sm text-charcoal/40">No fonts found.</div>
-              )}
-              {filtered.map((font) => (
-                <button
-                  key={font}
-                  onMouseDown={(e) => {
-                    e.preventDefault(); // prevent blur before click fires
-                    onChange(font);
-                    setIsOpen(false);
-                    setSearch('');
-                  }}
-                  className={`w-full text-left px-4 py-2.5 hover:bg-charcoal/5 rounded-xl transition-colors text-sm ${
-                    font === value ? 'font-bold text-forest-green' : 'text-charcoal'
-                  }`}
-                >
-                  {font}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
 
 // ---------------------------------------------------------------------------
 // Custom font upload
@@ -293,7 +207,7 @@ const Step3Typography: React.FC = () => {
 
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
-      <span className="text-charcoal/80 font-medium mb-4 text-sm">Step 3</span>
+      <span className="text-charcoal/80 mb-4 text-base">Step 3</span>
       <h2 className="text-5xl md:text-7xl mb-6">Set your typography</h2>
       <p className="text-xl text-charcoal/80 mb-12">
         Choose your typeface{config.useSingleTypeface ? '' : 's'} and preview the preset type scale.
@@ -305,25 +219,31 @@ const Step3Typography: React.FC = () => {
         {/* ----------------------------------------------------------------- */}
         <div className="flex flex-col gap-8">
           {config.useSingleTypeface ? (
-            <FontSearch
+            <Combobox
               label="Typeface"
               value={config.primaryFont}
-              onChange={handlePrimaryFontChange}
-              customFontName={config.customFontName}
+              onValueChange={handlePrimaryFontChange}
+              options={GOOGLE_FONTS}
+              placeholder="Search Google Fonts…"
+              displayValue={config.customFontName}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-              <FontSearch
+              <Combobox
                 label="Heading Typeface"
                 value={config.headingFont}
-                onChange={handleHeadingFontChange}
-                customFontName={config.customHeadingFontName}
+                onValueChange={handleHeadingFontChange}
+                options={GOOGLE_FONTS}
+                placeholder="Search Google Fonts…"
+                displayValue={config.customHeadingFontName}
               />
-              <FontSearch
+              <Combobox
                 label="Body Typeface"
                 value={config.primaryFont}
-                onChange={handlePrimaryFontChange}
-                customFontName={config.customBodyFontName}
+                onValueChange={handlePrimaryFontChange}
+                options={GOOGLE_FONTS}
+                placeholder="Search Google Fonts…"
+                displayValue={config.customBodyFontName}
               />
             </div>
           )}

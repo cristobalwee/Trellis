@@ -10,6 +10,7 @@ import Pricing from '../components/Pricing.astro';
 import FAQ from '../components/FAQ.astro';
 import Backstory from '../components/Backstory.astro';
 import CTA from '../components/CTA.astro';
+import { Agentation } from "agentation";
 ---
 
 <BaseLayout>
@@ -23,10 +24,17 @@ import CTA from '../components/CTA.astro';
 
     <!-- Interactive Scroll Animation -->
     <ScrollAnimationSection />
-    <Pricing />
     <Backstory />
+    <Pricing />
     <FAQ />
     <CTA />
   </main>
   <Footer />
+  <Agentation
+    endpoint="http://localhost:4747"
+    onSessionCreated={(sessionId) => {
+      console.log("Session started:", sessionId);
+    }}
+    client:only="react"
+  />
 </BaseLayout>

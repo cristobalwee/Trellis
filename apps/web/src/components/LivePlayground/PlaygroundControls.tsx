@@ -1,10 +1,13 @@
 import React, { useMemo } from 'react';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
+import { Select } from '../ui/Select';
 import { generateRamp } from '../Showcase/colorUtils';
 import type { PlaygroundConfig } from './types';
 import { GOOGLE_FONTS } from './types';
 import { Sun, Moon, X, Settings2 } from 'lucide-react';
+
+const FONT_OPTIONS = GOOGLE_FONTS.map((font) => ({ value: font, label: font }));
 
 interface PlaygroundControlsProps {
   config: PlaygroundConfig;
@@ -176,21 +179,14 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
       <div className="border-t border-charcoal/10" />
 
       {/* Typography */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-charcoal/80">Typography</label>
-        <select
-          value={config.fontFamily}
-          onChange={(e) => onChange({ fontFamily: e.target.value })}
-          className="w-full py-2 px-3 text-sm bg-white border border-charcoal/10 rounded-lg text-charcoal cursor-pointer focus:outline-none focus:ring-2 focus:ring-forest-green/20 transition-all"
-          style={{ fontFamily: `'${config.fontFamily}', system-ui, sans-serif` }}
-        >
-          {GOOGLE_FONTS.map((font) => (
-            <option key={font} value={font} style={{ fontFamily: `'${font}', system-ui, sans-serif` }}>
-              {font}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        label="Typography"
+        value={config.fontFamily}
+        onValueChange={(value) => onChange({ fontFamily: value })}
+        options={FONT_OPTIONS}
+        size="compact"
+        triggerClassName="border-charcoal/10"
+      />
 
       {/* Divider */}
       <div className="border-t border-charcoal/10" />

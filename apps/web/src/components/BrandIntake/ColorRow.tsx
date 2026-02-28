@@ -1,7 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import {
-  Check,
-  ChevronDown,
   ArrowLeftRight,
   GitFork,
   Triangle,
@@ -13,6 +11,8 @@ import {
   Palette,
 } from 'lucide-react';
 
+import { Input } from '../ui/Input';
+import { Select, type SelectOption } from '../ui/Select';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
 import { type GenerationMode } from './colorGeneration';
@@ -30,108 +30,39 @@ export const HexColorInput: React.FC<{
     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/70 font-mono text-sm">
       #
     </span>
-    <input
-      type="text"
+    <Input
+      size="compact"
       aria-label="Hex color value"
       value={color.replace('#', '')}
-      onChange={(e) => onChange(`#${e.target.value}`)}
-      className="w-26 pl-6 pr-3 py-2 border border-charcoal/20 rounded-xl text-base font-mono text-charcoal focus:outline-blue-500"
+      onChange={(e) => onChange(`#${(e.target as HTMLInputElement).value}`)}
+      className="w-26 pl-6 font-mono"
       maxLength={6}
     />
   </div>
 );
 
 // ---------------------------------------------------------------------------
-// IconSelect — shared dropdown with Lucide icons
-// ---------------------------------------------------------------------------
-
-function IconSelect<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: { id: T; label: string; icon: React.ReactNode }[];
-  onChange: (value: T) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const selected = options.find((o) => o.id === value);
-
-  return (
-    <div ref={ref} className="relative flex flex-col gap-3">
-      <span className="text-sm text-charcoal">
-        {label}
-      </span>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 w-full px-3 py-2 bg-white border border-charcoal/20 rounded-lg text-sm text-charcoal hover:border-charcoal/30 transition-colors"
-      >
-        {selected?.icon}
-        <span className="flex-1 text-left">{selected?.label}</span>
-        <ChevronDown
-          size={14}
-          className={`text-charcoal/50 transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {open && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-charcoal/10 rounded-lg shadow-lg py-1">
-          {options.map((option) => (
-            <button
-              type="button"
-              key={option.id}
-              onClick={() => {
-                onChange(option.id);
-                setOpen(false);
-              }}
-              className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left hover:bg-charcoal/5 transition-colors ${
-                value === option.id ? 'text-forest-green font-medium' : 'text-charcoal'
-              }`}
-            >
-              {option.icon}
-              <span className="flex-1">{option.label}</span>
-              {value === option.id && <Check size={14} strokeWidth={2.5} />}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Generation mode options (monochromatic excluded)
 // ---------------------------------------------------------------------------
 
-const SECONDARY_MODE_OPTIONS: { id: GenerationMode; label: string; icon: React.ReactNode }[] = [
-  { id: 'complementary', label: 'Complementary', icon: <ArrowLeftRight size={14} /> },
-  { id: 'split-complementary', label: 'Split Complementary', icon: <GitFork size={14} /> },
-  { id: 'triadic', label: 'Triadic', icon: <Triangle size={14} /> },
-  { id: 'analogous', label: 'Analogous', icon: <Waves size={14} /> },
-  { id: 'tetradic', label: 'Tetradic', icon: <Grid2x2 size={14} /> },
+const SECONDARY_MODE_OPTIONS: SelectOption[] = [
+  { value: 'complementary', label: 'Complementary', icon: <ArrowLeftRight size={14} /> },
+  { value: 'split-complementary', label: 'Split Complementary', icon: <GitFork size={14} /> },
+  { value: 'triadic', label: 'Triadic', icon: <Triangle size={14} /> },
+  { value: 'analogous', label: 'Analogous', icon: <Waves size={14} /> },
+  { value: 'tetradic', label: 'Tetradic', icon: <Grid2x2 size={14} /> },
 ];
 
 export const GenerationModeSelector: React.FC<{
   value?: GenerationMode;
   onChange: (mode: GenerationMode) => void;
 }> = ({ value, onChange }) => (
-  <IconSelect
+  <Select
     label="Generation Mode"
     value={value ?? 'complementary'}
     options={SECONDARY_MODE_OPTIONS}
-    onChange={onChange}
+    onValueChange={(v) => onChange(v as GenerationMode)}
+    size="compact"
   />
 );
 
@@ -184,22 +115,23 @@ export const RampSliders: React.FC<{
 
 type NeutralTint = 'pure' | 'cool' | 'warm' | 'brand-tinted';
 
-const NEUTRAL_TINT_OPTIONS: { id: NeutralTint; label: string; icon: React.ReactNode }[] = [
-  { id: 'pure', label: 'Pure', icon: <Circle size={14} /> },
-  { id: 'cool', label: 'Cool', icon: <Snowflake size={14} /> },
-  { id: 'warm', label: 'Warm', icon: <Flame size={14} /> },
-  { id: 'brand-tinted', label: 'Brand Tinted', icon: <Palette size={14} /> },
+const NEUTRAL_TINT_OPTIONS: SelectOption[] = [
+  { value: 'pure', label: 'Pure', icon: <Circle size={14} /> },
+  { value: 'cool', label: 'Cool', icon: <Snowflake size={14} /> },
+  { value: 'warm', label: 'Warm', icon: <Flame size={14} /> },
+  { value: 'brand-tinted', label: 'Brand Tinted', icon: <Palette size={14} /> },
 ];
 
 export const NeutralTintSelector: React.FC<{
   value: NeutralTint;
   onChange: (tint: NeutralTint) => void;
 }> = ({ value, onChange }) => (
-  <IconSelect
+  <Select
     label="Tint Strategy"
     value={value}
     options={NEUTRAL_TINT_OPTIONS}
-    onChange={onChange}
+    onValueChange={(v) => onChange(v as NeutralTint)}
+    size="compact"
   />
 );
 

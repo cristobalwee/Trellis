@@ -8,14 +8,14 @@ const Step5Preview = () => {
 
   return (
     <div className="flex flex-col">
-      <span className="text-charcoal/80 mb-4">Step 5</span>
+      <span className="text-charcoal/80 mb-4 text-base">Step 5</span>
       <h2 className="text-5xl md:text-7xl mb-6">Review and purchase</h2>
       <p className="text-xl text-charcoal/80 mb-8">
         Preview your design system live. Tweak anything you'd like, and when you're ready click "finish" to purchase and generate your library.
       </p>
 
       {/* Live Playground */}
-      <div className="mb-12">
+      <div className="mb-12 -mx-24">
         <IntakePlayground />
       </div>
 

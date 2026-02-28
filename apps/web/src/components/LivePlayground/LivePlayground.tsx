@@ -39,10 +39,13 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
   const [isControlsOpen, setIsControlsOpen] = useState(defaultControlsOpen);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center" data-scroll data-scroll-speed="0.1">
       {/* Dark Mode Toggle - above container */}
       {showExternalDarkModeToggle && (
-        <div className="rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex-row justify-between items-center self-center w-full hidden md:flex">
+        <div 
+          data-scroll
+          className="relative rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex-row justify-between items-center self-center w-full hidden md:flex z-0 transition-all duration-400 ease-out translate-y-full opacity-0 [&.is-inview]:translate-y-0 [&.is-inview]:opacity-100"
+        >
           <p className="text-xs">Dark mode included</p>
           <DarkModeToggle
             isDark={config.isDarkMode}
@@ -53,7 +56,7 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
 
       {/* Main Container */}
       <div
-        className={`w-full bg-gray rounded-4xl overflow-hidden flex flex-col lg:flex-row p-3 md:p-4 gap-3 md:gap-4 relative ${
+        className={`w-full bg-gray rounded-4xl overflow-hidden flex flex-col lg:flex-row p-3 md:p-4 gap-3 md:gap-4 relative z-10 ${
           compact ? 'max-h-[650px]' : ''
         }`}
         style={{ minHeight: compact ? '420px' : '520px' }}
