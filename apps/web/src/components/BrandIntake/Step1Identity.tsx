@@ -24,14 +24,14 @@ const Step1Identity = () => {
   }, [config.brandName]);
 
   return (
-    <form id="brand-intake-step1" className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
+    <form id="brand-intake-step1" className="flex flex-col animate-in fade-in duration-500" onSubmit={(e) => e.preventDefault()}>
       <span className="text-charcoal/80 mb-4 text-base">Step 1</span>
       <h2 className="text-5xl md:text-6xl xl:text-7xl mb-6">Let's start with the basics</h2>
-      <p className="text-xl text-charcoal/80 mb-16">
+      <p className="text-base md:text-xl text-charcoal/80 mb-12">
         We'll need to know more about your brand identity and development preferences in order to generate your system appropriately.
       </p>
 
-      <div className="space-y-12">
+      <div className="flex flex-col gap-12">
         {/* Brand Name */}
         <div className="flex flex-col">
           <label className="text-base text-charcoal mb-4 font-medium">Brand Name<span className="text-red-500">*</span></label>
@@ -44,9 +44,9 @@ const Step1Identity = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Package Scope */}
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col">
             <label className="text-base text-charcoal mb-4 font-medium">What should we call your system?<span className="text-red-500">*</span></label>
             <Input
               value={config.packageScope.replace(/^@/, '')}
@@ -58,7 +58,7 @@ const Step1Identity = () => {
           </div>
 
           {/* Company Size */}
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col">
             <label className="text-base text-charcoal mb-4 font-medium">Company Size</label>
             <Select
               value={config.companySize}

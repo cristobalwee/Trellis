@@ -31,7 +31,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   displayValue,
 }) => {
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`flex flex-col gap-3 w-full min-w-0 ${className}`}>
       {label && (
         <label className="text-base text-charcoal font-medium">{label}</label>
       )}
@@ -58,14 +58,16 @@ export const Combobox: React.FC<ComboboxProps> = ({
         <BaseCombobox.Portal>
           <BaseCombobox.Positioner
             side="bottom"
-            sideOffset={8}
+            sideOffset={4}
             className="z-60"
           >
             <BaseCombobox.Popup
-              className="bg-white rounded-2xl shadow-xl border border-charcoal/5 p-2 max-h-60 overflow-y-auto outline-none
-                transition-[transform,opacity] duration-150
-                data-starting-style:opacity-0 data-starting-style:scale-95 data-starting-style:-translate-y-1
-                data-ending-style:opacity-0 data-ending-style:scale-95 data-ending-style:-translate-y-1"
+              data-lenis-prevent
+              className="bg-white border border-charcoal/10 shadow-lg rounded-2xl p-2 max-h-60 overflow-y-auto overscroll-contain touch-pan-y outline-none
+                origin-top
+                transition-[transform,opacity] duration-150 ease-out
+                data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.95]
+                data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.95]"
             >
               {options.map((option) => (
                 <BaseCombobox.Item
@@ -74,7 +76,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
                   className="w-full text-left px-4 py-2.5 rounded-xl text-sm text-charcoal cursor-pointer
                     transition-colors hover:bg-charcoal/5
                     data-highlighted:bg-charcoal/5
-                    data-selected:font-bold data-selected:text-forest-green"
+                    data-selected:font-medium data-selected:text-forest-green"
                 >
                   {option}
                 </BaseCombobox.Item>

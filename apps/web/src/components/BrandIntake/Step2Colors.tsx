@@ -78,7 +78,7 @@ const Step2Colors: React.FC = () => {
     <div className="flex flex-col animate-in fade-in duration-500">
       <span className="text-charcoal/80 mb-4 text-base">Step 2</span>
       <h2 className="text-5xl md:text-7xl mb-6">Choose your colors</h2>
-      <p className="text-xl text-charcoal/80 mb-12">
+      <p className="text-base md:text-xl text-charcoal/80 mb-12">
         We use OKLCH to ensure your color system is accessible and perceptually
         uniform across all themes.
       </p>

@@ -14,12 +14,45 @@ import { Agentation } from "agentation";
 ---
 
 <BaseLayout>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+    <svg class="loading-logo" width="56" height="56" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18.5409 3.33325C25.7074 3.33334 27.2909 11.2499 27.2909 15.2083V26.4583H20.2118V15.2083C20.2118 12.0127 19.1799 6.23832 15.0116 4.1311C15.9938 3.6279 17.1595 3.33325 18.5409 3.33325ZM11.4618 3.33325C12.8429 3.33325 14.0166 3.62809 15.0116 4.1311C10.898 6.23857 10.0057 12.0129 9.99889 15.2083C9.9904 19.1662 9.99889 26.4567 9.99889 26.4583H2.92076C2.92076 26.4562 2.91228 19.166 2.92076 15.2083C2.92925 11.25 4.29546 3.33354 11.4618 3.33325Z" fill="#5BA26B"/>
+    </svg>
+  </div>
+
+  <style>
+    .loading-logo {
+      opacity: 0;
+      animation: loaderLogo 1.8s ease forwards 0.3s;
+    }
+
+    @keyframes loaderLogo {
+      0% { opacity: 0; transform: translateY(16px); }
+      20% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-16px); }
+    }
+
+    #loading-screen {
+      animation: loaderOverlay 2.1s ease forwards 0.2s;
+    }
+
+    @keyframes loaderOverlay {
+      0%, 90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+
+  <script>
+    const loader = document.getElementById('loading-screen');
+    loader?.addEventListener('animationend', () => loader.remove());
+  </script>
+
   <Header />
   <main>
     <Hero />
 
-    <!-- Brand Intake Modal (React Island) -->
-    <BrandIntake client:only="react" />
     <Comparison />
 
     <!-- Interactive Scroll Animation -->
@@ -30,11 +63,6 @@ import { Agentation } from "agentation";
     <CTA />
   </main>
   <Footer />
-  <Agentation
-    endpoint="http://localhost:4747"
-    onSessionCreated={(sessionId) => {
-      console.log("Session started:", sessionId);
-    }}
-    client:only="react"
-  />
+  <!-- Brand Intake Modal (React Island) -->
+  <BrandIntake client:only="react" />
 </BaseLayout>

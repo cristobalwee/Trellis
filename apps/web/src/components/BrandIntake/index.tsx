@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef, type ReactNode } from 'react';
+import { motion, AnimatePresence, usePresence } from 'framer-motion';
 import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig, resetConfig } from './store';
 
@@ -36,7 +36,6 @@ const StepItem = ({
   const stepNum = index + 1;
   const isSelected = stepNum <= current;
   const isClickable = stepNum <= maxReached;
-  const isCurrent = stepNum === current;
 
   // Calculate width classes based on state
   let widthClass = 'w-5 md:w-6 bg-charcoal/30 will-change-auto';
@@ -111,16 +110,105 @@ const Stepper = ({ current, onStepClick }: { current: number; onStepClick: (step
 
 const isDev = import.meta.env.DEV;
 
-const stepVariants = {
-  enter: (direction: 'forward' | 'back') => ({
-    opacity: 0,
-    y: direction === 'forward' ? 40 : -40,
-  }),
-  center: { opacity: 1, y: 0 },
-  exit: (direction: 'forward' | 'back') => ({
-    opacity: 0,
-    y: direction === 'forward' ? -40 : 40,
-  }),
+const STEP_ANIMATION_SELECTOR = ':scope *';
+const STEP_ENTER_STAGGER_S = 0.02;
+const STEP_ENTER_MAX_DELAY_S = 0.45;
+const STEP_EXIT_STAGGER_S = 0.012;
+const STEP_EXIT_MAX_DELAY_S = 0.16;
+const STEP_EXIT_DURATION_MS = 260;
+const STEP_CHILDREN_IGNORE_ATTR = 'data-step-animate-children';
+const STEP_CHILDREN_IGNORE_VALUE = 'ignore';
+
+const collectStepAnimationItems = (scope: HTMLElement): HTMLElement[] =>
+  Array.from(scope.querySelectorAll<HTMLElement>(STEP_ANIMATION_SELECTOR)).filter((el) => {
+    if (el.dataset.stepAnimateIgnore === 'true') return false;
+    const lockedAncestor = el.parentElement?.closest<HTMLElement>(
+      `[${STEP_CHILDREN_IGNORE_ATTR}="${STEP_CHILDREN_IGNORE_VALUE}"]`,
+    );
+    if (lockedAncestor && scope.contains(lockedAncestor)) return false;
+    if (el.matches('script, style')) return false;
+    if (el.matches('svg, path, circle, rect, line, polygon, g, defs, clipPath')) return false;
+    if (el instanceof HTMLInputElement && el.type === 'hidden') return false;
+
+    const computed = window.getComputedStyle(el);
+    if (computed.display === 'none' || computed.visibility === 'hidden') return false;
+    if (computed.display === 'contents') return false;
+    return true;
+  });
+
+const AnimatedStepContent = ({
+  children,
+  direction,
+}: {
+  children: ReactNode;
+  direction: 'forward' | 'back';
+}) => {
+  const scopeRef = useRef<HTMLDivElement | null>(null);
+  const [isPresent, safeToRemove] = usePresence();
+
+  useEffect(() => {
+    const scope = scopeRef.current;
+    if (!scope || !isPresent) return;
+
+    const enterOffset = direction === 'forward' ? '28px' : '-28px';
+    const items = collectStepAnimationItems(scope);
+
+    items.forEach((item, index) => {
+      const delay = Math.min(index * STEP_ENTER_STAGGER_S, STEP_ENTER_MAX_DELAY_S);
+      item.style.setProperty('--step-item-delay', `${delay.toFixed(3)}s`);
+      item.style.setProperty('--step-enter-offset', enterOffset);
+      item.classList.remove('step-animate-item-exit');
+      item.classList.add('step-animate-item-enter');
+    });
+
+    return () => {
+      items.forEach((item) => {
+        item.classList.remove('step-animate-item-enter');
+        item.style.removeProperty('--step-item-delay');
+        item.style.removeProperty('--step-enter-offset');
+      });
+    };
+  }, [direction, isPresent]);
+
+  useEffect(() => {
+    if (isPresent) return;
+
+    const scope = scopeRef.current;
+    if (!scope) {
+      safeToRemove();
+      return;
+    }
+
+    const exitOffset = direction === 'forward' ? '-24px' : '24px';
+    const items = collectStepAnimationItems(scope);
+
+    items.forEach((item, index) => {
+      const delay = Math.min(index * STEP_EXIT_STAGGER_S, STEP_EXIT_MAX_DELAY_S);
+      item.style.setProperty('--step-item-exit-delay', `${delay.toFixed(3)}s`);
+      item.style.setProperty('--step-exit-offset', exitOffset);
+      item.classList.remove('step-animate-item-enter');
+      item.classList.add('step-animate-item-exit');
+    });
+
+    const longestDelay = Math.min((items.length - 1) * STEP_EXIT_STAGGER_S, STEP_EXIT_MAX_DELAY_S);
+    const totalExitMs = Math.round((longestDelay * 1000) + STEP_EXIT_DURATION_MS + 24);
+    const timer = window.setTimeout(() => safeToRemove(), totalExitMs);
+
+    return () => {
+      window.clearTimeout(timer);
+      items.forEach((item) => {
+        item.classList.remove('step-animate-item-exit');
+        item.style.removeProperty('--step-item-exit-delay');
+        item.style.removeProperty('--step-exit-offset');
+      });
+    };
+  }, [direction, isPresent, safeToRemove]);
+
+  return (
+    <div ref={scopeRef} data-step-animate>
+      {children}
+    </div>
+  );
 };
 
 const BrandIntake = () => {
@@ -238,18 +326,10 @@ const BrandIntake = () => {
           {/* Main Content Area */}
           <main className="flex-1 overflow-y-scroll min-h-fit pt-[5vh] pb-48 w-full">
             <div className="max-w-5xl mx-auto px-6 md:px-12 w-full">
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={currentStep}
-                  custom={direction}
-                  variants={stepVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                >
+              <AnimatePresence mode="wait" initial={false}>
+                <AnimatedStepContent key={currentStep} direction={direction}>
                   {renderStep()}
-                </motion.div>
+                </AnimatedStepContent>
               </AnimatePresence>
             </div>
           </main>

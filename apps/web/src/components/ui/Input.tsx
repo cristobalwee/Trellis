@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLElement, InputProps>(
   ({ size = 'default', className = '', ...rest }, ref) => (
     <BaseInput
       ref={ref}
-      className={`${SIZE_CLASSES[size]} border border-charcoal/20 text-charcoal focus:outline-blue-500 placeholder:text-charcoal/50 ${className}`}
+      className={`w-full min-w-0 ${SIZE_CLASSES[size]} border border-charcoal/20 text-charcoal focus:outline-blue-500 placeholder:text-charcoal/50 ${className}`}
       {...rest}
     />
   ),

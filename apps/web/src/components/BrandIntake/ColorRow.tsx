@@ -72,7 +72,7 @@ export const RampSliders: React.FC<{
   onSaturationChange: (value: number) => void;
   onUniformityChange: (value: number) => void;
 }> = ({ saturation, uniformity, onSaturationChange, onUniformityChange }) => (
-  <div className="flex flex-col gap-8">
+  <div className="flex flex-col gap-8" data-step-animate-children="ignore">
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
         <label className="text-sm text-charcoal">Saturation</label>

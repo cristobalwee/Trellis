@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HexColorPicker } from 'react-colorful';
 
@@ -30,11 +31,41 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   pickerWidth,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+
+  // Update popover position when opened or on scroll/resize (fixed = viewport coords)
+  const updatePosition = () => {
+    if (triggerRef.current && isOpen) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + 8,
+        left: rect.left,
+      });
+    }
+  };
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -45,46 +76,62 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   }, [isOpen]);
 
   return (
-    <div className={`relative${label ? ' flex flex-col gap-2' : ''}`} ref={popoverRef}>
+    <div className={label ? 'flex flex-col gap-2' : ''}>
       {label && (
         <label className="text-[12px] text-charcoal/80">{label}</label>
       )}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        ref={triggerRef}
+        onClick={() => {
+          if (!isOpen && triggerRef.current) {
+            const rect = triggerRef.current.getBoundingClientRect();
+            setPosition({ top: rect.bottom + 8, left: rect.left });
+          }
+          setIsOpen(!isOpen);
+        }}
         className={swatchClassName}
         style={{ backgroundColor: color }}
         aria-label={ariaLabel || label || 'Pick color'}
       />
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 mt-2 z-50 bg-white rounded-xl shadow-xl p-3 border border-charcoal/10"
-          >
-            <HexColorPicker
-              color={color}
-              onChange={onChange}
-              {...(pickerWidth ? { style: { width: pickerWidth } } : {})}
-            />
-            {showFooter && (
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs font-mono text-charcoal/60">
-                  {color.toUpperCase()}
-                </span>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-xs font-bold text-forest-green hover:underline"
-                >
-                  Done
-                </button>
-              </div>
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                ref={popoverRef}
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="fixed z-[9999] bg-white rounded-xl shadow-xl p-3 border border-charcoal/10"
+                style={{
+                  top: position.top,
+                  left: position.left,
+                }}
+              >
+                <HexColorPicker
+                  color={color}
+                  onChange={onChange}
+                  {...(pickerWidth ? { style: { width: pickerWidth } } : {})}
+                />
+                {showFooter && (
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-mono text-charcoal/60">
+                      {color.toUpperCase()}
+                    </span>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="text-xs font-bold text-forest-green hover:underline"
+                    >
+                      Done
+                    </button>
+                  </div>
+                )}
+              </motion.div>
             )}
-          </motion.div>
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </div>
   );
 };

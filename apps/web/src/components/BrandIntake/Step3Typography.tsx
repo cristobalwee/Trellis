@@ -1,7 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Upload, X } from 'lucide-react';
+import { Settings, Upload } from 'lucide-react';
 import { $brandConfig, updateConfig } from './store';
 import { Combobox } from '../ui/Combobox';
 
@@ -21,84 +21,36 @@ const GOOGLE_FONTS = [
 ];
 
 // ---------------------------------------------------------------------------
-// Preset type scale
+// Heading scale (1 rem – 4 rem, bold)
 // ---------------------------------------------------------------------------
 
-const TYPE_SCALE = [
-  { token: '7xl', rem: '4.5rem',   px: 72, note: 'Display' },
-  { token: '6xl', rem: '3.75rem',  px: 60 },
-  { token: '5xl', rem: '3rem',     px: 48 },
-  { token: '4xl', rem: '2.25rem',  px: 36 },
-  { token: '3xl', rem: '1.875rem', px: 30 },
-  { token: '2xl', rem: '1.5rem',   px: 24 },
-  { token: 'xl',  rem: '1.25rem',  px: 20 },
-  { token: 'lg',  rem: '1.125rem', px: 18, note: 'Lead paragraphs' },
-  { token: 'base', rem: '1rem',    px: 16, note: 'Body text' },
-  { token: 'sm',  rem: '0.875rem', px: 14, note: 'Secondary text, labels' },
-  { token: 'xs',  rem: '0.75rem',  px: 12, note: 'Captions, fine print' },
-  { token: 'xxs', rem: '0.625rem', px: 10, note: 'Smallest — semibold+ for readability' },
+const HEADING_SCALE = [
+  { label: 'XXLarge', token: 'font.heading.xxlarge', remVal: 4, px: 64, lhRemVal: 4.5, lhPx: 72 },
+  { label: 'XLarge', token: 'font.heading.xlarge', remVal: 3, px: 48, lhRemVal: 3.5, lhPx: 56 },
+  { label: 'Large', token: 'font.heading.large', remVal: 2.25, px: 36, lhRemVal: 2.75, lhPx: 44 },
+  { label: 'Medium', token: 'font.heading.medium', remVal: 1.75, px: 28, lhRemVal: 2.25, lhPx: 36 },
+  { label: 'Small', token: 'font.heading.small', remVal: 1.5, px: 24, lhRemVal: 2, lhPx: 32 },
+  { label: 'XSmall', token: 'font.heading.xsmall', remVal: 1.25, px: 20, lhRemVal: 1.75, lhPx: 28 },
+  { label: 'XXSmall', token: 'font.heading.xxsmall', remVal: 1, px: 16, lhRemVal: 1.5, lhPx: 24 },
 ];
 
 // ---------------------------------------------------------------------------
-// Custom font upload
+// Body scale (10–18 px, regular / medium / bold)
 // ---------------------------------------------------------------------------
 
-interface FontUploadProps {
-  label: string;
-  fontName?: string;
-  onUpload: (name: string, file: File) => void;
-  onClear: () => void;
-}
+const BODY_SIZES = [
+  { label: 'large', px: 18, remVal: 1.125, lhRemVal: 1.75, lhPx: 28 },
+  { label: 'base', px: 16, remVal: 1, lhRemVal: 1.5, lhPx: 24 },
+  { label: 'small', px: 14, remVal: 0.875, lhRemVal: 1.25, lhPx: 20 },
+  { label: 'xsmall', px: 12, remVal: 0.75, lhRemVal: 1, lhPx: 16 },
+  { label: 'xxsmall', px: 10, remVal: 0.625, lhRemVal: 0.875, lhPx: 14 },
+];
 
-const FontUpload: React.FC<FontUploadProps> = ({ label, fontName, onUpload, onClear }) => {
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const name = file.name.replace(/\.[^.]+$/, '');
-    onUpload(name, file);
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal/60">
-        {label}
-      </span>
-      {fontName ? (
-        <div className="flex items-center gap-2 bg-forest-green/5 border border-forest-green/20 rounded-lg px-3 py-2">
-          <span className="text-sm font-medium text-forest-green flex-1 truncate">
-            {fontName}
-          </span>
-          <button
-            onClick={() => {
-              onClear();
-              if (fileRef.current) fileRef.current.value = '';
-            }}
-            className="text-charcoal/30 hover:text-charcoal/60 transition-colors"
-          >
-            <X size={12} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 px-3 py-2 border border-dashed border-charcoal/20 rounded-lg text-sm text-charcoal/60 hover:border-charcoal/40 hover:text-charcoal/80 transition-colors cursor-pointer"
-        >
-          <Upload size={14} />
-          Upload font file
-        </button>
-      )}
-      <input
-        ref={fileRef}
-        type="file"
-        accept=".ttf,.otf,.woff,.woff2"
-        className="hidden"
-        onChange={handleChange}
-      />
-    </div>
-  );
-};
+const BODY_WEIGHTS = [
+  { label: 'Regular', value: 400 },
+  { label: 'Medium', value: 500 },
+  { label: 'Bold', value: 700 },
+];
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -107,23 +59,6 @@ const FontUpload: React.FC<FontUploadProps> = ({ label, fontName, onUpload, onCl
 const Step3Typography: React.FC = () => {
   const config = useStore($brandConfig);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-
-  // Local state for custom font files (can't persist File objects)
-  const [customFontFile, setCustomFontFile] = useState<File | null>(null);
-  const [customHeadingFile, setCustomHeadingFile] = useState<File | null>(null);
-  const [customBodyFile, setCustomBodyFile] = useState<File | null>(null);
-
-  // Load a custom font via FontFace API
-  const loadCustomFont = useCallback(async (name: string, file: File) => {
-    const url = URL.createObjectURL(file);
-    try {
-      const face = new FontFace(name, `url(${url})`);
-      await face.load();
-      document.fonts.add(face);
-    } catch {
-      // silently fail — font just won't render
-    }
-  }, []);
 
   // Handlers for font selection
   const handlePrimaryFontChange = useCallback((font: string) => {
@@ -156,51 +91,6 @@ const Step3Typography: React.FC = () => {
     }
   }, [config.useSingleTypeface, config.primaryFont]);
 
-  // Custom font upload handlers
-  const handleCustomFontUpload = useCallback(
-    async (name: string, file: File) => {
-      await loadCustomFont(name, file);
-      setCustomFontFile(file);
-      if (config.useSingleTypeface) {
-        updateConfig({ customFontName: name, primaryFont: name, headingFont: name });
-      }
-    },
-    [config.useSingleTypeface, loadCustomFont],
-  );
-
-  const handleCustomHeadingUpload = useCallback(
-    async (name: string, file: File) => {
-      await loadCustomFont(name, file);
-      setCustomHeadingFile(file);
-      updateConfig({ customHeadingFontName: name, headingFont: name });
-    },
-    [loadCustomFont],
-  );
-
-  const handleCustomBodyUpload = useCallback(
-    async (name: string, file: File) => {
-      await loadCustomFont(name, file);
-      setCustomBodyFile(file);
-      updateConfig({ customBodyFontName: name, primaryFont: name });
-    },
-    [loadCustomFont],
-  );
-
-  const clearCustomFont = useCallback(() => {
-    setCustomFontFile(null);
-    updateConfig({ customFontName: undefined, primaryFont: 'Inter', headingFont: 'Inter' });
-  }, []);
-
-  const clearCustomHeadingFont = useCallback(() => {
-    setCustomHeadingFile(null);
-    updateConfig({ customHeadingFontName: undefined, headingFont: 'Inter' });
-  }, []);
-
-  const clearCustomBodyFont = useCallback(() => {
-    setCustomBodyFile(null);
-    updateConfig({ customBodyFontName: undefined, primaryFont: 'Inter' });
-  }, []);
-
   // Resolve which fonts to show in preview
   const bodyFont = config.primaryFont;
   const headingFont = config.useSingleTypeface ? config.primaryFont : config.headingFont;
@@ -209,8 +99,8 @@ const Step3Typography: React.FC = () => {
     <div className="flex flex-col animate-in fade-in duration-500">
       <span className="text-charcoal/80 mb-4 text-base">Step 3</span>
       <h2 className="text-5xl md:text-7xl mb-6">Set your typography</h2>
-      <p className="text-xl text-charcoal/80 mb-12">
-        Choose your typeface{config.useSingleTypeface ? '' : 's'} and preview the preset type scale.
+      <p className="text-base md:text-xl text-charcoal/80 mb-12">
+        Choose your typeface and preview the type scales.
       </p>
 
       <div className="flex flex-col gap-16">
@@ -218,35 +108,44 @@ const Step3Typography: React.FC = () => {
         {/* Font selection */}
         {/* ----------------------------------------------------------------- */}
         <div className="flex flex-col gap-8">
-          {config.useSingleTypeface ? (
-            <Combobox
-              label="Typeface"
-              value={config.primaryFont}
-              onValueChange={handlePrimaryFontChange}
-              options={GOOGLE_FONTS}
-              placeholder="Search Google Fonts…"
-              displayValue={config.customFontName}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-12">
+            <div
+              className={`w-full transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                config.useSingleTypeface ? 'md:w-[calc(200%+3rem)]' : ''
+              }`}
+            >
               <Combobox
-                label="Heading Typeface"
-                value={config.headingFont}
-                onValueChange={handleHeadingFontChange}
+                label={config.useSingleTypeface ? 'Typeface' : 'Heading Typeface'}
+                value={config.useSingleTypeface ? config.primaryFont : config.headingFont}
+                onValueChange={config.useSingleTypeface ? handlePrimaryFontChange : handleHeadingFontChange}
                 options={GOOGLE_FONTS}
                 placeholder="Search Google Fonts…"
-                displayValue={config.customHeadingFontName}
-              />
-              <Combobox
-                label="Body Typeface"
-                value={config.primaryFont}
-                onValueChange={handlePrimaryFontChange}
-                options={GOOGLE_FONTS}
-                placeholder="Search Google Fonts…"
-                displayValue={config.customBodyFontName}
+                displayValue={config.useSingleTypeface ? config.customFontName : config.customHeadingFontName}
               />
             </div>
-          )}
+            <AnimatePresence initial={false}>
+              {!config.useSingleTypeface && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, x: 24 }}
+                  animate={{ opacity: 1, height: 'auto', x: 0 }}
+                  exit={{ opacity: 0, height: 0, x: 24 }}
+                  transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-8 md:pt-0">
+                    <Combobox
+                      label="Body Typeface"
+                      value={config.primaryFont}
+                      onValueChange={handlePrimaryFontChange}
+                      options={GOOGLE_FONTS}
+                      placeholder="Search Google Fonts…"
+                      displayValue={config.customBodyFontName}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Font weights */}
           <div className="flex flex-col gap-3">
@@ -282,7 +181,7 @@ const Step3Typography: React.FC = () => {
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer ${
                 isAdvancedOpen
                   ? 'bg-forest-green/10 text-forest-green'
-                  : 'bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10'
+                  : 'bg-charcoal/5 text-charcoal/80 hover:bg-charcoal/10'
               }`}
             >
               <Settings size={14} />
@@ -325,41 +224,28 @@ const Step3Typography: React.FC = () => {
                       </button>
                     </label>
 
-                    {/* Custom font upload */}
+                    {/* Custom font upload — coming soon */}
                     <div className="space-y-4 pt-4 border-t border-charcoal/10">
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-bold text-charcoal">
                           Custom Fonts
                         </span>
                         <span className="text-xs text-charcoal/60">
-                          Upload .ttf, .otf, .woff, or .woff2 files to use a custom font instead
-                          of Google Fonts.
+                          Upload your own font files instead of using Google Fonts.
                         </span>
                       </div>
 
-                      {config.useSingleTypeface ? (
-                        <FontUpload
-                          label="Font File"
-                          fontName={config.customFontName}
-                          onUpload={handleCustomFontUpload}
-                          onClear={clearCustomFont}
-                        />
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <FontUpload
-                            label="Heading Font File"
-                            fontName={config.customHeadingFontName}
-                            onUpload={handleCustomHeadingUpload}
-                            onClear={clearCustomHeadingFont}
-                          />
-                          <FontUpload
-                            label="Body Font File"
-                            fontName={config.customBodyFontName}
-                            onUpload={handleCustomBodyUpload}
-                            onClear={clearCustomBodyFont}
-                          />
+                      <div className="flex items-center gap-3 px-4 py-5 border border-dashed border-charcoal/15 rounded-xl bg-charcoal/2">
+                        <Upload size={18} className="text-charcoal/25 shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-medium text-charcoal/40">
+                            Custom font uploads coming soon
+                          </span>
+                          <span className="text-xs text-charcoal/30">
+                            Support for .ttf, .otf, .woff, and .woff2 files is on the roadmap.
+                          </span>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -369,65 +255,113 @@ const Step3Typography: React.FC = () => {
         </div>
 
         {/* ----------------------------------------------------------------- */}
-        {/* Preset type scale */}
+        {/* Heading scale */}
         {/* ----------------------------------------------------------------- */}
-        <div className="space-y-6">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase tracking-widest text-charcoal/40">
-              Type Scale
-            </label>
-            <p className="text-sm text-charcoal/60">
-              A fixed scale used across all generated tokens.
-            </p>
+        <div className="flex flex-col gap-4">
+          <label className="text-base text-charcoal font-medium">
+            Heading Scale
+          </label>
+
+          <div className="bg-white rounded-2xl border border-charcoal/5 shadow-sm overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+              <thead>
+                <tr className="border-b border-charcoal/10">
+                  <th className="text-left text-xs font-medium text-charcoal/50 pl-8 pr-4 py-3 w-1/2">Preview</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 py-3">Token</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 py-3">Font weight</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 pr-8 py-3">Font size</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-charcoal/5">
+                {HEADING_SCALE.map((step) => (
+                  <tr key={step.token}>
+                    <td className="pl-8 pr-4 py-4 align-middle">
+                      <span
+                        style={{
+                          fontSize: `${step.px}px`,
+                          fontFamily: `'${headingFont}', sans-serif`,
+                          fontWeight: 700,
+                          lineHeight: 1.2,
+                        }}
+                        className="text-charcoal"
+                      >
+                        Title
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 align-middle">
+                      <code className="text-xs font-mono text-charcoal/70 bg-charcoal/4 px-2 py-1 rounded">
+                        {step.token}
+                      </code>
+                    </td>
+                    <td className="px-4 py-4 align-middle text-sm text-charcoal/80">Bold</td>
+                    <td className="px-4 pr-8 py-4 align-middle text-sm text-charcoal/80">
+                      {step.remVal} rem / {step.px} px
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        </div>
 
-          <div className="bg-white rounded-2xl border border-charcoal/5 shadow-sm overflow-hidden divide-y divide-charcoal/5">
-            {TYPE_SCALE.map((step) => {
-              const isHeading = step.px >= 24;
-              const font = isHeading ? headingFont : bodyFont;
-              const weight =
-                config.fontWeights[Math.floor(config.fontWeights.length / 2)] || 400;
+        {/* ----------------------------------------------------------------- */}
+        {/* Body scale */}
+        {/* ----------------------------------------------------------------- */}
+        <div className="flex flex-col gap-4">
+          <label className="text-base text-charcoal font-medium">
+            Body Scale
+          </label>
 
-              return (
-                <div
-                  key={step.token}
-                  className="flex items-baseline gap-4 md:gap-8 px-6 py-4"
-                >
-                  {/* Token */}
-                  <span className="w-12 shrink-0 text-xs font-mono font-bold text-charcoal/30 text-right">
-                    {step.token}
-                  </span>
-
-                  {/* Size */}
-                  <span className="w-24 shrink-0 text-xs font-mono text-charcoal/40">
-                    {step.rem}
-                    <span className="hidden md:inline text-charcoal/20 ml-1">
-                      ({step.px}px)
-                    </span>
-                  </span>
-
-                  {/* Specimen */}
-                  <p
-                    style={{
-                      fontSize: `${step.px}px`,
-                      fontFamily: `'${font}', sans-serif`,
-                      fontWeight: weight,
-                      lineHeight: 1.2,
-                    }}
-                    className="text-charcoal truncate flex-1 min-w-0"
-                  >
-                    Aa
-                  </p>
-
-                  {/* Note */}
-                  {step.note && (
-                    <span className="hidden lg:block text-xs text-charcoal/30 shrink-0 max-w-48 text-right">
-                      {step.note}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+          <div className="bg-white rounded-2xl border border-charcoal/5 shadow-sm overflow-x-auto">
+            <table className="w-full min-w-[640px]">
+              <thead>
+                <tr className="border-b border-charcoal/10">
+                  <th className="text-left text-xs font-medium text-charcoal/50 pl-8 pr-4 py-3 w-1/2">Preview</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 py-3">Token</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 py-3">Font weight</th>
+                  <th className="text-left text-xs font-medium text-charcoal/50 px-4 pr-8 py-3">Font size</th>
+                </tr>
+              </thead>
+              <tbody>
+                {BODY_SIZES.map((size, sizeIdx) => (
+                  <React.Fragment key={size.label}>
+                    {BODY_WEIGHTS.map((w, wIdx) => (
+                      <tr
+                        key={`${size.label}-${w.value}`}
+                        className={wIdx === BODY_WEIGHTS.length - 1 && sizeIdx !== BODY_SIZES.length - 1 ? 'border-b border-charcoal/10' : ''}
+                      >
+                        <td className="pl-8 pr-4 py-3 align-middle">
+                          <span
+                            style={{
+                              fontSize: `${size.px}px`,
+                              fontFamily: `'${bodyFont}', sans-serif`,
+                              fontWeight: w.value,
+                              lineHeight: 1.5,
+                            }}
+                            className="text-charcoal"
+                          >
+                            Lorem Ipsum dolor sit amet
+                          </span>
+                        </td>
+                        {wIdx === 0 && (
+                          <td className="px-4 py-3 align-middle" rowSpan={BODY_WEIGHTS.length}>
+                            <code className="text-xs font-mono text-charcoal/70 bg-charcoal/4 px-2 py-1 rounded">
+                              {`font.body.${size.label}`}
+                            </code>
+                          </td>
+                        )}
+                        <td className="px-4 py-3 align-middle text-sm text-charcoal/80">{w.label}</td>
+                        {wIdx === 0 && (
+                          <td className="px-4 pr-8 py-3 align-middle text-sm text-charcoal/80" rowSpan={BODY_WEIGHTS.length}>
+                            {size.remVal} rem / {size.px} px
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

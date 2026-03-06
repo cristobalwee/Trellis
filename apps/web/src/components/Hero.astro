@@ -1,10 +1,14 @@
 ---
 import { FloralDecoration } from './FloralDecoration';
 import { AnimatedCTA } from './AnimatedCTA';
+
+// Master delay (seconds) — shifts all hero animations (text + florals) by this amount.
+// Loader takes 2.1s, header starts at 2.1s. Hero starts 0.15s after header begins.
+const MASTER_DELAY = 1.9;
 ---
 
-<section class="relative min-h-screen flex items-center justify-center overflow-x-hidden">
-  <FloralDecoration client:load />
+<section class="relative min-h-screen flex items-center justify-center overflow-x-hidden" data-master-delay={MASTER_DELAY}>
+  <FloralDecoration client:load masterDelay={MASTER_DELAY} />
   <div class="container-custom relative z-10">
     <!-- Main Content -->
     <div class="max-w-4xl lg:max-w-5xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center mt-[-100px]" data-scroll data-scroll-speed="-0.1">
@@ -42,17 +46,12 @@ import { AnimatedCTA } from './AnimatedCTA';
 </section>
 
 <style>
-  /* Typography Animations */
-  [data-animate='headline'] {
+  :global([data-animate-lines] [data-line-word]) {
+    display: inline-block;
     opacity: 0;
     animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
-    animation-delay: 0.4s;
-  }
-
-  [data-animate='subheadline'] {
-    opacity: 0;
-    animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
-    animation-delay: 0.55s;
+    animation-delay: calc(var(--line-base-delay, 0s) + (var(--line-index, 0) * var(--line-step-delay, 0.1s)));
+    will-change: transform, opacity;
   }
 
   [data-animate='cta'] {
@@ -63,8 +62,45 @@ import { AnimatedCTA } from './AnimatedCTA';
 </style>
 
 <script>
+  import { applyLineSplitAnimation } from '../utils/lineSplit';
+
+  const section = document.querySelector<HTMLElement>('[data-master-delay]');
+  const MASTER_DELAY = parseFloat(section?.dataset.masterDelay ?? '0');
+  const ANIMATION_BASE_DELAY = 0.4 + MASTER_DELAY;
+  const LINE_STAGGER_DELAY = 0.1;
+  const SECTION_GAP_DELAY = 0.15;
+
+  const heroHeadline = document.querySelector<HTMLElement>('[data-animate="headline"]');
+  const heroSubheadline = document.querySelector<HTMLElement>('[data-animate="subheadline"]');
+
   // Connect Hero CTA to BrandIntake modal
   const heroCTA = document.getElementById('hero-cta');
+  const ctaWrapper = document.querySelector<HTMLElement>('[data-animate="cta"]');
+
+  const updateHeroAnimationTiming = () => {
+    const headlineResult = applyLineSplitAnimation(heroHeadline, {
+      baseDelay: ANIMATION_BASE_DELAY,
+      lineDelay: LINE_STAGGER_DELAY
+    });
+
+    const subheadlineResult = applyLineSplitAnimation(heroSubheadline, {
+      baseDelay: headlineResult.endDelay + SECTION_GAP_DELAY,
+      lineDelay: LINE_STAGGER_DELAY
+    });
+
+    if (ctaWrapper) {
+      const ctaDelay = subheadlineResult.endDelay + SECTION_GAP_DELAY;
+      ctaWrapper.style.animationDelay = `${ctaDelay.toFixed(2)}s`;
+    }
+  };
+
+  updateHeroAnimationTiming();
+
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    window.cancelAnimationFrame(resizeRaf);
+    resizeRaf = window.requestAnimationFrame(updateHeroAnimationTiming);
+  });
 
   heroCTA?.addEventListener('click', () => {
     // Dispatch custom event to open BrandIntake modal

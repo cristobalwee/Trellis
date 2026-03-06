@@ -14,7 +14,7 @@ import { AnimatedCTA } from './AnimatedCTA';
       aria-label="Main navigation"
     >
       <!-- Logo -->
-      <a href="/" class="flex items-center gap-3 group">
+      <a href="/" class="flex items-center gap-3 group" data-header-anim="0">
         <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[64px] hidden md:block" />
         <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[36px] h-full md:hidden" />
       </a>
@@ -24,25 +24,28 @@ import { AnimatedCTA } from './AnimatedCTA';
         <a
           href="#how-it-works"
           class="text-charcoal hover:text-forest-green font-medium transition-colors"
+          data-header-anim="1"
         >
           How it works
         </a>
         <a
           href="#pricing"
           class="text-charcoal hover:text-forest-green font-medium transition-colors"
+          data-header-anim="2"
         >
           Pricing
         </a>
         <a
           href="#faq"
           class="text-charcoal hover:text-forest-green font-medium transition-colors"
+          data-header-anim="3"
         >
           FAQ
         </a>
       </div>
 
       <!-- CTA Button -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4" data-header-anim="4">
         <AnimatedCTA
           client:load
           id="header-cta"
@@ -69,6 +72,30 @@ import { AnimatedCTA } from './AnimatedCTA';
 
   #header[data-scrolled='true'] nav {
     @apply py-3 md:py-4;
+  }
+
+  /* Entry animations — loader ends at 2.1s, header items stagger with 0.05s gap */
+  [data-header-anim] {
+    opacity: 0;
+    animation: headerSlideIn 0.8s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+    animation-delay: calc(2.1s + var(--header-anim-index) * 0.02s);
+  }
+
+  [data-header-anim="0"] { --header-anim-index: 0; }
+  [data-header-anim="1"] { --header-anim-index: 1; }
+  [data-header-anim="2"] { --header-anim-index: 2; }
+  [data-header-anim="3"] { --header-anim-index: 3; }
+  [data-header-anim="4"] { --header-anim-index: 4; }
+
+  @keyframes headerSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>
 

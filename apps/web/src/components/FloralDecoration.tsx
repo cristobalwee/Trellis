@@ -138,13 +138,14 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 54, y: 66, rotation: 10, scale: 0.8, delay: 0.6, type: 'pink' },
   ];
 
-const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYProgress, cluster }: { 
-  pos: Position; 
-  mouseX: any; 
+const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYProgress, cluster, masterDelay = 0 }: {
+  pos: Position;
+  mouseX: any;
   mouseY: any;
   isScrolling: boolean;
   scrollYProgress: any;
   cluster: 'left' | 'right';
+  masterDelay?: number;
 }) => {
   const elementRef = useRef<HTMLDivElement>(null);
   
@@ -241,15 +242,15 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
           rotate: isScrolling ? pos.rotation : [pos.rotation, pos.rotation + 2, pos.rotation - 2, pos.rotation] 
         }}
         transition={{
-          opacity: { duration: 0.8, delay: pos.delay, ease: [0.34, 1.56, 0.64, 1] },
-          scale: { duration: 0.8, delay: pos.delay, ease: [0.34, 1.56, 0.64, 1] },
+          opacity: { duration: 0.8, delay: pos.delay + masterDelay, ease: [0.34, 1.56, 0.64, 1] },
+          scale: { duration: 0.8, delay: pos.delay + masterDelay, ease: [0.34, 1.56, 0.64, 1] },
           rotate: isScrolling 
             ? { duration: 0.8, ease: "easeOut" }
             : {
                 duration: swayDuration,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: pos.delay
+                delay: pos.delay + masterDelay
               }
         }}
         style={{
@@ -285,7 +286,7 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
   );
 });
 
-export const FloralDecoration = () => {
+export const FloralDecoration = ({ masterDelay = 0 }: { masterDelay?: number }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -328,14 +329,15 @@ export const FloralDecoration = () => {
       {/* Left Corner Cluster */}
       <div className="absolute bottom-[120px] left-[-50px] w-[45vw] h-[600px] pointer-events-auto">
         {LEFT_CLUSTER.map((pos, i) => (
-          <FloralElement 
-            key={`left-${i}`} 
-            pos={pos} 
-            mouseX={mouseX} 
-            mouseY={mouseY} 
+          <FloralElement
+            key={`left-${i}`}
+            pos={pos}
+            mouseX={mouseX}
+            mouseY={mouseY}
             isScrolling={isScrolling}
             scrollYProgress={scrollYProgress}
             cluster="left"
+            masterDelay={masterDelay}
           />
         ))}
       </div>
@@ -344,14 +346,15 @@ export const FloralDecoration = () => {
       <div className="absolute bottom-[120px] right-[-50px] w-[45vw] h-[600px] pointer-events-auto">
         <div className="relative w-full h-full">
           {RIGHT_CLUSTER.map((pos, i) => (
-            <FloralElement 
-              key={`right-${i}`} 
-              pos={pos} 
-              mouseX={mouseX} 
-              mouseY={mouseY} 
+            <FloralElement
+              key={`right-${i}`}
+              pos={pos}
+              mouseX={mouseX}
+              mouseY={mouseY}
               isScrolling={isScrolling}
               scrollYProgress={scrollYProgress}
               cluster="right"
+              masterDelay={masterDelay}
             />
           ))}
         </div>

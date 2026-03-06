@@ -39,7 +39,7 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
   const [isControlsOpen, setIsControlsOpen] = useState(defaultControlsOpen);
 
   return (
-    <div className="flex flex-col items-center" data-scroll data-scroll-speed="0.1">
+    <div className="flex flex-col items-center" data-scroll data-scroll-speed="0.1" data-step-animate-children="ignore">
       {/* Dark Mode Toggle - above container */}
       {showExternalDarkModeToggle && (
         <div 

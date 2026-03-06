@@ -226,6 +226,50 @@ html.lenis {
   }
 }
 
+[data-step-animate] .step-animate-item-enter {
+  opacity: 0;
+  animation: stepFadeIn 0.9s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+  animation-delay: var(--step-item-delay, 0s);
+  will-change: transform, opacity;
+}
+
+[data-step-animate] .step-animate-item-exit {
+  opacity: 1;
+  animation: stepFadeOut 0.26s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: var(--step-item-exit-delay, 0s);
+  will-change: transform, opacity;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(var(--step-enter-offset, 28px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stepFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--step-exit-offset, -24px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-step-animate] .step-animate-item-enter,
+  [data-step-animate] .step-animate-item-exit {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 @keyframes typing {
   from {
     width: 0;

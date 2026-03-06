@@ -46,7 +46,7 @@ const Step4Style = () => {
     <div className="flex flex-col">
       <span className="text-charcoal/80 mb-4 text-base">Step 4</span>
       <h2 className="text-5xl md:text-7xl mb-6">Configure your styles</h2>
-      <p className="text-xl text-charcoal/80 mb-12">
+      <p className="text-base md:text-xl text-charcoal/80 mb-12">
         Select the visual characteristics that match your brand's personality
       </p>
 

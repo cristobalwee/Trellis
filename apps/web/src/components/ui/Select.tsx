@@ -13,12 +13,12 @@ const TRIGGER_SIZES = {
 
 const POPUP_SIZES = {
   default: 'rounded-2xl p-2',
-  compact: 'rounded-lg py-1',
+  compact: 'rounded-lg p-2',
 } as const;
 
 const ITEM_SIZES = {
   default: 'px-4 py-2.5 rounded-xl text-sm',
-  compact: 'px-3 py-2 text-sm',
+  compact: 'px-3 py-2 rounded-lg text-sm',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ export const Select: React.FC<SelectProps> = ({
   const items = options.map((o) => ({ value: o.value, label: o.label }));
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
+    <div className={`flex flex-col gap-3 w-full min-w-0 ${className}`}>
       {label && (
         <span className="text-sm text-charcoal">{label}</span>
       )}
@@ -76,7 +76,7 @@ export const Select: React.FC<SelectProps> = ({
         modal={false}
       >
         <BaseSelect.Trigger
-          className={`flex items-center gap-2 w-full bg-white border border-charcoal/20 text-charcoal hover:border-charcoal/30 transition-colors cursor-pointer ${TRIGGER_SIZES[size]} ${triggerClassName}`}
+          className={`flex items-center gap-2 w-full bg-white border border-charcoal/20 text-charcoal hover:border-charcoal/30 focus:outline-blue-500 transition-colors cursor-pointer ${TRIGGER_SIZES[size]} ${triggerClassName}`}
         >
           {/* Render selected option's icon if present */}
           <SelectedIcon options={options} value={value} />
@@ -97,10 +97,12 @@ export const Select: React.FC<SelectProps> = ({
             className="z-60"
           >
             <BaseSelect.Popup
-              className={`bg-white border border-charcoal/10 shadow-lg ${POPUP_SIZES[size]} outline-none
-                transition-[transform,opacity] duration-150
-                data-starting-style:opacity-0 data-starting-style:scale-95 data-starting-style:-translate-y-1
-                data-ending-style:opacity-0 data-ending-style:scale-95 data-ending-style:-translate-y-1`}
+              data-lenis-prevent
+              className={`bg-white border border-charcoal/10 shadow-lg ${POPUP_SIZES[size]} outline-none max-h-60 overflow-y-auto overscroll-contain touch-pan-y
+                origin-top
+                transition-[transform,opacity] duration-150 ease-out
+                data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.95]
+                data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.95]`}
             >
               {options.map((option) => (
                 <BaseSelect.Item
