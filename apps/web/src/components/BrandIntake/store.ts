@@ -3,15 +3,14 @@ import type { ColorRamp } from '../Showcase/colorUtils';
 
 export type { ColorRamp };
 
+export type TabId = 'color' | 'typography' | 'style';
+
 export interface BrandConfig {
-  // Step 1: Identity
+  // Identity
   brandName: string;
-  slug: string;
-  packageScope: string;
-  companySize: string;
   logoUrl?: string;
 
-  // Step 2: Colors
+  // Colors
   primaryColor: string;
   primaryRamp?: ColorRamp;
   secondaryColor?: string;
@@ -24,10 +23,10 @@ export interface BrandConfig {
   useCustomTertiary: boolean;
   tertiaryGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
   tertiaryRamp?: ColorRamp;
-  
+
   neutralTint: 'pure' | 'cool' | 'warm' | 'brand-tinted';
   neutralRamp?: ColorRamp;
-  
+
   accentColor?: string;
   useAccent: boolean;
   useCustomAccent: boolean;
@@ -43,7 +42,7 @@ export interface BrandConfig {
     info: string;
   };
 
-  // Step 3: Typography
+  // Typography
   primaryFont: string;
   headingFont: string;
   useSingleTypeface: boolean;
@@ -53,21 +52,18 @@ export interface BrandConfig {
   fontWeights: number[];
   fontScale: number;
 
-  // Step 4: Style
+  // Style
   roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
+  shadows: 'flat' | 'subtle' | 'elevated' | 'dramatic';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
 
-  // Step 5: Metadata
-  email: string;
-  currentStep: number;
+  // UI state (persisted for returning users)
+  activeTab: TabId;
 }
 
 export const initialConfig: BrandConfig = {
   brandName: '',
-  slug: '',
-  packageScope: '',
-  companySize: '',
   primaryColor: '#2D5016',
   useCustomSecondary: false,
   secondaryGenerationMode: 'complementary',
@@ -92,10 +88,10 @@ export const initialConfig: BrandConfig = {
   fontWeights: [400, 500, 600, 700],
   fontScale: 1.25,
   roundness: 'rounded',
+  shadows: 'subtle',
   density: 'default',
   expressiveness: 'balanced',
-  email: '',
-  currentStep: 1,
+  activeTab: 'color',
 };
 
 export const $brandConfig = persistentMap<BrandConfig>('trellis_brand_config_', initialConfig);

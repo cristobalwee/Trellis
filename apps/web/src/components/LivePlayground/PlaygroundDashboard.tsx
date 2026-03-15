@@ -83,19 +83,28 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
   const chartTransition = 'stroke 0.4s ease, fill 0.4s ease, opacity 0.4s ease';
   const interactiveTransition = 'all 0.25s ease';
   const shadowByExpression = useMemo(() => {
-    switch (config.expressiveness) {
-      case 'minimal':
+    // Use dedicated shadows field if available, fall back to expressiveness mapping
+    const shadowLevel = config.shadows ?? (
+      config.expressiveness === 'minimal' ? 'flat' :
+      config.expressiveness === 'expressive' ? 'elevated' : 'subtle'
+    );
+    switch (shadowLevel) {
+      case 'flat':
         return '0 1px 2px rgba(15,23,42,0.08)';
-      case 'expressive':
+      case 'elevated':
         return isDark
           ? '0 10px 30px rgba(2,6,23,0.38)'
           : '0 12px 30px rgba(15,23,42,0.14)';
-      default:
+      case 'dramatic':
+        return isDark
+          ? '0 16px 48px rgba(2,6,23,0.5)'
+          : '0 20px 48px rgba(15,23,42,0.18)';
+      default: // subtle
         return isDark
           ? '0 6px 16px rgba(2,6,23,0.28)'
           : '0 8px 20px rgba(15,23,42,0.1)';
     }
-  }, [config.expressiveness, isDark]);
+  }, [config.shadows, config.expressiveness, isDark]);
 
   useEffect(() => {
     const id = `playground-font-${config.fontFamily.replace(/\s+/g, '+')}`;

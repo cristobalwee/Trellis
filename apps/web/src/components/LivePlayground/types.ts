@@ -7,6 +7,7 @@ export interface PlaygroundConfig {
   roundness: 'sharp' | 'rounded' | 'pill';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
+  shadows?: 'flat' | 'subtle' | 'elevated' | 'dramatic';
   isDarkMode: boolean;
 }
 
