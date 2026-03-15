@@ -335,7 +335,7 @@ const BrandIntake = () => {
           </main>
 
           {/* Fixed Footer */}
-          <footer className="bg-white shadow-[0px_-1px_12px_rgba(0,0,0,0.06)] px-6 md:px-12 py-6 fixed bottom-0 left-0 right-0 overflow-hidden">
+          <footer className="bg-white shadow-[0px_-1px_12px_rgba(0,0,0,0.06)] px-6 md:px-12 py-6 fixed bottom-0 left-0 right-0 overflow-hidden animate-[slideUpFooter_1s_cubic-bezier(0.32,0.72,0,1)_0.85s_both]">
             <div className="max-w-6xl mx-auto flex justify-between items-center">
               <div className="flex items-center gap-4">
                 {isDev && (

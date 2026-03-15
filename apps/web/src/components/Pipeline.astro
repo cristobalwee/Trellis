@@ -1,0 +1,432 @@
+---
+const steps = [
+  {
+    number: "01",
+    title: "Generate your tokens",
+    description:
+      "Walk through the brand intake, preview your system, and download a complete token package: DTCG source files, CSS custom properties, Tailwind config, and Figma variables.",
+  },
+  {
+    number: "02",
+    title: "Drop them in your project",
+    description:
+      "Import one CSS file or extend your Tailwind config. Tokens cascade through your app instantly — every surface, color, and spacing value updates in one step.",
+  },
+  {
+    number: "03",
+    title: "Start building",
+    description:
+      "Your design decisions are embedded in the tokens. Build components and layouts on a foundation that's consistent by default and fully overridable when you need it.",
+  },
+];
+---
+
+<section id="how-it-works" class="section-spacing mb-80">
+  <div class="container-custom">
+    <!-- Section Header -->
+    <div class="text-center mb-16 md:mb-20 flex flex-col gap-4">
+      <h2 class="max-w-3xl mx-auto">Brand to production in 5&nbsp;minutes</h2>
+      <p class="text-base md:text-lg text-charcoal/80 max-w-2xl mx-auto">
+        Your tokens are designed to drop into any stack — no build plugins, no config merging, no lock-in.
+      </p>
+    </div>
+
+    <!-- Pipeline Cards -->
+    <div class="pipeline-grid max-w-6xl mx-auto">
+
+      <!-- Card 1: Generate your tokens -->
+      <div class="pipeline-card flex flex-col">
+        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+          <div class="anim1">
+            <!-- Terminal -->
+            <div class="anim1-terminal">
+              <div class="anim1-cursor"></div>
+            </div>
+            <!-- File artifacts -->
+            <div class="anim1-file anim1-file-1"><div class="anim1-accent" style="background: oklch(51.88% 0.109 151.87);"></div></div>
+            <div class="anim1-file anim1-file-2"><div class="anim1-accent" style="background: oklch(63% 0.14 130);"></div></div>
+            <div class="anim1-file anim1-file-3"><div class="anim1-accent" style="background: oklch(45% 0.109 151.87);"></div></div>
+            <div class="anim1-file anim1-file-4"><div class="anim1-accent" style="background: oklch(78.10% 0.101 154.59);"></div></div>
+          </div>
+        </div>
+        <span class="text-sm font-mono text-charcoal/40 mb-2 block">01</span>
+        <h5 class="mb-2">Generate your tokens</h5>
+        <p class="text-sm md:text-base text-charcoal/80">{steps[0].description}</p>
+      </div>
+
+      <!-- Card 2: Drop them in your project -->
+      <div class="pipeline-card flex flex-col">
+        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+          <div class="anim2">
+            <div class="anim2-bar anim2-bar-1"></div>
+            <div class="anim2-bar anim2-bar-2"></div>
+            <div class="anim2-token"></div>
+            <div class="anim2-bar anim2-bar-3"></div>
+            <div class="anim2-bar anim2-bar-4"></div>
+            <div class="anim2-bar anim2-bar-5"></div>
+          </div>
+        </div>
+        <span class="text-sm font-mono text-charcoal/40 mb-2 block">02</span>
+        <h5 class="mb-2">Drop them in your project</h5>
+        <p class="text-sm md:text-base text-charcoal/80">{steps[1].description}</p>
+      </div>
+
+      <!-- Card 3: Start building -->
+      <div class="pipeline-card flex flex-col">
+        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+          <div class="anim3">
+            <!-- Browser frame -->
+            <div class="anim3-frame">
+              <div class="anim3-nav"></div>
+              <div class="anim3-body">
+                <div class="anim3-sidebar"></div>
+                <div class="anim3-main">
+                  <div class="anim3-block anim3-block-1"></div>
+                  <div class="anim3-block anim3-block-2"></div>
+                  <div class="anim3-block anim3-block-3"></div>
+                  <div class="anim3-btn"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="text-sm font-mono text-charcoal/40 mb-2 block">03</span>
+        <h5 class="mb-2">Start building</h5>
+        <p class="text-sm md:text-base text-charcoal/80">{steps[2].description}</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+    /* ---- Layout ---- */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .pipeline-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+  }
+
+  /* ---- Shared animation container ---- */
+  .anim-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ---- Easing tokens ---- */
+  :root {
+    --ease-anim: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ============================================
+     ANIMATION 1 — Artifact materialization
+     Total loop: ~7s
+     ============================================ */
+  .anim1 {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10% 12%;
+    gap: 6%;
+  }
+
+  /* Terminal */
+  .anim1-terminal {
+    width: 70%;
+    height: 18%;
+    background: oklch(24.3% 0 0);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    animation: a1-terminal 7s var(--ease-anim) infinite;
+  }
+
+  .anim1-cursor {
+    width: 2px;
+    height: 40%;
+    background: oklch(94.82% 0.033 156.54);
+    animation: a1-blink 0.8s step-end infinite;
+  }
+
+  /* File rectangles */
+  .anim1-file {
+    width: 70%;
+    height: 10%;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid oklch(24.3% 0 0 / 0.08);
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  .anim1-accent {
+    width: 4px;
+    flex-shrink: 0;
+  }
+
+  .anim1-file-1 { width: 70%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0s; }
+  .anim1-file-2 { width: 62%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.3s; }
+  .anim1-file-3 { width: 66%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.6s; }
+  .anim1-file-4 { width: 58%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.9s; }
+
+  @keyframes a1-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* 7s loop:
+     0.0s-1.2s  files stagger in
+     1.2s-4.4s  hold (visible)
+     4.4s-5.0s  fade out
+     5.0s-7.0s  pause (hidden) */
+  @keyframes a1-file-in {
+    0%       { opacity: 0; transform: translateY(40px); }
+    5%       { opacity: 0; transform: translateY(40px); }
+    12%      { opacity: 1; transform: translateY(0); }
+    63%      { opacity: 1; transform: translateY(0); }
+    72%      { opacity: 0; transform: translateY(0); }
+    100%     { opacity: 0; transform: translateY(40px); }
+  }
+
+  @keyframes a1-terminal {
+    0%       { opacity: 0; transform: translateY(20px); }
+    4%       { opacity: 1; transform: translateY(0); }
+    63%      { opacity: 1; transform: translateY(0); }
+    72%      { opacity: 0; transform: translateY(0); }
+    100%     { opacity: 0; transform: translateY(20px); }
+  }
+
+
+  /* ============================================
+     ANIMATION 2 — Token insertion + color cascade
+     Total loop: ~7s
+     ============================================ */
+  .anim2 {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12% 14%;
+    gap: 8%;
+  }
+
+  .anim2-bar {
+    width: 80%;
+    height: 8%;
+    border-radius: 6px;
+    background: oklch(24.3% 0 0 / 0.06);
+    transition: none;
+    animation: a2-bar-reset 7s var(--ease-anim) infinite;
+  }
+
+  .anim2-bar-1 { animation-name: a2-bar-outer; }
+  .anim2-bar-2 { animation-name: a2-bar-mid; }
+  .anim2-bar-3 { animation-name: a2-bar-center; }
+  .anim2-bar-4 { animation-name: a2-bar-mid; }
+  .anim2-bar-5 { animation-name: a2-bar-outer; }
+
+  .anim2-token {
+    width: 40%;
+    height: 8%;
+    border-radius: 6px;
+    background: oklch(51.88% 0.109 151.87);
+    transform: translateX(-250%);
+    opacity: 0;
+    animation: a2-token 7s var(--ease-anim) infinite;
+  }
+
+  /* 7s loop:
+     0.0s-0.8s  token slides in
+     0.8s-1.0s  bar 3 colors
+     1.0s-1.2s  bars 2,4 color
+     1.2s-1.4s  bars 1,5 color
+     1.4s-4.4s  hold colored
+     4.4s-5.0s  bars fade back (reverse stagger)
+     5.0s-5.6s  token slides out
+     5.6s-7.0s  pause */
+
+  @keyframes a2-token {
+    0%       { transform: translateX(-250%); opacity: 0; }
+    4%       { opacity: 1; transform: translateX(-250%); }
+    12%      { transform: translateX(0); opacity: 1; }
+    63%      { transform: translateX(0); opacity: 1; }
+    72%      { transform: translateX(0); opacity: 1; }
+    80%      { transform: translateX(-250%); opacity: 1; }
+    82%      { opacity: 0; }
+    100%     { transform: translateX(-250%); opacity: 0; }
+  }
+
+  @keyframes a2-bar-center {
+    0%, 11%  { background: oklch(24.3% 0 0 / 0.06); }
+    17%      { background: oklch(51.88% 0.109 151.87 / 0.25); }
+    63%      { background: oklch(51.88% 0.109 151.87 / 0.25); }
+    72%      { background: oklch(24.3% 0 0 / 0.06); }
+    100%     { background: oklch(24.3% 0 0 / 0.06); }
+  }
+
+  @keyframes a2-bar-mid {
+    0%, 14%  { background: oklch(24.3% 0 0 / 0.06); }
+    20%      { background: oklch(63% 0.14 130 / 0.2); }
+    63%      { background: oklch(63% 0.14 130 / 0.2); }
+    70%      { background: oklch(24.3% 0 0 / 0.06); }
+    100%     { background: oklch(24.3% 0 0 / 0.06); }
+  }
+
+  @keyframes a2-bar-outer {
+    0%, 17%  { background: oklch(24.3% 0 0 / 0.06); }
+    23%      { background: oklch(78.10% 0.101 154.59 / 0.2); }
+    63%      { background: oklch(78.10% 0.101 154.59 / 0.2); }
+    68%      { background: oklch(24.3% 0 0 / 0.06); }
+    100%     { background: oklch(24.3% 0 0 / 0.06); }
+  }
+
+
+  /* ============================================
+     ANIMATION 3 — UI assembly
+     Total loop: ~7s
+     ============================================ */
+  .anim3 {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10%;
+  }
+
+  .anim3-frame {
+    width: 100%;
+    height: 100%;
+    border: 1px solid oklch(24.3% 0 0 / 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: white;
+  }
+
+  .anim3-nav {
+    height: 10%;
+    background: oklch(51.88% 0.109 151.87 / 0.12);
+    opacity: 0;
+    transform: scale(0.97);
+    animation: a3-el 7s var(--ease-anim) infinite;
+    animation-delay: 0s;
+  }
+
+  .anim3-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  .anim3-sidebar {
+    width: 20%;
+    background: oklch(97.02% 0 0);
+    border-right: 1px solid oklch(24.3% 0 0 / 0.06);
+    opacity: 0;
+    transform: scale(0.97);
+    animation: a3-el 7s var(--ease-anim) infinite;
+    animation-delay: 0.12s;
+  }
+
+  .anim3-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 8%;
+    gap: 6%;
+  }
+
+  .anim3-block {
+    border-radius: 6px;
+    opacity: 0;
+    transform: scale(0.97);
+    animation: a3-el 7s var(--ease-anim) infinite;
+  }
+
+  .anim3-block-1 {
+    height: 30%;
+    background: oklch(97.02% 0 0);
+    animation-delay: 0.24s;
+  }
+
+  .anim3-block-2 {
+    height: 20%;
+    background: oklch(98.5% 0.006 85.7);
+    border: 1px solid oklch(24.3% 0 0 / 0.05);
+    animation-delay: 0.36s;
+  }
+
+  .anim3-block-3 {
+    height: 22%;
+    background: oklch(97.02% 0 0);
+    animation-delay: 0.48s;
+  }
+
+  .anim3-btn {
+    align-self: flex-end;
+    width: 30%;
+    height: 14%;
+    border-radius: 99px;
+    background: oklch(51.88% 0.109 151.87);
+    opacity: 0;
+    transform: scale(0.97);
+    animation: a3-el 7s var(--ease-anim) infinite;
+    animation-delay: 0.6s;
+  }
+
+  /* 7s loop:
+     0.0s-0.8s  elements stagger in
+     0.8s-4.3s  hold assembled
+     4.3s-4.8s  fade out all
+     4.8s-7.0s  pause */
+  @keyframes a3-el {
+    0%       { opacity: 0; transform: scale(0.97); }
+    4%       { opacity: 0; transform: scale(0.97); }
+    8%       { opacity: 1; transform: scale(1); }
+    61%      { opacity: 1; transform: scale(1); }
+    69%      { opacity: 0; transform: scale(1); }
+    100%     { opacity: 0; transform: scale(0.97); }
+  }
+
+
+  /* ============================================
+     Reduced motion — show final state, no animation
+     ============================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .anim1-terminal,
+    .anim1-file,
+    .anim1-cursor,
+    .anim2-bar,
+    .anim2-token,
+    .anim3-nav,
+    .anim3-sidebar,
+    .anim3-block,
+    .anim3-btn {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .anim2-bar-1, .anim2-bar-5 { background: oklch(78.10% 0.101 154.59 / 0.2) !important; }
+    .anim2-bar-2, .anim2-bar-4 { background: oklch(63% 0.14 130 / 0.2) !important; }
+    .anim2-bar-3 { background: oklch(51.88% 0.109 151.87 / 0.25) !important; }
+  }
+</style>

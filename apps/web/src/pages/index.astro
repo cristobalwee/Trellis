@@ -8,6 +8,7 @@ import ScrollAnimationSection from '../components/ScrollAnimationSection.astro';
 import Comparison from '../components/Comparison.astro';
 import Pricing from '../components/Pricing.astro';
 import FAQ from '../components/FAQ.astro';
+import Pipeline from '../components/Pipeline.astro';
 import Backstory from '../components/Backstory.astro';
 import CTA from '../components/CTA.astro';
 import { Agentation } from "agentation";
@@ -29,8 +30,9 @@ import { Agentation } from "agentation";
 
     @keyframes loaderLogo {
       0% { opacity: 0; transform: translateY(16px); }
-      20% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; transform: translateY(0); }
+      8% { opacity: 0; transform: translateY(16px); }
+      26% { opacity: 1; transform: translateY(0); }
+      88% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-16px); }
     }
 
@@ -52,14 +54,13 @@ import { Agentation } from "agentation";
   <Header />
   <main>
     <Hero />
-
-    <Comparison />
-
     <!-- Interactive Scroll Animation -->
     <ScrollAnimationSection />
+    <Pipeline />
     <Backstory />
-    <Pricing />
-    <FAQ />
+    <Comparison />
+    <!-- <Pricing /> -->
+    <!-- <FAQ /> -->
     <CTA />
   </main>
   <Footer />

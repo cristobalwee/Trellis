@@ -17,7 +17,7 @@ const MASTER_DELAY = 1.9;
         class="hero-headline mb-6 md:mb-8"
         data-animate="headline"
       >
-        Generate a complete design system <i>in 10 minutes</i>
+        Generate your design system foundation <i>in minutes</i>
       </h1>
 
       <!-- Sub-headline -->
@@ -25,7 +25,7 @@ const MASTER_DELAY = 1.9;
         class="hero-subheadline text-base md:text-lg lg:text-xl leading-tight text-charcoal/80 mb-10 md:mb-12 max-w-3xl mx-auto"
         data-animate="subheadline"
       >
-      Color ramps, tokens, react components, Figma library, and foundational documentation, all customized to your brand. Skip the months-long setup and start building today.
+        Brand-aware color ramps, DTCG-compliant semantic tokens, a ready-to-use CSS stylesheet, Figma variables, and a Tailwind config, all generated from your brand.
       </p>
 
       <!-- CTA Button -->
@@ -36,9 +36,8 @@ const MASTER_DELAY = 1.9;
           variant="primary"
           size="lg"
         >
-          Generate My System
+          Start for Free
         </AnimatedCTA>
-        <p class="text-charcoal/60 text-sm">$99 one-time purchase</p>
       </div>
     </div>
   </div>
@@ -50,7 +49,7 @@ const MASTER_DELAY = 1.9;
     display: inline-block;
     opacity: 0;
     animation: fadeInUp 1.6s cubic-bezier(0.17,0.84,0.44,1) forwards;
-    animation-delay: calc(var(--line-base-delay, 0s) + (var(--line-index, 0) * var(--line-step-delay, 0.1s)));
+    animation-delay: calc(var(--line-base-delay, 0s) + (var(--line-index, 0) * var(--line-step-delay, 0.1s)) + (var(--word-in-line-index, 0) * var(--word-step-delay, 0.03s)));
     will-change: transform, opacity;
   }
 

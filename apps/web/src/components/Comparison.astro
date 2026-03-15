@@ -1,98 +1,76 @@
 ---
 // What you get grid
 import {
-  Blocks,
-  Figma,
   Braces,
-  GitBranch,
-  BookOpenText,
-  Palette,
-  ShieldCheck,
+  FileCode,
+  Figma,
+  Wind,
+  Component,
   Clock3
 } from "lucide-react";
 ---
 
-<section class="section-spacing">
+<section id="what-you-get" class="section-spacing">
   <div class="container-custom">
     <!-- Section Header -->
     <div class="text-center mb-8 md:mb-12 flex flex-col gap-4">
       <p class="text-base md:text-lg text-charcoal/80 mx-auto">
         Why Trellis?
       </p>
-      <h2 class="max-w-2xl mx-auto">Not Another UI Kit. This is your <i>whole system</i></h2>
+      <h2 class="max-w-2xl mx-auto">Not another UI kit, this is your <i>whole foundation.</i></h2>
     </div>
 
     <!-- What You Get Grid -->
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-3xl mx-auto">
       <div class="border border-charcoal/10 bg-white">
         <div class="grid grid-cols-1 md:grid-cols-2">
-          <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10 md:border-r">
-            <div class="mt-1 text-forest-green" aria-hidden="true">
-              <Blocks className="h-5 w-5" strokeWidth={1.5}/>
-            </div>
-            <div>
-              <h5 class="mb-1">React components</h5>
-              <p class="text-sm md:text-base text-charcoal/80">26 fully accessible and battle tested components, built on top of Base UI.</p>
-            </div>
-          </div>
-
-          <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10">
-            <div class="mt-1 text-forest-green" aria-hidden="true">
-              <Figma className="h-5 w-5" strokeWidth={1.5}/>
-            </div>
-            <div>
-              <h5 class="mb-1">Figma design library</h5>
-              <p class="text-sm md:text-base text-charcoal/80">Component variants ready for design exploration and handoff.</p>
-            </div>
-          </div>
-
           <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10 md:border-r">
             <div class="mt-1 text-forest-green" aria-hidden="true">
               <Braces className="h-5 w-5" strokeWidth={1.5}/>
             </div>
             <div>
-              <h5 class="mb-1">DTCG-compliant token system</h5>
-              <p class="text-sm md:text-base text-charcoal/80">Token architecture built to scale, with support for light and dark mode.</p>
+              <h5 class="mb-1">DTCG token files</h5>
+              <p class="text-sm md:text-base text-charcoal/80">OKLCH-based color ramps with perceptual uniformity across every lightness step.</p>
             </div>
           </div>
 
           <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10">
             <div class="mt-1 text-forest-green" aria-hidden="true">
-              <GitBranch className="h-5 w-5" strokeWidth={1.5} />
+              <FileCode className="h-5 w-5" strokeWidth={1.5}/>
             </div>
             <div>
-              <h5 class="mb-1">Complete monorepo setup</h5>
-              <p class="text-sm md:text-base text-charcoal/80">Production-ready pnpm + Turborepo architecture out of the box.</p>
+              <h5 class="mb-1">CSS custom-property stylesheet</h5>
+              <p class="text-sm md:text-base text-charcoal/80">Light and dark mode derived automatically from your tokens.</p>
             </div>
           </div>
 
           <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10 md:border-r">
             <div class="mt-1 text-forest-green" aria-hidden="true">
-              <BookOpenText className="h-5 w-5" strokeWidth={1.5}/>
+              <Figma className="h-5 w-5" strokeWidth={1.5}/>
             </div>
             <div>
-              <h5 class="mb-1">Storybook site</h5>
-              <p class="text-sm md:text-base text-charcoal/80">Deployable docsite and component examples for implementation speed.</p>
+              <h5 class="mb-1">Figma variable collections</h5>
+              <p class="text-sm md:text-base text-charcoal/80">Variables synced 1:1 with your token files for a single source of truth.</p>
             </div>
           </div>
 
           <div class="flex gap-4 p-6 md:p-8 border-b border-charcoal/10">
             <div class="mt-1 text-forest-green" aria-hidden="true">
-              <Palette className="h-5 w-5" strokeWidth={1.5}/>
+              <Wind className="h-5 w-5" strokeWidth={1.5}/>
             </div>
             <div>
-              <h5 class="mb-1">Color and typography system</h5>
-              <p class="text-sm md:text-base text-charcoal/80">10 WCAG-friendly color ramps and a full typography scale.</p>
+              <h5 class="mb-1">Tailwind theme config</h5>
+              <p class="text-sm md:text-base text-charcoal/80">Semantic color and spacing scales mapped straight from your tokens.</p>
             </div>
           </div>
 
           <div class="flex gap-4 p-6 md:p-8 md:border-r border-charcoal/10">
             <div class="mt-1 text-forest-green" aria-hidden="true">
-              <ShieldCheck className="h-5 w-5" strokeWidth={1.5}/>
+              <Component className="h-5 w-5" strokeWidth={1.5}/>
             </div>
             <div>
-              <h5 class="mb-1">Governance docs and agent files</h5>
-              <p class="text-sm md:text-base text-charcoal/80">Thorough usage and contribution guidelines, including agentic documentation.</p>
+              <h5 class="mb-1">Reference component</h5>
+              <p class="text-sm md:text-base text-charcoal/80">A production-ready component that shows how your tokens compose into real UI.</p>
             </div>
           </div>
 
@@ -102,9 +80,8 @@ import {
                 <Clock3 className="h-5 w-5" strokeWidth={1.5}/>
               </div>
               <div>
-                <h5 class="mb-2">60-100+ hours saved</h5>
-                <p class="text-sm md:text-base text-charcoal/80">Countless hours saved designing, building, and documenting your system.</p>
-                </p>
+                <h5 class="mb-2">20+ hours saved</h5>
+                <p class="text-sm md:text-base text-charcoal/80">Skip the hours of hand-authoring tokens, stylesheets, and config files from scratch.</p>
               </div>
             </div>
           </div>
@@ -114,7 +91,7 @@ import {
       <!-- Bottom Note -->
       <div class="mt-8 text-center">
         <p class="text-charcoal/80 text-sm md:text-base">
-          Trellis gives you an enterprise-level design system tailored to your brand in less than <span class="px-2 py-2 rounded-lg bg-forest-green-50 font-bold text-charcoal">10 minutes</span>.
+          Trellis gives you an enterprise-level design system foundation tailored to your brand.
         </p>
       </div>
     </div>

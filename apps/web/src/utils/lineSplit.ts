@@ -1,6 +1,7 @@
 export interface LineSplitAnimationOptions {
   baseDelay: number;
   lineDelay?: number;
+  wordDelay?: number;
 }
 
 export interface LineSplitAnimationResult {
@@ -59,9 +60,15 @@ function prepareWords(element: HTMLElement): void {
   element.dataset.lineSplitPrepared = 'true';
 }
 
-function mapWordsToLines(element: HTMLElement): number {
+interface LineMapResult {
+  lineCount: number;
+  lastLineWordCount: number;
+}
+
+function mapWordsToLines(element: HTMLElement): LineMapResult {
   const words = Array.from(element.querySelectorAll<HTMLElement>(WORD_SELECTOR));
   const lineTops: number[] = [];
+  const lineWordCounts: number[] = [];
 
   for (const word of words) {
     const top = Math.round(word.offsetTop);
@@ -70,12 +77,20 @@ function mapWordsToLines(element: HTMLElement): number {
     if (lineIndex === -1) {
       lineTops.push(top);
       lineIndex = lineTops.length - 1;
+      lineWordCounts.push(0);
     }
 
+    const wordInLineIndex = lineWordCounts[lineIndex];
+    lineWordCounts[lineIndex]++;
+
     word.style.setProperty('--line-index', String(lineIndex));
+    word.style.setProperty('--word-in-line-index', String(wordInLineIndex));
   }
 
-  return lineTops.length;
+  return {
+    lineCount: lineTops.length,
+    lastLineWordCount: lineWordCounts.length > 0 ? lineWordCounts[lineWordCounts.length - 1] : 0
+  };
 }
 
 export function applyLineSplitAnimation(
@@ -90,17 +105,19 @@ export function applyLineSplitAnimation(
   }
 
   const lineDelay = options.lineDelay ?? 0.1;
+  const wordDelay = options.wordDelay ?? 0.01;
 
   prepareWords(element);
-  const lineCount = mapWordsToLines(element);
+  const { lineCount, lastLineWordCount } = mapWordsToLines(element);
 
   element.dataset.animateLines = 'true';
   element.style.setProperty('--line-base-delay', `${options.baseDelay}s`);
   element.style.setProperty('--line-step-delay', `${lineDelay}s`);
+  element.style.setProperty('--word-step-delay', `${wordDelay}s`);
   element.style.setProperty('--line-count', String(lineCount));
 
   const endDelay = lineCount > 0
-    ? options.baseDelay + (lineCount - 1) * lineDelay
+    ? options.baseDelay + (lineCount - 1) * lineDelay + Math.max(0, lastLineWordCount - 1) * wordDelay
     : options.baseDelay;
 
   return {
