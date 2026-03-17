@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import ConfiguratorHeader from '../components/ConfiguratorHeader.astro';
 import Loader from '../components/Loader.astro';
@@ -35,7 +34,6 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <ClientRouter />
   </head>
   <body>
     <Loader />
@@ -46,10 +44,12 @@ const {
       </div>
     </div>
 
+    <script>
+      import '../scripts/page-exit';
+    </script>
+
     <!-- No Locomotive Scroll on generator — scroll is handled per-panel -->
     <script>
-      import '../scripts/view-transitions';
-
       if ((window as any).locomotiveScroll) {
         try { (window as any).locomotiveScroll.destroy(); } catch {}
         (window as any).locomotiveScroll = null;

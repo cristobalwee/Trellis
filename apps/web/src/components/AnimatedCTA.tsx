@@ -136,6 +136,7 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
           href={href}
           onClick={onClick}
           aria-label={ariaLabel}
+          {...(href?.includes('/generate') ? { 'data-astro-reload': true } : {})}
           className={`btn relative z-10 ${variantClasses} ${sizeClasses} ${className}`}
         >
           {children}

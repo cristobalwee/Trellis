@@ -45,7 +45,7 @@ import { AnimatedCTA } from './AnimatedCTA';
           variant="secondary"
           size="sm"
         >
-          Generate tokens — free
+          Start for free
         </AnimatedCTA>
       </div>
     </nav>
@@ -91,18 +91,33 @@ import { AnimatedCTA } from './AnimatedCTA';
 </style>
 
 <script>
-  import '../scripts/view-transitions';
+  function initHeaderScroll() {
+    const header = document.getElementById('header');
+    if (!header) return;
 
-  const header = document.getElementById('header');
-  let scrolled = false;
+    let scrolled = false;
 
-  function handleScroll() {
-    const shouldBeScrolled = window.scrollY > 50;
-    if (shouldBeScrolled !== scrolled) {
-      scrolled = shouldBeScrolled;
-      header?.setAttribute('data-scrolled', String(scrolled));
+    const handler = () => {
+      const shouldBeScrolled = window.scrollY > 50;
+      if (shouldBeScrolled !== scrolled) {
+        scrolled = shouldBeScrolled;
+        header.setAttribute('data-scrolled', String(scrolled));
+      }
+    };
+
+    // Clean up previous listener if re-initializing
+    if ((window as any).__headerScrollHandler) {
+      window.removeEventListener('scroll', (window as any).__headerScrollHandler);
     }
+    (window as any).__headerScrollHandler = handler;
+
+    window.addEventListener('scroll', handler, { passive: true });
+
+    // Immediately sync state (page may be at top after navigation)
+    scrolled = window.scrollY > 50;
+    header.setAttribute('data-scrolled', String(scrolled));
   }
 
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  initHeaderScroll();
+  document.addEventListener('astro:after-swap', initHeaderScroll);
 </script>

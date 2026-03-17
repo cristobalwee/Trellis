@@ -64,40 +64,52 @@ const MASTER_DELAY = 1.9;
 <script>
   import { applyLineSplitAnimation } from '../utils/lineSplit';
 
-  const section = document.querySelector<HTMLElement>('[data-master-delay]');
-  const MASTER_DELAY = parseFloat(section?.dataset.masterDelay ?? '0');
-  const ANIMATION_BASE_DELAY = 0.4 + MASTER_DELAY;
   const LINE_STAGGER_DELAY = 0.1;
   const SECTION_GAP_DELAY = 0.15;
 
-  const heroHeadline = document.querySelector<HTMLElement>('[data-animate="headline"]');
-  const heroSubheadline = document.querySelector<HTMLElement>('[data-animate="subheadline"]');
+  function getEffectiveMasterDelay(): number {
+    const loader = document.getElementById('trellis-loader');
+    // If loader already finished (transition mode), we arrived via view transition
+    const isViewTransition = loader?.dataset.loaderMode === 'transition';
+    const section = document.querySelector<HTMLElement>('[data-master-delay]');
+    const configuredDelay = parseFloat(section?.dataset.masterDelay ?? '0');
+    return isViewTransition ? 0.1 : configuredDelay;
+  }
 
-  const ctaWrapper = document.querySelector<HTMLElement>('[data-animate="cta"]');
+  function initHeroAnimations() {
+    const masterDelay = getEffectiveMasterDelay();
+    const baseDelay = 0.4 + masterDelay;
 
-  const updateHeroAnimationTiming = () => {
-    const headlineResult = applyLineSplitAnimation(heroHeadline, {
-      baseDelay: ANIMATION_BASE_DELAY,
-      lineDelay: LINE_STAGGER_DELAY
+    const heroHeadline = document.querySelector<HTMLElement>('[data-animate="headline"]');
+    const heroSubheadline = document.querySelector<HTMLElement>('[data-animate="subheadline"]');
+    const ctaWrapper = document.querySelector<HTMLElement>('[data-animate="cta"]');
+
+    const update = () => {
+      const headlineResult = applyLineSplitAnimation(heroHeadline, {
+        baseDelay,
+        lineDelay: LINE_STAGGER_DELAY
+      });
+
+      const subheadlineResult = applyLineSplitAnimation(heroSubheadline, {
+        baseDelay: headlineResult.endDelay + SECTION_GAP_DELAY,
+        lineDelay: LINE_STAGGER_DELAY
+      });
+
+      if (ctaWrapper) {
+        const ctaDelay = subheadlineResult.endDelay + SECTION_GAP_DELAY;
+        ctaWrapper.style.animationDelay = `${ctaDelay.toFixed(2)}s`;
+      }
+    };
+
+    update();
+
+    let resizeRaf = 0;
+    window.addEventListener('resize', () => {
+      window.cancelAnimationFrame(resizeRaf);
+      resizeRaf = window.requestAnimationFrame(update);
     });
+  }
 
-    const subheadlineResult = applyLineSplitAnimation(heroSubheadline, {
-      baseDelay: headlineResult.endDelay + SECTION_GAP_DELAY,
-      lineDelay: LINE_STAGGER_DELAY
-    });
-
-    if (ctaWrapper) {
-      const ctaDelay = subheadlineResult.endDelay + SECTION_GAP_DELAY;
-      ctaWrapper.style.animationDelay = `${ctaDelay.toFixed(2)}s`;
-    }
-  };
-
-  updateHeroAnimationTiming();
-
-  let resizeRaf = 0;
-  window.addEventListener('resize', () => {
-    window.cancelAnimationFrame(resizeRaf);
-    resizeRaf = window.requestAnimationFrame(updateHeroAnimationTiming);
-  });
-
+  initHeroAnimations();
+  document.addEventListener('astro:after-swap', initHeroAnimations);
 </script>

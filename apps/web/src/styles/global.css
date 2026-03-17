@@ -234,3 +234,15 @@ html.lenis {
     width: 100%;
   }
 }
+
+/* Page-exit fade */
+html.page-exiting body {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.page-exiting body {
+    transition: none;
+  }
+}
