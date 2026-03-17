@@ -83,10 +83,11 @@ import { AnimatedCTA } from './AnimatedCTA';
             </a>
           </div>
 
-          <!-- CTA -->
+          <!-- CTA — navigates to /generate -->
           <AnimatedCTA
             client:load
             id="pricing-cta"
+            href="/generate"
             variant="primary"
             size="lg"
           >
@@ -98,10 +99,3 @@ import { AnimatedCTA } from './AnimatedCTA';
   </div>
 </section>
 
-<script>
-  // Connect Pricing CTA to BrandIntake modal
-  const pricingCTA = document.getElementById('pricing-cta');
-  pricingCTA?.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('openBrandIntake'));
-  });
-</script>

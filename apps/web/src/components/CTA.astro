@@ -22,11 +22,12 @@ import { AnimatedCTA } from './AnimatedCTA';
         Your design system foundation is only 10 minutes away.
       </p>
 
-      <!-- CTA Button -->
+      <!-- CTA Button — navigates to /generate -->
       <div data-animate="cta" class="flex flex-col items-center gap-4">
         <AnimatedCTA
           client:load
-          id="hero-cta"
+          id="cta-bottom"
+          href="/generate"
           variant="primary"
           size="lg"
         >
@@ -58,14 +59,3 @@ import { AnimatedCTA } from './AnimatedCTA';
     animation-delay: 0.7s;
   }
 </style>
-
-<script>
-  // Connect Hero CTA to BrandIntake modal
-  // Use event delegation so this works regardless of React hydration timing
-  document.addEventListener('click', (e) => {
-    const target = (e.target as HTMLElement).closest('#hero-cta');
-    if (target) {
-      window.dispatchEvent(new CustomEvent('openBrandIntake'));
-    }
-  });
-</script>

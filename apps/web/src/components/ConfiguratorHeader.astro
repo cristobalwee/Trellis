@@ -1,0 +1,49 @@
+---
+/**
+ * Configurator header — used only on /generate.
+ * Simpler, tool-focused header without marketing nav links.
+ */
+---
+
+<header
+  id="configurator-header"
+  class="configurator-header shrink-0 flex items-center justify-between px-4 md:px-6 py-3 border-b border-charcoal/5 bg-white z-40"
+>
+  <!-- Logo — navigates back to landing (triggers Mode A loader transition) -->
+  <a href="/" class="flex items-center gap-3 group" data-header-anim="0">
+    <img src="/src/assets/logo_icon.svg" alt="Trellis" class="w-7 h-7" />
+    <span class="hidden md:inline text-sm font-medium text-charcoal/60 group-hover:text-charcoal transition-colors">
+      Back to site
+    </span>
+  </a>
+
+  <!-- Right-side actions -->
+  <div class="flex items-center gap-3" data-header-anim="1">
+    <span class="text-xs font-medium text-charcoal/40 hidden md:inline">Token Generator</span>
+  </div>
+</header>
+
+<style>
+  @reference "../styles/global.css";
+
+  .configurator-header [data-header-anim] {
+    opacity: 0;
+    animation: configHeaderIn 0.6s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+    animation-delay: calc(0.15s + var(--cfg-header-index, 0) * 0.05s);
+  }
+
+  [data-header-anim="0"] { --cfg-header-index: 0; }
+  [data-header-anim="1"] { --cfg-header-index: 1; }
+
+  @keyframes configHeaderIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .configurator-header [data-header-anim] {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>

@@ -5,6 +5,7 @@ interface AnimatedCTAProps {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  href?: string;
   id?: string;
   variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
@@ -21,6 +22,7 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
   children,
   className = '',
   onClick,
+  href,
   id,
   variant = 'primary',
   size = 'md',
@@ -127,15 +129,28 @@ export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({
         transition={{ type: 'spring', damping: 20, stiffness: 150, delay: 0.1 }}
       />
 
-      <motion.button
-        ref={buttonRef}
-        id={id}
-        onClick={onClick}
-        aria-label={ariaLabel}
-        className={`btn relative z-10 ${variantClasses} ${sizeClasses} ${className}`}
-      >
-        {children}
-      </motion.button>
+      {href ? (
+        <motion.a
+          ref={buttonRef as any}
+          id={id}
+          href={href}
+          onClick={onClick}
+          aria-label={ariaLabel}
+          className={`btn relative z-10 ${variantClasses} ${sizeClasses} ${className}`}
+        >
+          {children}
+        </motion.a>
+      ) : (
+        <motion.button
+          ref={buttonRef}
+          id={id}
+          onClick={onClick}
+          aria-label={ariaLabel}
+          className={`btn relative z-10 ${variantClasses} ${sizeClasses} ${className}`}
+        >
+          {children}
+        </motion.button>
+      )}
     </motion.div>
   );
 };

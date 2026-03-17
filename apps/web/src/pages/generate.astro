@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import GeneratorLayout from '../layouts/GeneratorLayout.astro';
 import Configurator from '../components/Configurator/index.tsx';
 ---
 
-<BaseLayout title="Generate | Trellis">
-  <main class="h-[calc(100dvh-5rem)] md:h-[calc(100dvh-6rem)]" data-lenis-prevent="true">
+<GeneratorLayout title="Generate | Trellis">
+  <main class="h-full" data-lenis-prevent="true">
     <Configurator client:load />
   </main>
-</BaseLayout>
+</GeneratorLayout>

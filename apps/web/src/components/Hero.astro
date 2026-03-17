@@ -28,11 +28,12 @@ const MASTER_DELAY = 1.9;
         Brand-aware color ramps, DTCG-compliant semantic tokens, a ready-to-use CSS stylesheet, Figma variables, and a Tailwind config, all generated from your brand.
       </p>
 
-      <!-- CTA Button -->
+      <!-- CTA Button — navigates to /generate -->
       <div data-animate="cta" class="flex flex-col items-center gap-4">
         <AnimatedCTA
           client:load
           id="hero-cta"
+          href="/generate"
           variant="primary"
           size="lg"
         >
@@ -72,8 +73,6 @@ const MASTER_DELAY = 1.9;
   const heroHeadline = document.querySelector<HTMLElement>('[data-animate="headline"]');
   const heroSubheadline = document.querySelector<HTMLElement>('[data-animate="subheadline"]');
 
-  // Connect Hero CTA to BrandIntake modal
-  const heroCTA = document.getElementById('hero-cta');
   const ctaWrapper = document.querySelector<HTMLElement>('[data-animate="cta"]');
 
   const updateHeroAnimationTiming = () => {
@@ -101,8 +100,4 @@ const MASTER_DELAY = 1.9;
     resizeRaf = window.requestAnimationFrame(updateHeroAnimationTiming);
   });
 
-  heroCTA?.addEventListener('click', () => {
-    // Dispatch custom event to open BrandIntake modal
-    window.dispatchEvent(new CustomEvent('openBrandIntake'));
-  });
 </script>

@@ -1,5 +1,4 @@
 ---
-// Header component with sticky positioning and backdrop blur
 import { AnimatedCTA } from './AnimatedCTA';
 ---
 
@@ -37,17 +36,17 @@ import { AnimatedCTA } from './AnimatedCTA';
         </a>
       </div>
 
-      <!-- CTA Button -->
+      <!-- CTA Button — navigates to /generate -->
       <div class="flex items-center gap-4" data-header-anim="4">
         <AnimatedCTA
           client:load
           id="header-cta"
+          href="/generate"
           variant="secondary"
           size="sm"
         >
-          Start Generating
+          Generate tokens — free
         </AnimatedCTA>
-
       </div>
     </nav>
   </div>
@@ -67,7 +66,6 @@ import { AnimatedCTA } from './AnimatedCTA';
     @apply py-3 md:py-4;
   }
 
-  /* Entry animations — loader ends at 2.1s, header items stagger with 0.05s gap */
   [data-header-anim] {
     opacity: 0;
     animation: headerSlideIn 0.8s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
@@ -93,13 +91,13 @@ import { AnimatedCTA } from './AnimatedCTA';
 </style>
 
 <script>
-  // Header scroll effect
+  import '../scripts/view-transitions';
+
   const header = document.getElementById('header');
   let scrolled = false;
 
   function handleScroll() {
     const shouldBeScrolled = window.scrollY > 50;
-
     if (shouldBeScrolled !== scrolled) {
       scrolled = shouldBeScrolled;
       header?.setAttribute('data-scrolled', String(scrolled));
@@ -107,34 +105,4 @@ import { AnimatedCTA } from './AnimatedCTA';
   }
 
   window.addEventListener('scroll', handleScroll, { passive: true });
-
-  // Mobile menu toggle
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const menuIcon = document.querySelector('.menu-icon');
-  const closeIcon = document.querySelector('.close-icon');
-
-  mobileMenuBtn?.addEventListener('click', () => {
-    const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
-    mobileMenuBtn.setAttribute('aria-expanded', String(!isExpanded));
-    mobileMenu?.classList.toggle('hidden');
-    menuIcon?.classList.toggle('hidden');
-    closeIcon?.classList.toggle('hidden');
-  });
-
-  // Close mobile menu when clicking on links
-  document.querySelectorAll('.mobile-menu-link').forEach((link) => {
-    link.addEventListener('click', () => {
-      mobileMenu?.classList.add('hidden');
-      menuIcon?.classList.remove('hidden');
-      closeIcon?.classList.add('hidden');
-      mobileMenuBtn?.setAttribute('aria-expanded', 'false');
-    });
-  });
-
-  // Connect Header CTA to BrandIntake modal
-  const headerCTA = document.getElementById('header-cta');
-  headerCTA?.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('openBrandIntake'));
-  });
 </script>

@@ -1,0 +1,95 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Loader from '../components/Loader.astro';
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Trellis - Build a design system in 10 minutes',
+  description = 'Tokens, components, Figma, and complete documentation—customized to your brand. Skip the 6-month setup and start building today.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="lenis">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <ClientRouter />
+  </head>
+  <body>
+    <Loader />
+    <div transition:persist="marketing-header">
+      <Header />
+    </div>
+    <div transition:animate="fade" id="marketing-content">
+      <slot />
+    </div>
+
+    <!-- Locomotive Scroll v5 -->
+    <script>
+      import LocomotiveScroll from 'locomotive-scroll';
+
+      function initLenis() {
+        const p = window.location.pathname;
+        if (p === '/generate' || p === '/generate/') return;
+
+        // Destroy previous instance if it exists
+        if ((window as any).locomotiveScroll) {
+          try { (window as any).locomotiveScroll.destroy(); } catch {}
+        }
+
+        const scroll = new LocomotiveScroll({
+          lenisOptions: {
+            duration: 1.2,
+            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+          },
+        });
+
+        (window as any).locomotiveScroll = scroll;
+        (window as any).lenis = scroll.lenisInstance;
+
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = (anchor as HTMLAnchorElement).getAttribute('href');
+            if (targetId && targetId !== '#') {
+              const target = document.querySelector(targetId);
+              if (target) {
+                scroll.scrollTo(target as HTMLElement, { offset: 0, duration: 1.5 });
+              }
+            }
+          });
+        });
+      }
+
+      initLenis();
+      document.addEventListener('astro:after-swap', initLenis);
+    </script>
+  </body>
+</html>
