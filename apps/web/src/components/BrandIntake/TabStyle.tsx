@@ -148,12 +148,6 @@ const TabStyle: React.FC = () => {
         onChange={(val) => updateConfig({ expressiveness: val as typeof config.expressiveness })}
       />
 
-      {/* Style preview card */}
-      <div className="border-t border-charcoal/5 pt-3">
-        <label className="text-xs font-medium text-charcoal/60 uppercase tracking-wider mb-2 block">Preview</label>
-        <StylePreviewCard />
-      </div>
-
       {/* Advanced (placeholder for future fine-grained controls) */}
       <div className="border-t border-charcoal/5 pt-3">
         <button
@@ -175,7 +169,10 @@ const TabStyle: React.FC = () => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={EXPAND_TRANSITION}
+              transition={{
+                height: EXPAND_TRANSITION,
+                opacity: { duration: 0.2, ease: 'easeInOut' },
+              }}
               className="overflow-hidden"
             >
               <div className="py-4 px-4 bg-charcoal/5 rounded-xl mt-2">
@@ -186,64 +183,6 @@ const TabStyle: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </div>
-  );
-};
-
-// ---------------------------------------------------------------------------
-// Small inline preview showing the effect of style choices
-// ---------------------------------------------------------------------------
-
-const StylePreviewCard: React.FC = () => {
-  const config = useStore($brandConfig);
-
-  const radius = {
-    sharp: '2px',
-    subtle: '6px',
-    rounded: '12px',
-    pill: '9999px',
-  }[config.roundness];
-
-  const shadow = {
-    flat: 'none',
-    subtle: '0 1px 3px rgba(0,0,0,0.08)',
-    elevated: '0 4px 12px rgba(0,0,0,0.1)',
-    dramatic: '0 8px 24px rgba(0,0,0,0.15)',
-  }[config.shadows];
-
-  const padding = {
-    compact: '12px',
-    default: '16px',
-    comfortable: '24px',
-  }[config.density];
-
-  return (
-    <div
-      className="bg-white border border-charcoal/10 flex flex-col gap-2 transition-all duration-300"
-      style={{ borderRadius: radius, boxShadow: shadow, padding }}
-    >
-      <div
-        className="h-2 bg-forest-green/20 w-2/3"
-        style={{ borderRadius: radius }}
-      />
-      <div
-        className="h-2 bg-charcoal/10 w-full"
-        style={{ borderRadius: radius }}
-      />
-      <div
-        className="h-2 bg-charcoal/10 w-4/5"
-        style={{ borderRadius: radius }}
-      />
-      <div className="flex gap-2 mt-1">
-        <div
-          className="h-7 bg-forest-green/15 flex-1"
-          style={{ borderRadius: radius }}
-        />
-        <div
-          className="h-7 bg-charcoal/8 flex-1"
-          style={{ borderRadius: radius }}
-        />
       </div>
     </div>
   );

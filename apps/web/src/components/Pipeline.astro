@@ -21,7 +21,7 @@ const steps = [
 ];
 ---
 
-<section id="how-it-works" class="section-spacing mb-80">
+<section id="how-it-works" class="section-spacing mb-16">
   <div class="container-custom">
     <!-- Section Header -->
     <div class="text-center mb-16 md:mb-20 flex flex-col gap-4">
@@ -37,20 +37,25 @@ const steps = [
       <!-- Card 1: Generate your tokens -->
       <div class="pipeline-card flex flex-col">
         <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
-          <div class="anim1">
-            <!-- Terminal -->
-            <div class="anim1-terminal">
-              <div class="anim1-cursor"></div>
+          <div class="anim1" data-anim="color-swatch">
+            <div class="anim1-header">
+              <div class="anim1-swatch"></div>
+              <div class="anim1-hex"><span class="anim1-hex-hash">#</span><span class="anim1-hex-val"></span></div>
             </div>
-            <!-- File artifacts -->
-            <div class="anim1-file anim1-file-1"><div class="anim1-accent" style="background: oklch(51.88% 0.109 151.87);"></div></div>
-            <div class="anim1-file anim1-file-2"><div class="anim1-accent" style="background: oklch(63% 0.14 130);"></div></div>
-            <div class="anim1-file anim1-file-3"><div class="anim1-accent" style="background: oklch(45% 0.109 151.87);"></div></div>
-            <div class="anim1-file anim1-file-4"><div class="anim1-accent" style="background: oklch(78.10% 0.101 154.59);"></div></div>
+            <div class="anim1-ramps">
+              {[0,1,2].map(r => (
+                <div class="anim1-row" data-row={r}>
+                  {Array.from({length: 8}, (_, c) => (
+                    <div class="anim1-cell" data-col={c}></div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <svg class="anim1-ptr" enable-background="new 0 0 32 32" viewBox="0 0 32 32" width="48" height="48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><clipPath id="a"><path d="m0 0h32v32h-32z"/></clipPath><path clip-path="url(#a)" d="m11.3 20.4c-.3-.4-.6-1.1-1.2-2-.3-.5-1.2-1.5-1.5-1.9-.2-.4-.2-.6-.1-1 .1-.6.7-1.1 1.4-1.1.5 0 1 .4 1.4.7.2.2.5.6.7.8s.2.3.4.5c.2.3.3.5.2.1-.1-.5-.2-1.3-.4-2.1-.1-.6-.2-.7-.3-1.1-.1-.5-.2-.8-.3-1.3-.1-.3-.2-1.1-.3-1.5-.1-.5-.1-1.4.3-1.8.3-.3.9-.4 1.3-.2.5.3.8 1 .9 1.3.2.5.4 1.2.5 2 .2 1 .5 2.5.5 2.8 0-.4-.1-1.1 0-1.5.1-.3.3-.7.7-.8.3-.1.6-.1.9-.1.3.1.6.3.8.5.4.6.4 1.9.4 1.8.1-.4.1-1.2.3-1.6.1-.2.5-.4.7-.5.3-.1.7-.1 1 0 .2 0 .6.3.7.5.2.3.3 1.3.4 1.7 0 .1.1-.4.3-.7.4-.6 1.8-.8 1.9.6v1.1 1.2c0 .4-.1 1.3-.2 1.7-.1.3-.4 1-.7 1.4 0 0-1.1 1.2-1.2 1.8s-.1.6-.1 1 .1.9.1.9-.8.1-1.2 0-.9-.8-1-1.1c-.2-.3-.5-.3-.7 0-.2.4-.7 1.1-1.1 1.1-.7.1-2.1 0-3.1 0 0 0 .2-1-.2-1.4-.3-.3-.8-.8-1.1-1.1z" fill="#fff"/><g fill="none" stroke="#000" stroke-linecap="round" stroke-width=".75"><path clip-path="url(#a)" d="m11.3 20.4c-.3-.4-.6-1.1-1.2-2-.3-.5-1.2-1.5-1.5-1.9-.2-.4-.2-.6-.1-1 .1-.6.7-1.1 1.4-1.1.5 0 1 .4 1.4.7.2.2.5.6.7.8s.2.3.4.5c.2.3.3.5.2.1-.1-.5-.2-1.3-.4-2.1-.1-.6-.2-.7-.3-1.1-.1-.5-.2-.8-.3-1.3-.1-.3-.2-1.1-.3-1.5-.1-.5-.1-1.4.3-1.8.3-.3.9-.4 1.3-.2.5.3.8 1 .9 1.3.2.5.4 1.2.5 2 .2 1 .5 2.5.5 2.8 0-.4-.1-1.1 0-1.5.1-.3.3-.7.7-.8.3-.1.6-.1.9-.1.3.1.6.3.8.5.4.6.4 1.9.4 1.8.1-.4.1-1.2.3-1.6.1-.2.5-.4.7-.5.3-.1.7-.1 1 0 .2 0 .6.3.7.5.2.3.3 1.3.4 1.7 0 .1.1-.4.3-.7.4-.6 1.8-.8 1.9.6v1.1 1.2c0 .4-.1 1.3-.2 1.7-.1.3-.4 1-.7 1.4 0 0-1.1 1.2-1.2 1.8s-.1.6-.1 1 .1.9.1.9-.8.1-1.2 0-.9-.8-1-1.1c-.2-.3-.5-.3-.7 0-.2.4-.7 1.1-1.1 1.1-.7.1-2.1 0-3.1 0 0 0 .2-1-.2-1.4-.3-.3-.8-.8-1.1-1.1z" stroke-linejoin="round"/><path clip-path="url(#a)" d="m19.6 20.7v-3.4"/><path clip-path="url(#a)" d="m17.6 20.7-.1-3.4"/><path clip-path="url(#a)" d="m15.6 17.3v3.4"/></g></svg>
           </div>
         </div>
         <span class="text-sm font-mono text-charcoal/40 mb-2 block">01</span>
-        <h5 class="mb-2">Generate your tokens</h5>
+        <h5 class="mb-2">Configure your system</h5>
         <p class="text-sm md:text-base text-charcoal/80">{steps[0].description}</p>
       </div>
 
@@ -67,7 +72,7 @@ const steps = [
           </div>
         </div>
         <span class="text-sm font-mono text-charcoal/40 mb-2 block">02</span>
-        <h5 class="mb-2">Drop them in your project</h5>
+        <h5 class="mb-2">Generate your config</h5>
         <p class="text-sm md:text-base text-charcoal/80">{steps[1].description}</p>
       </div>
 
@@ -126,88 +131,116 @@ const steps = [
   }
 
   /* ============================================
-     ANIMATION 1 — Artifact materialization
-     Total loop: ~7s
+     ANIMATION 1 — Color swatch + ramp cascade
+     Total loop: ~12.5s (JS-driven)
      ============================================ */
   .anim1 {
     position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     padding: 10% 12%;
-    gap: 6%;
+    gap: 8%;
   }
 
-  /* Terminal */
-  .anim1-terminal {
-    width: 70%;
-    height: 18%;
-    background: oklch(24.3% 0 0);
-    border-radius: 8px;
+  /* Swatch + hex row */
+  .anim1-header {
     display: flex;
     align-items: center;
-    padding-left: 12px;
-    animation: a1-terminal 7s var(--ease-anim) infinite;
+    gap: 10%;
   }
 
-  .anim1-cursor {
-    width: 2px;
-    height: 40%;
-    background: oklch(94.82% 0.033 156.54);
-    animation: a1-blink 0.8s step-end infinite;
-  }
-
-  /* File rectangles */
-  .anim1-file {
-    width: 70%;
-    height: 10%;
-    background: white;
-    border-radius: 6px;
-    border: 1px solid oklch(24.3% 0 0 / 0.08);
-    display: flex;
-    align-items: stretch;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(40px);
-  }
-
-  .anim1-accent {
-    width: 4px;
+  .anim1-swatch {
+    width: 24%;
+    aspect-ratio: 1;
+    border-radius: 18%;
+    border: 3px solid white;
+    box-shadow: 0 3px 14px oklch(24.3% 0 0 / 0.10), 0 1px 3px oklch(24.3% 0 0 / 0.06);
+    transition: background-color 0.35s var(--ease-anim), transform 0.15s var(--ease-anim);
     flex-shrink: 0;
+    will-change: background-color, transform;
   }
 
-  .anim1-file-1 { width: 70%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0s; }
-  .anim1-file-2 { width: 62%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.3s; }
-  .anim1-file-3 { width: 66%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.6s; }
-  .anim1-file-4 { width: 58%; animation: a1-file-in 7s var(--ease-anim) infinite; animation-delay: 0.9s; }
-
-  @keyframes a1-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+  .anim1-swatch.is-pressed {
+    transform: scale(0.88);
+    box-shadow: 0 1px 6px oklch(24.3% 0 0 / 0.08);
   }
 
-  /* 7s loop:
-     0.0s-1.2s  files stagger in
-     1.2s-4.4s  hold (visible)
-     4.4s-5.0s  fade out
-     5.0s-7.0s  pause (hidden) */
-  @keyframes a1-file-in {
-    0%       { opacity: 0; transform: translateY(40px); }
-    5%       { opacity: 0; transform: translateY(40px); }
-    12%      { opacity: 1; transform: translateY(0); }
-    63%      { opacity: 1; transform: translateY(0); }
-    72%      { opacity: 0; transform: translateY(0); }
-    100%     { opacity: 0; transform: translateY(40px); }
+  /* Hex input display */
+  .anim1-hex {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: oklch(24.3% 0 0 / 0.65);
+    background: white;
+    border: 1px solid oklch(24.3% 0 0 / 0.10);
+    border-radius: 6px;
+    padding: 5px 8px;
+    line-height: 1;
+    white-space: nowrap;
   }
 
-  @keyframes a1-terminal {
-    0%       { opacity: 0; transform: translateY(20px); }
-    4%       { opacity: 1; transform: translateY(0); }
-    63%      { opacity: 1; transform: translateY(0); }
-    72%      { opacity: 0; transform: translateY(0); }
-    100%     { opacity: 0; transform: translateY(20px); }
+  .anim1-hex-hash {
+    color: oklch(24.3% 0 0 / 0.30);
+  }
+
+  .anim1-hex-val {
+    transition: color 0.01s;
+  }
+
+  /* Ramp rows */
+  .anim1-ramps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .anim1-row {
+    display: flex;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .anim1-cell {
+    flex: 1;
+    height: 18px;
+    transition: background-color 0.3s var(--ease-anim);
+    will-change: background-color, transform;
+  }
+
+  .anim1-cell.is-popping {
+    animation: a1-pop 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  @keyframes a1-pop {
+    0%   { transform: scaleY(1); }
+    45%  { transform: scaleY(1.10); }
+    100% { transform: scaleY(1); }
+  }
+
+  /* Hand pointer cursor */
+  .anim1-ptr {
+    position: absolute;
+    top: 28%;
+    left: 26%;
+    opacity: 0;
+    transform: translate(100px, 70px);
+    transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 10;
+    filter: drop-shadow(0 1px 3px oklch(24.3% 0 0 / 0.22));
+  }
+
+  .anim1-ptr.is-visible {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  .anim1-ptr.is-clicking {
+    transform: translate(0, 3px);
+    transition-duration: 0.1s;
   }
 
 
@@ -411,9 +444,10 @@ const steps = [
      Reduced motion — show final state, no animation
      ============================================ */
   @media (prefers-reduced-motion: reduce) {
-    .anim1-terminal,
-    .anim1-file,
-    .anim1-cursor,
+    .anim1-swatch,
+    .anim1-cell,
+    .anim1-hex-val,
+    .anim1-ptr,
     .anim2-bar,
     .anim2-token,
     .anim3-nav,
@@ -423,10 +457,103 @@ const steps = [
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
+      transition: none !important;
     }
+
+    .anim1-ptr { display: none; }
 
     .anim2-bar-1, .anim2-bar-5 { background: oklch(78.10% 0.101 154.59 / 0.2) !important; }
     .anim2-bar-2, .anim2-bar-4 { background: oklch(63% 0.14 130 / 0.2) !important; }
     .anim2-bar-3 { background: oklch(51.88% 0.109 151.87 / 0.25) !important; }
   }
 </style>
+
+<script>
+  (function initColorSwatchAnim() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const container = document.querySelector('[data-anim="color-swatch"]');
+    if (!container) return;
+
+    const swatch = container.querySelector('.anim1-swatch') as HTMLElement;
+    const hexVal = container.querySelector('.anim1-hex-val') as HTMLElement;
+    const cursor = container.querySelector('.anim1-ptr') as HTMLElement;
+    const rows = Array.from(container.querySelectorAll('.anim1-row'));
+
+    // 4 color palettes with hex approximations for the display
+    const PALETTES = [
+      { hue: 152, chroma: 0.11, swatchL: 0.55, hex: '2B8B6A', rows: [{ h: 152, c: 0.11 }, { h: 185, c: 0.09 }, { h: 120, c: 0.085 }] },
+      { hue: 255, chroma: 0.15, swatchL: 0.52, hex: '2A5FC2', rows: [{ h: 255, c: 0.15 }, { h: 290, c: 0.11 }, { h: 225, c: 0.10 }] },
+      { hue: 25,  chroma: 0.18, swatchL: 0.63, hex: 'CC5C3A', rows: [{ h: 25,  c: 0.18 }, { h: 55,  c: 0.14 }, { h: 355, c: 0.13 }] },
+      { hue: 305, chroma: 0.14, swatchL: 0.54, hex: '9A3FA7', rows: [{ h: 305, c: 0.14 }, { h: 340, c: 0.11 }, { h: 275, c: 0.11 }] },
+    ];
+
+    // 8 lightness steps (light → dark) with chroma multipliers (bell curve)
+    const L_STEPS = [0.95, 0.87, 0.78, 0.68, 0.57, 0.48, 0.40, 0.34];
+    const C_MULT  = [0.28, 0.52, 0.78, 1.00, 0.95, 0.80, 0.62, 0.42];
+
+    function cellColor(ci: number, c: number, h: number): string {
+      return `oklch(${L_STEPS[ci]} ${(c * C_MULT[ci]).toFixed(4)} ${h})`;
+    }
+
+    function applyPalette(pi: number, stagger: boolean) {
+      const p = PALETTES[pi];
+      swatch.style.backgroundColor = `oklch(${p.swatchL} ${p.chroma} ${p.hue})`;
+      hexVal.textContent = p.hex;
+
+      rows.forEach((row, ri) => {
+        const rc = p.rows[ri];
+        const cells = row.querySelectorAll('.anim1-cell') as NodeListOf<HTMLElement>;
+        cells.forEach((cell, ci) => {
+          const delay = stagger ? ci * 35 : 0;
+          schedule(() => {
+            cell.style.backgroundColor = cellColor(ci, rc.c, rc.h);
+            if (stagger) {
+              cell.classList.remove('is-popping');
+              void cell.offsetWidth;
+              cell.classList.add('is-popping');
+            }
+          }, delay);
+        });
+      });
+    }
+
+    function doClick(pi: number) {
+      swatch.classList.add('is-pressed');
+      cursor.classList.add('is-clicking');
+      schedule(() => {
+        swatch.classList.remove('is-pressed');
+        cursor.classList.remove('is-clicking');
+        applyPalette(pi, true);
+      }, 150);
+    }
+
+    let timeouts: ReturnType<typeof setTimeout>[] = [];
+
+    function schedule(fn: () => void, ms: number) {
+      timeouts.push(setTimeout(fn, ms));
+    }
+
+    function clearAll() {
+      timeouts.forEach(clearTimeout);
+      timeouts = [];
+    }
+
+    function runCycle() {
+      clearAll();
+      applyPalette(0, false);
+      cursor.classList.remove('is-visible');
+      cursor.classList.remove('is-clicking');
+
+      schedule(() => cursor.classList.add('is-visible'), 500);   // cursor enters
+      schedule(() => doClick(1), 2000);                          // click → blue
+      schedule(() => doClick(2), 4200);                          // click → coral
+      schedule(() => doClick(3), 6400);                          // click → purple
+      schedule(() => doClick(0), 8600);                          // click → back to teal
+      schedule(() => cursor.classList.remove('is-visible'), 10300); // cursor exits
+      schedule(runCycle, 12500);                                 // loop
+    }
+
+    runCycle();
+  })();
+</script>

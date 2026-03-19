@@ -184,9 +184,9 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
               transition: themeTransition,
             }}
           >
-            N
+            {'A'}
           </div>
-          <span className="text-sm font-semibold" style={{ color: colors.text }}>Nexa</span>
+          <span className="text-sm font-semibold" style={{ color: colors.text }}>{'Acme'}</span>
         </div>
 
         <div className="text-[9px] font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: colors.textFaint, fontFamily: font }}>

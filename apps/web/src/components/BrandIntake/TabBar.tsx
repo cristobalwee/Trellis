@@ -23,7 +23,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`relative flex items-center gap-1.5 px-4 py-3 text-sm font-medium transition-colors cursor-pointer ${
-            isActive ? 'text-charcoal' : 'text-charcoal/50 hover:text-charcoal/80'
+            isActive ? 'text-charcoal' : 'text-charcoal/70 hover:text-charcoal'
           }`}
         >
           {tab.icon}
@@ -32,7 +32,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
             <motion.div
               layoutId="tab-underline"
               className="absolute bottom-0 left-0 right-0 h-0.5 bg-forest-green rounded-full"
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 25 }}
             />
           )}
         </button>

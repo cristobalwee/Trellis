@@ -7,7 +7,6 @@ export type TabId = 'color' | 'typography' | 'style';
 
 export interface BrandConfig {
   // Identity
-  brandName: string;
   logoUrl?: string;
 
   // Colors
@@ -63,7 +62,6 @@ export interface BrandConfig {
 }
 
 export const initialConfig: BrandConfig = {
-  brandName: '',
   primaryColor: '#2D5016',
   useCustomSecondary: false,
   secondaryGenerationMode: 'complementary',

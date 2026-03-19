@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { useStore } from '@nanostores/react';
 import { Upload } from 'lucide-react';
 import { $brandConfig, updateConfig } from './store';
-import { Input } from '../ui/Input';
 
 const BrandHeader: React.FC = () => {
   const config = useStore($brandConfig);
@@ -36,16 +35,6 @@ const BrandHeader: React.FC = () => {
         onChange={handleLogoUpload}
         className="hidden"
       />
-
-      {/* Brand name */}
-      <div className="flex-1 min-w-0">
-        <Input
-          value={config.brandName}
-          onChange={(e) => updateConfig({ brandName: (e.target as HTMLInputElement).value })}
-          placeholder="Brand name"
-          size="compact"
-        />
-      </div>
     </div>
   );
 };

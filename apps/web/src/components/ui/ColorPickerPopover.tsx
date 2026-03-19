@@ -19,7 +19,7 @@ export interface ColorPickerPopoverProps {
 }
 
 const DEFAULT_SWATCH_CLASS =
-  'w-16 h-16 rounded-2xl shadow-sm border-2 border-white cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shrink-0';
+  'w-12 h-12 rounded-xl shadow-sm border-2 border-white cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 shrink-0';
 
 export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   color,

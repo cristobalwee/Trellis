@@ -14,7 +14,7 @@ const LandingPlayground: React.FC = () => {
   const showcase = useStore($showcaseConfig);
   const brand = useStore($brandConfig);
 
-  const hasBrandConfig = Boolean(brand.brandName || brand.primaryColor !== '#2D5016');
+  const hasBrandConfig = brand.primaryColor !== '#2D5016';
 
   const config: PlaygroundConfig = useMemo(() => {
     if (hasBrandConfig) {

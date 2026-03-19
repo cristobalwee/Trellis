@@ -27,18 +27,17 @@
   /* ---- Initial page-load animation (unchanged from original) ---- */
 
   #trellis-loader[data-loader-mode="initial"] {
-    animation: loaderOverlay 2.1s ease forwards 0.2s;
+    animation: loaderOverlay 2.1s ease forwards 0s;
   }
 
   #trellis-loader[data-loader-mode="initial"] .loader-logo {
     opacity: 0;
-    animation: loaderLogoIn 1.8s ease forwards 0.3s;
+    animation: loaderLogoIn 1.8s ease forwards 0s;
   }
 
   @keyframes loaderLogoIn {
     0%   { opacity: 0; transform: translateY(16px); }
-    8%   { opacity: 0; transform: translateY(16px); }
-    26%  { opacity: 1; transform: translateY(0); }
+    18%  { opacity: 1; transform: translateY(0); }
     88%  { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-16px); }
   }
