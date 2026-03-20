@@ -13,6 +13,7 @@ import PreviewTypography from '../LivePlayground/PreviewTypography';
 import type { PlaygroundConfig } from '../LivePlayground/types';
 import { AnimatedCTA } from '../AnimatedCTA';
 import { generateDesignTokens } from '../../utils/generateTokens';
+import { Tooltip } from '../ui/Tooltip';
 import logoIcon from '../../assets/logo_icon.svg';
 
 // ---------------------------------------------------------------------------
@@ -176,37 +177,81 @@ const Configurator: React.FC = () => {
       <div className="flex flex-col md:flex-row flex-1 min-h-0 bg-gray">
         {/* Left Panel — Configuration */}
         <motion.aside
-          animate={{ width: isCollapsed ? 64 : 400 }}
+          animate={{ width: isCollapsed ? 72 : 400 }}
           transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           className={`shrink-0 flex flex-col min-h-0 md:p-4 md:pr-0 ${
             mobileSegment === 'preview' ? 'hidden md:flex' : 'flex'
           } ${isCollapsed ? '' : 'w-full md:w-[400px]'}`}
         >
-          <div className="flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden">
-            {/* Logo + collapse header */}
-            <div className={`flex items-center shrink-0 p-6 ${isCollapsed ? 'flex-col gap-3' : 'justify-between'}`}>
-              <a href="/" aria-label="Back to home" className="hover:opacity-70 transition-opacity">
-                <img src={logoIcon.src} alt="Trellis" className="w-8 h-8" />
-              </a>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
-                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              >
-                {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-              </button>
-            </div>
-
-            {/* Collapsible content */}
-            <AnimatePresence>
-              {!isCollapsed && (
+          <div className="relative flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {isCollapsed ? (
+                /* ── Collapsed sidebar ── */
                 <motion.div
+                  key="collapsed"
+                  className="flex flex-col items-center gap-4 pt-6 pb-4 px-2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.25 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                >
+                  <Tooltip label="Back to home page" side="right">
+                    <a href="/" className="hover:opacity-70 transition-opacity">
+                      <img src={logoIcon.src} alt="Trellis" className="w-5 h-5" />
+                    </a>
+                  </Tooltip>
+
+                  <Tooltip label="Expand" side="right">
+                    <button
+                      onClick={() => setIsCollapsed(false)}
+                      className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
+                      aria-label="Expand sidebar"
+                    >
+                      <PanelLeftOpen size={18} />
+                    </button>
+                  </Tooltip>
+
+                  <div className="w-6 h-px bg-charcoal/10" />
+
+                  {/* Color swatches */}
+                  {([
+                    ['Primary', config.primaryColor],
+                    ['Secondary', config.secondaryColor || config.primaryRamp?.[500] || '#8B5CF6'],
+                    ['Neutral', config.neutralRamp?.[500] || '#94a3b8'],
+                  ] as const).map(([name, value]) => (
+                    <Tooltip key={name} label={`${name}: ${value}`} side="right">
+                      <button
+                        className="w-6 h-6 rounded-md border border-charcoal/10 shadow-sm cursor-default transition-transform hover:scale-110"
+                        style={{ backgroundColor: value }}
+                        aria-label={`${name}: ${value}`}
+                      />
+                    </Tooltip>
+                  ))}
+                </motion.div>
+              ) : (
+                /* ── Expanded sidebar ── */
+                <motion.div
+                  key="expanded"
                   className="flex flex-col flex-1 min-h-0"
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                  animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.25 } }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
                 >
+                  {/* Header: logo + collapse */}
+                  <div className="flex items-center justify-between shrink-0 p-6">
+                    <Tooltip label="Back to home page" side="bottom">
+                      <a href="/" className="hover:opacity-70 transition-opacity">
+                        <img src={logoIcon.src} alt="Trellis" className="w-7 h-7" />
+                      </a>
+                    </Tooltip>
+                    <button
+                      onClick={() => setIsCollapsed(true)}
+                      className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
+                      aria-label="Collapse sidebar"
+                    >
+                      <PanelLeftClose size={18} />
+                    </button>
+                  </div>
+
                   <LayoutGroup>
                     <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
                   </LayoutGroup>

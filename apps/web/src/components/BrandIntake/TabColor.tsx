@@ -33,6 +33,7 @@ const AdditionalColorRow: React.FC<ColorSlot> = ({ name, ramp }) => {
 const TabColor: React.FC = () => {
   const config = useStore($brandConfig);
   const derived = useColorRamps(config);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isAdditionalOpen, setIsAdditionalOpen] = useState(false);
 
   const handlePrimaryChange = useCallback(
@@ -76,16 +77,44 @@ const TabColor: React.FC = () => {
           <HexColorInput color={config.primaryColor} onChange={handlePrimaryChange} />
         </div>
         <ColorRampView ramp={derived.primaryRamp} className="h-8 rounded-lg" />
-      </div>
+        <div>
+        <button
+          onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+          className={`flex items-center justify-between w-full py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg ${
+            isAdvancedOpen ? 'text-forest-green' : 'text-charcoal/70 hover:text-charcoal'
+          }`}
+        >
+          <span>Advanced Settings</span>
+          <ChevronDown
+            size={16}
+            className={`transition-transform duration-200 ${isAdvancedOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
 
-      {/* Saturation & Uniformity */}
-      <div className="bg-charcoal/5 rounded-xl p-4">
-        <RampSliders
-          saturation={config.saturation}
-          uniformity={config.uniformity}
-          onSaturationChange={handleSaturationChange}
-          onUniformityChange={handleUniformityChange}
-        />
+        <AnimatePresence initial={false}>
+          {isAdvancedOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{
+                height: EXPAND_TRANSITION,
+                opacity: { duration: 0.2, ease: 'easeInOut' },
+              }}
+              className="overflow-hidden"
+            >
+              <div className="bg-charcoal/5 rounded-xl p-4 mt-2">
+                <RampSliders
+                  saturation={config.saturation}
+                  uniformity={config.uniformity}
+                  onSaturationChange={handleSaturationChange}
+                  onUniformityChange={handleUniformityChange}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       </div>
 
       {/* Secondary color */}

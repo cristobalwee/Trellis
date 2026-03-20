@@ -69,7 +69,7 @@ export const initialConfig: BrandConfig = {
   useAccent: false,
   useCustomAccent: false,
   accentGenerationMode: 'triadic',
-  saturation: 100,
+  saturation: 20,
   uniformity: 100,
   statusColors: {
     success: '#10b981',
