@@ -9,9 +9,10 @@ export interface ShowcaseConfig {
   saturation: number;
   lightness: number;
   fontFamily: string;
-  roundness: 'sharp' | 'rounded' | 'pill';
+  roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
+  shadows: 'none' | 'subtle' | 'elevated';
 
   // Panel 2: Component Showcase
   isDarkMode: boolean;
@@ -28,6 +29,7 @@ const defaultShowcaseConfig: ShowcaseConfig = {
   roundness: 'rounded',
   density: 'default',
   expressiveness: 'balanced',
+  shadows: 'subtle',
   isDarkMode: false,
 };
 

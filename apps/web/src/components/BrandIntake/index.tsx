@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useStore } from '@nanostores/react';
 import { Sun, Moon, Download } from 'lucide-react';
 
 import { $brandConfig, updateConfig, resetConfig, type TabId } from './store';
+import { generateDesignTokens } from '../../utils/generateTokens';
 import BrandHeader from './BrandHeader';
 import TabBar from './TabBar';
 import TabColor from './TabColor';
@@ -70,7 +71,7 @@ const BrandIntake: React.FC = () => {
   const config = useStore($brandConfig);
 
   // Local UI state
-  const [activeTab, setActiveTab] = useState<TabId>(config.activeTab || 'color');
+  const [activeTab, setActiveTab] = useState<TabId>('color');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [previewTab, setPreviewTab] = useState<PreviewTab>('dashboard');
 
@@ -84,7 +85,6 @@ const BrandIntake: React.FC = () => {
       scrollRefs.current[activeTab] = scrollContainerRef.current.scrollTop;
     }
     setActiveTab(tab);
-    updateConfig({ activeTab: tab });
     // Restore scroll position for new tab
     requestAnimationFrame(() => {
       if (scrollContainerRef.current) {
@@ -92,6 +92,12 @@ const BrandIntake: React.FC = () => {
       }
     });
   }, [activeTab]);
+
+  // Generate design tokens as CSS custom properties
+  const designTokens = useMemo(
+    () => generateDesignTokens(config, isDarkMode),
+    [config, isDarkMode]
+  );
 
   // Bridge: BrandConfig → PlaygroundConfig
   const playgroundConfig: PlaygroundConfig = {
@@ -240,7 +246,7 @@ const BrandIntake: React.FC = () => {
               </div>
 
               <div className="flex-1 min-h-0 overflow-y-auto px-3 md:px-5 pb-4">
-                <div className="rounded-2xl overflow-hidden shadow-sm h-full min-h-[500px]">
+                <div className="rounded-2xl overflow-hidden shadow-sm h-full min-h-[500px]" style={designTokens as React.CSSProperties}>
                   {previewTab === 'dashboard' ? (
                     <PlaygroundDashboard
                       config={playgroundConfig}

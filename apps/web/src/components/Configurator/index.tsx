@@ -1,7 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
-import { Sun, Moon, Upload } from 'lucide-react';
+import { Sun, Moon, Upload, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 import { $brandConfig, updateConfig, resetConfig, type TabId } from '../BrandIntake/store';
 import TabBar from '../BrandIntake/TabBar';
@@ -9,18 +9,21 @@ import TabColor from '../BrandIntake/TabColor';
 import TabTypography from '../BrandIntake/TabTypography';
 import TabStyle from '../BrandIntake/TabStyle';
 import PlaygroundDashboard from '../LivePlayground/PlaygroundDashboard';
+import PreviewTypography from '../LivePlayground/PreviewTypography';
 import type { PlaygroundConfig } from '../LivePlayground/types';
 import { AnimatedCTA } from '../AnimatedCTA';
+import { generateDesignTokens } from '../../utils/generateTokens';
+import logoIcon from '../../assets/logo_icon.svg';
 
 // ---------------------------------------------------------------------------
 // Preview tab bar (Dashboard / Components)
 // ---------------------------------------------------------------------------
 
-type PreviewTab = 'dashboard' | 'components';
+type PreviewTab = 'dashboard' | 'components' | 'blog';
 
 const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) => void }> = ({ active, onChange }) => (
   <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5">
-    {(['dashboard', 'components'] as const).map((tab) => (
+    {(['dashboard', 'components', 'blog'] as const).map((tab) => (
       <button
         key={tab}
         onClick={() => onChange(tab)}
@@ -98,10 +101,11 @@ const Configurator: React.FC = () => {
   const config = useStore($brandConfig);
 
   // Local UI state
-  const [activeTab, setActiveTab] = useState<TabId>(config.activeTab || 'color');
+  const [activeTab, setActiveTab] = useState<TabId>('color');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [previewTab, setPreviewTab] = useState<PreviewTab>('dashboard');
   const [mobileSegment, setMobileSegment] = useState<MobileSegment>('configure');
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Scroll preservation per tab
   const scrollRefs = useRef<Record<TabId, number>>({ color: 0, typography: 0, style: 0 });
@@ -113,7 +117,6 @@ const Configurator: React.FC = () => {
       scrollRefs.current[activeTab] = scrollContainerRef.current.scrollTop;
     }
     setActiveTab(tab);
-    updateConfig({ activeTab: tab });
     // Restore scroll position for new tab
     requestAnimationFrame(() => {
       if (scrollContainerRef.current) {
@@ -122,14 +125,20 @@ const Configurator: React.FC = () => {
     });
   }, [activeTab]);
 
-  // Bridge: BrandConfig → PlaygroundConfig
+  // Generate design tokens as CSS custom properties
+  const designTokens = useMemo(
+    () => generateDesignTokens(config, isDarkMode),
+    [config, isDarkMode]
+  );
+
+  // Bridge: BrandConfig → PlaygroundConfig (kept for font-loading side effect)
   const playgroundConfig: PlaygroundConfig = {
     primaryColor: config.primaryColor,
     secondaryColor: config.secondaryColor || '#8B5CF6',
     saturation: config.saturation,
     lightness: config.uniformity,
     fontFamily: config.primaryFont,
-    roundness: config.roundness === 'subtle' ? 'rounded' : config.roundness,
+    roundness: config.roundness,
     density: config.density,
     expressiveness: config.expressiveness,
     shadows: config.shadows,
@@ -166,35 +175,65 @@ const Configurator: React.FC = () => {
       {/* Two-panel layout */}
       <div className="flex flex-col md:flex-row flex-1 min-h-0 bg-gray">
         {/* Left Panel — Configuration */}
-        <aside className={`w-full md:w-[400px] shrink-0 flex flex-col min-h-0 md:p-4 md:pr-0 ${
-          mobileSegment === 'preview' ? 'hidden md:flex' : 'flex'
-        }`}>
-          <div className="flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden pt-2">
-            <LayoutGroup>
-              <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
-            </LayoutGroup>
+        <motion.aside
+          animate={{ width: isCollapsed ? 64 : 400 }}
+          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          className={`shrink-0 flex flex-col min-h-0 md:p-4 md:pr-0 ${
+            mobileSegment === 'preview' ? 'hidden md:flex' : 'flex'
+          } ${isCollapsed ? '' : 'w-full md:w-[400px]'}`}
+        >
+          <div className="flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden">
+            {/* Logo + collapse header */}
+            <div className={`flex items-center shrink-0 p-6 ${isCollapsed ? 'flex-col gap-3' : 'justify-between'}`}>
+              <a href="/" aria-label="Back to home" className="hover:opacity-70 transition-opacity">
+                <img src={logoIcon.src} alt="Trellis" className="w-8 h-8" />
+              </a>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
+                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              >
+                {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+              </button>
+            </div>
 
-            <div
-              ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto px-6 py-5 min-h-0"
-            >
-              <AnimatePresence mode="wait" initial={false}>
+            {/* Collapsible content */}
+            <AnimatePresence>
+              {!isCollapsed && (
                 <motion.div
-                  key={activeTab}
+                  className="flex flex-col flex-1 min-h-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 >
-                  {activeTab === 'color' && <TabColor />}
-                  {activeTab === 'typography' && <TabTypography />}
-                  {activeTab === 'style' && <TabStyle />}
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                  <LayoutGroup>
+                    <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
+                  </LayoutGroup>
 
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex-1 overflow-y-auto px-6 py-5 min-h-0"
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
+                      >
+                        {activeTab === 'color' && <TabColor />}
+                        {activeTab === 'typography' && <TabTypography />}
+                        {activeTab === 'style' && <TabStyle />}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </aside>
+        </motion.aside>
 
         {/* Right Panel — Live Preview */}
         <main className={`flex-1 flex flex-col min-h-0 overflow-hidden ${
@@ -223,23 +262,32 @@ const Configurator: React.FC = () => {
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 pb-4">
-            <div className="rounded-2xl overflow-hidden shadow-sm h-full min-h-[500px]">
-              {previewTab === 'dashboard' ? (
+            <div className="rounded-3xl border-2 border-white overflow-hidden shadow-sm h-full min-h-[500px]" style={designTokens as React.CSSProperties}>
+              {previewTab === 'dashboard' && (
                 <PlaygroundDashboard
                   config={playgroundConfig}
                   onChange={handlePlaygroundChange}
                 />
-              ) : (
+              )}
+              {previewTab === 'components' && (
                 <div
                   className="h-full flex items-center justify-center"
                   style={{
-                    backgroundColor: isDarkMode ? '#0f172a' : '#ffffff',
-                    color: isDarkMode ? '#94a3b8' : '#64748b',
-                    fontFamily: `'${config.primaryFont}', system-ui, sans-serif`,
+                    backgroundColor: 'var(--color-background-base)',
+                    color: 'var(--color-foreground-onBaseMuted)',
+                    fontFamily: 'var(--font-family-primary)',
                   }}
                 >
                   <p className="text-sm">Component sampler coming soon</p>
                 </div>
+              )}
+              {previewTab === 'blog' && (
+                <PreviewTypography
+                  fontScale={config.fontScale}
+                  fontWeights={config.fontWeights}
+                  headingFont={config.headingFont}
+                  bodyFont={config.primaryFont}
+                />
               )}
             </div>
           </div>

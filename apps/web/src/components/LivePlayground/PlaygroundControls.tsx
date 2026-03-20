@@ -194,10 +194,11 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
       {/* Style Controls */}
       <div className="flex flex-col gap-6">
         <SegmentedControl
-          label="Roundness"
+          label="Rounding"
           value={config.roundness}
           options={[
             { id: 'sharp', label: 'Sharp' },
+            { id: 'subtle', label: 'Soft' },
             { id: 'rounded', label: 'Rounded' },
             { id: 'pill', label: 'Pill' },
           ]}
@@ -205,23 +206,34 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
         />
 
         <SegmentedControl
-          label="Density"
+          label="Shadows"
+          value={config.shadows || 'subtle'}
+          options={[
+            { id: 'none', label: 'None' },
+            { id: 'subtle', label: 'Subtle' },
+            { id: 'elevated', label: 'Elevated' },
+          ]}
+          onChange={(id) => onChange({ shadows: id as PlaygroundConfig['shadows'] })}
+        />
+
+        <SegmentedControl
+          label="Spacing"
           value={config.density}
           options={[
             { id: 'compact', label: 'Compact' },
-            { id: 'default', label: 'Default' },
-            { id: 'comfortable', label: 'Comfy' },
+            { id: 'default', label: 'Comfortable' },
+            { id: 'comfortable', label: 'Spacious' },
           ]}
           onChange={(id) => onChange({ density: id as PlaygroundConfig['density'] })}
         />
 
         <SegmentedControl
-          label="Expressiveness"
+          label="Motion"
           value={config.expressiveness}
           options={[
             { id: 'minimal', label: 'Minimal' },
             { id: 'balanced', label: 'Balanced' },
-            { id: 'expressive', label: 'Bold' },
+            { id: 'expressive', label: 'Expressive' },
           ]}
           onChange={(id) => onChange({ expressiveness: id as PlaygroundConfig['expressiveness'] })}
         />

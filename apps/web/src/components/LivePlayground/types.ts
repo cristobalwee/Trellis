@@ -4,16 +4,17 @@ export interface PlaygroundConfig {
   saturation: number;
   lightness: number;
   fontFamily: string;
-  roundness: 'sharp' | 'rounded' | 'pill';
+  roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
-  shadows?: 'flat' | 'subtle' | 'elevated' | 'dramatic';
+  shadows?: 'none' | 'subtle' | 'elevated';
   isDarkMode: boolean;
 }
 
 export interface LivePlaygroundProps {
   config: PlaygroundConfig;
   onChange: (updates: Partial<PlaygroundConfig>) => void;
+  designTokens?: Record<string, string>;
   compact?: boolean;
   showExternalDarkModeToggle?: boolean;
   collapsibleControls?: boolean;

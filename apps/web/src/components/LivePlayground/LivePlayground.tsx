@@ -28,9 +28,10 @@ const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({
   </button>
 );
 
-const LivePlayground: React.FC<LivePlaygroundProps> = ({ 
-  config, 
-  onChange, 
+const LivePlayground: React.FC<LivePlaygroundProps> = ({
+  config,
+  onChange,
+  designTokens,
   compact = false,
   showExternalDarkModeToggle = true,
   collapsibleControls = false,
@@ -78,7 +79,7 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
             </motion.button>
           )}
         {/* Dashboard Preview */}
-        <div className="flex-1 min-w-0 rounded-3xl shadow-sm overflow-hidden relative">
+        <div className="flex-1 min-w-0 rounded-3xl border-2 border-white shadow-sm overflow-hidden relative" style={designTokens as React.CSSProperties}>
           <PlaygroundDashboard config={config} onChange={onChange} />
         </div>
 

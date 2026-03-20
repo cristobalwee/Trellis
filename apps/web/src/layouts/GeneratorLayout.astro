@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import ConfiguratorHeader from '../components/ConfiguratorHeader.astro';
 import Loader from '../components/Loader.astro';
 
 export interface Props {
@@ -38,7 +37,6 @@ const {
   <body>
     <Loader />
     <div class="flex flex-col h-dvh">
-      <ConfiguratorHeader />
       <div class="flex-1 min-h-0" id="generator-content">
         <slot />
       </div>

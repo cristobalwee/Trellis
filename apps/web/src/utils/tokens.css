@@ -1,4 +1,5 @@
 :root {
+  /* Primitives */
   --color-neutral-0: #ffffff;
   --color-neutral-50: #f2f4f5;
   --color-neutral-100: #dee2e3;
@@ -177,6 +178,7 @@
   --font-weight-600: "Bold";
   --font-size-250: 20px;
 
+  /* Semantic tokens */
   --spacing-xs: var(--dimension-50);
   --spacing-sm: var(--dimension-100);
   --spacing-lg: var(--dimension-200);

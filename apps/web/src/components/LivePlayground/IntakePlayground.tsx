@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig } from '../BrandIntake/store';
 import LivePlayground from './LivePlayground';
 import type { PlaygroundConfig } from './types';
+import { generateDesignTokens } from '../../utils/generateTokens';
 
 const IntakePlayground: React.FC = () => {
   const brand = useStore($brandConfig);
@@ -46,11 +47,17 @@ const IntakePlayground: React.FC = () => {
     }
   };
 
+  const designTokens = useMemo(
+    () => generateDesignTokens(brand, isDarkMode),
+    [brand, isDarkMode]
+  );
+
   return (
-    <LivePlayground 
-      config={config} 
-      onChange={handleChange} 
-      compact 
+    <LivePlayground
+      config={config}
+      onChange={handleChange}
+      designTokens={designTokens}
+      compact
       showExternalDarkModeToggle={false}
       collapsibleControls={true}
       defaultControlsOpen={false}

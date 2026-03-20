@@ -1,4 +1,4 @@
-import { persistentMap } from '@nanostores/persistent';
+import { map } from 'nanostores';
 import type { ColorRamp } from '../Showcase/colorUtils';
 
 export type { ColorRamp };
@@ -53,12 +53,9 @@ export interface BrandConfig {
 
   // Style
   roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
-  shadows: 'flat' | 'subtle' | 'elevated' | 'dramatic';
+  shadows: 'none' | 'subtle' | 'elevated';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
-
-  // UI state (persisted for returning users)
-  activeTab: TabId;
 }
 
 export const initialConfig: BrandConfig = {
@@ -89,10 +86,9 @@ export const initialConfig: BrandConfig = {
   shadows: 'subtle',
   density: 'default',
   expressiveness: 'balanced',
-  activeTab: 'color',
 };
 
-export const $brandConfig = persistentMap<BrandConfig>('trellis_brand_config_', initialConfig);
+export const $brandConfig = map<BrandConfig>(initialConfig);
 
 export function updateConfig(updates: Partial<BrandConfig>) {
   $brandConfig.set({ ...$brandConfig.get(), ...updates });
