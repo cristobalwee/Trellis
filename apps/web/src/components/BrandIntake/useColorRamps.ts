@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import type { BrandConfig } from './store';
 import type { ColorRamp } from '../Showcase/colorUtils';
+import { STEPS } from '../Showcase/colorUtils';
 import {
   toOklch,
   getGeneratedColor,
@@ -13,6 +14,16 @@ import {
   type HueSlot,
   type HueSelection,
 } from './colorGeneration';
+
+function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp {
+  if (!overrides) return ramp;
+  const result = { ...ramp };
+  for (const step of STEPS) {
+    const val = overrides[step as keyof ColorRamp];
+    if (val) result[step as keyof ColorRamp] = val;
+  }
+  return result;
+}
 
 export interface ColorSlot {
   name: string;
@@ -131,12 +142,38 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
       });
   }, [hueSelection, primaryL, saturationRatio, falloff, uniformity]);
 
+  const overrides = config.rampOverrides;
+
+  const finalPrimaryRamp = useMemo(
+    () => applyOverrides(primaryRamp, overrides.primary),
+    [primaryRamp, overrides.primary],
+  );
+
+  const finalSecondaryRamp = useMemo(
+    () => applyOverrides(secondaryRamp, overrides.secondary),
+    [secondaryRamp, overrides.secondary],
+  );
+
+  const finalNeutralRamp = useMemo(
+    () => applyOverrides(neutralRamp, overrides.neutral),
+    [neutralRamp, overrides.neutral],
+  );
+
+  const finalAdditionalColors = useMemo(
+    (): ColorSlot[] =>
+      additionalColors.map((slot) => ({
+        ...slot,
+        ramp: applyOverrides(slot.ramp, overrides[slot.name]),
+      })),
+    [additionalColors, overrides],
+  );
+
   return {
-    primaryRamp,
+    primaryRamp: finalPrimaryRamp,
     secondaryColor,
-    secondaryRamp,
-    neutralRamp,
-    additionalColors,
+    secondaryRamp: finalSecondaryRamp,
+    neutralRamp: finalNeutralRamp,
+    additionalColors: finalAdditionalColors,
     hueSelection,
   };
 }

@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
-import { $brandConfig, updateConfig } from './store';
+import { $brandConfig, updateConfig, updateRampStep } from './store';
 import { useColorRamps, type ColorSlot } from './useColorRamps';
 import { HexColorInput, RampSliders, NeutralTintSelector, GenerationModeSelector } from './ColorRow';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
@@ -13,7 +13,7 @@ import { SEMANTIC_HUES } from './colorGeneration';
 
 const EXPAND_TRANSITION = { duration: 0.25, ease: [0.32, 0.72, 0, 1] as const };
 
-const AdditionalColorRow: React.FC<ColorSlot> = ({ name, ramp }) => {
+const AdditionalColorRow: React.FC<ColorSlot & { onStepChange: (step: number, color: string) => void }> = ({ name, ramp, onStepChange }) => {
   const isSemantic = SEMANTIC_HUES.includes(name);
   return (
     <div className="flex flex-col gap-1.5">
@@ -25,7 +25,7 @@ const AdditionalColorRow: React.FC<ColorSlot> = ({ name, ramp }) => {
           </span>
         )}
       </div>
-      <ColorRampView ramp={ramp} className="h-6 rounded-lg" />
+      <ColorRampView ramp={ramp} className="h-6 rounded-lg" onStepChange={onStepChange} />
     </div>
   );
 };
@@ -37,7 +37,7 @@ const TabColor: React.FC = () => {
   const [isAdditionalOpen, setIsAdditionalOpen] = useState(false);
 
   const handlePrimaryChange = useCallback(
-    (c: string) => updateConfig({ primaryColor: c }),
+    (c: string) => updateConfig({ primaryColor: c, rampOverrides: {} }),
     [],
   );
 
@@ -67,6 +67,11 @@ const TabColor: React.FC = () => {
     [],
   );
 
+  const handleRampStep = useCallback(
+    (rampKey: string) => (step: number, color: string) => updateRampStep(rampKey, step, color),
+    [],
+  );
+
   return (
     <div className="flex flex-col gap-10">
       {/* Primary color picker */}
@@ -76,7 +81,7 @@ const TabColor: React.FC = () => {
           <ColorPickerPopover color={config.primaryColor} onChange={handlePrimaryChange} />
           <HexColorInput color={config.primaryColor} onChange={handlePrimaryChange} />
         </div>
-        <ColorRampView ramp={derived.primaryRamp} className="h-8 rounded-lg" />
+        <ColorRampView ramp={derived.primaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('primary')} />
         <div>
         <button
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
@@ -124,7 +129,7 @@ const TabColor: React.FC = () => {
           <ColorPickerPopover color={derived.secondaryColor} onChange={handleSecondaryChange} />
           <HexColorInput color={derived.secondaryColor} onChange={handleSecondaryChange} />
         </div>
-        <ColorRampView ramp={derived.secondaryRamp} className="h-8 rounded-lg" />
+        <ColorRampView ramp={derived.secondaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('secondary')} />
         <GenerationModeSelector
           value={config.secondaryGenerationMode}
           onChange={handleSecondaryGeneration}
@@ -134,7 +139,7 @@ const TabColor: React.FC = () => {
       {/* Neutral tint */}
       <div className="flex flex-col gap-3 pt-3 border-t border-charcoal/5">
         <label className="text-sm font-bold text-charcoal">Neutral</label>
-        <ColorRampView ramp={derived.neutralRamp} className="h-8 rounded-lg" />
+        <ColorRampView ramp={derived.neutralRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('neutral')} />
         <NeutralTintSelector
           value={config.neutralTint}
           onChange={handleNeutralTintChange}
@@ -170,7 +175,7 @@ const TabColor: React.FC = () => {
             >
               <div className="flex flex-col gap-6 py-4">
                 {derived.additionalColors.map((slot) => (
-                  <AdditionalColorRow key={slot.name} {...slot} />
+                  <AdditionalColorRow key={slot.name} {...slot} onStepChange={handleRampStep(slot.name)} />
                 ))}
               </div>
             </motion.div>

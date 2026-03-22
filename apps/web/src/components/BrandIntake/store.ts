@@ -32,6 +32,9 @@ export interface BrandConfig {
   accentGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
   accentRamp?: ColorRamp;
 
+  /** Per-step color overrides keyed by ramp id ('primary', 'secondary', 'neutral', or hue name). */
+  rampOverrides: Record<string, Partial<ColorRamp>>;
+
   chromaFalloff: number; // 0-100: how much chroma decreases toward ramp extremes
   uniformity: number; // 0-100
   statusColors: {
@@ -60,6 +63,7 @@ export interface BrandConfig {
 
 export const initialConfig: BrandConfig = {
   primaryColor: '#2D5016',
+  rampOverrides: {},
   useCustomSecondary: false,
   secondaryGenerationMode: 'complementary',
   useTertiary: false,
@@ -92,6 +96,18 @@ export const $brandConfig = map<BrandConfig>(initialConfig);
 
 export function updateConfig(updates: Partial<BrandConfig>) {
   $brandConfig.set({ ...$brandConfig.get(), ...updates });
+}
+
+export function updateRampStep(rampKey: string, step: number, color: string) {
+  const current = $brandConfig.get();
+  const existing = current.rampOverrides[rampKey] ?? {};
+  $brandConfig.set({
+    ...current,
+    rampOverrides: {
+      ...current.rampOverrides,
+      [rampKey]: { ...existing, [step]: color },
+    },
+  });
 }
 
 export function resetConfig() {
