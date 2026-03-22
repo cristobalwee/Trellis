@@ -103,7 +103,7 @@ const BrandIntake: React.FC = () => {
   const playgroundConfig: PlaygroundConfig = {
     primaryColor: config.primaryColor,
     secondaryColor: config.secondaryColor || '#8B5CF6',
-    saturation: config.saturation,
+    saturation: 100,
     lightness: config.uniformity,
     fontFamily: config.primaryFont,
     roundness: config.roundness === 'subtle' ? 'rounded' : config.roundness,
@@ -120,7 +120,7 @@ const BrandIntake: React.FC = () => {
       brandUpdates.secondaryColor = updates.secondaryColor;
       brandUpdates.useCustomSecondary = true;
     }
-    if (updates.saturation !== undefined) brandUpdates.saturation = updates.saturation;
+    // playground saturation is a different concept (scales base chroma); don't map to chromaFalloff
     if (updates.lightness !== undefined) brandUpdates.uniformity = updates.lightness;
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;

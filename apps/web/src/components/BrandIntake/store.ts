@@ -32,7 +32,7 @@ export interface BrandConfig {
   accentGenerationMode?: 'complementary' | 'split-complementary' | 'triadic' | 'analogous' | 'tetradic' | 'monochromatic';
   accentRamp?: ColorRamp;
 
-  saturation: number; // 0-100
+  chromaFalloff: number; // 0-100: how much chroma decreases toward ramp extremes
   uniformity: number; // 0-100
   statusColors: {
     success: string;
@@ -69,7 +69,7 @@ export const initialConfig: BrandConfig = {
   useAccent: false,
   useCustomAccent: false,
   accentGenerationMode: 'triadic',
-  saturation: 20,
+  chromaFalloff: 80,
   uniformity: 100,
   statusColors: {
     success: '#10b981',

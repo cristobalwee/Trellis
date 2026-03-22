@@ -67,26 +67,29 @@ export const GenerationModeSelector: React.FC<{
 );
 
 export const RampSliders: React.FC<{
-  saturation: number;
+  chromaFalloff: number;
   uniformity: number;
-  onSaturationChange: (value: number) => void;
+  onChromaFalloffChange: (value: number) => void;
   onUniformityChange: (value: number) => void;
-}> = ({ saturation, uniformity, onSaturationChange, onUniformityChange }) => (
+}> = ({ chromaFalloff, uniformity, onChromaFalloffChange, onUniformityChange }) => (
   <div className="flex flex-col gap-8" data-step-animate-children="ignore">
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
-        <label className="text-sm text-charcoal">Saturation</label>
-        <span className="text-xs font-mono text-charcoal">{saturation}%</span>
+        <label className="text-sm text-charcoal">Chroma Falloff</label>
+        <span className="text-xs font-mono text-charcoal">{chromaFalloff}%</span>
       </div>
       <input
         type="range"
-        aria-label="Saturation"
+        aria-label="Chroma Falloff"
         min="0"
         max="100"
-        value={saturation}
-        onChange={(e) => onSaturationChange(parseInt(e.target.value))}
+        value={chromaFalloff}
+        onChange={(e) => onChromaFalloffChange(parseInt(e.target.value))}
         className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
       />
+      <p className="text-xs text-charcoal/60">
+        How much color intensity fades in lighter and darker shades. Your chosen color is always preserved.
+      </p>
     </div>
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">

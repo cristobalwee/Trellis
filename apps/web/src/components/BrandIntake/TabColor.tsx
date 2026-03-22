@@ -57,8 +57,8 @@ const TabColor: React.FC = () => {
     [],
   );
 
-  const handleSaturationChange = useCallback(
-    (value: number) => updateConfig({ saturation: value }),
+  const handleChromaFalloffChange = useCallback(
+    (value: number) => updateConfig({ chromaFalloff: value }),
     [],
   );
 
@@ -105,9 +105,9 @@ const TabColor: React.FC = () => {
             >
               <div className="bg-charcoal/5 rounded-xl p-4 mt-2">
                 <RampSliders
-                  saturation={config.saturation}
+                  chromaFalloff={config.chromaFalloff}
                   uniformity={config.uniformity}
-                  onSaturationChange={handleSaturationChange}
+                  onChromaFalloffChange={handleChromaFalloffChange}
                   onUniformityChange={handleUniformityChange}
                 />
               </div>

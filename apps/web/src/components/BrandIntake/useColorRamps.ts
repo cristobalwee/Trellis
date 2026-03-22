@@ -14,10 +14,6 @@ import {
   type HueSelection,
 } from './colorGeneration';
 
-// Default chroma falloff (how much chroma decreases toward ramp extremes).
-// Hardcoded for now; could be exposed as an advanced slider later.
-const CHROMA_FALLOFF = 0.8;
-
 export interface ColorSlot {
   name: string;
   hue: number;
@@ -37,7 +33,7 @@ export interface DerivedColors {
 }
 
 export function useColorRamps(config: BrandConfig): DerivedColors {
-  const { primaryColor, saturation, uniformity } = config;
+  const { primaryColor, chromaFalloff, uniformity } = config;
 
   // --- Parse primary to OKLCH -------------------------------------------------
   const primaryOklch = useMemo(() => toOklch(primaryColor), [primaryColor]);
@@ -46,15 +42,19 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
   const primaryL = primaryOklch?.l ?? 0.5;
   const primaryC = primaryOklch?.c ?? 0;
 
+  // --- Chroma falloff (0–1) ---------------------------------------------------
+  // Passed directly to generateOklchRamp. The base color is always anchored;
+  // only surrounding shades lose chroma toward the ramp extremes.
+  const falloff = chromaFalloff / 100;
+
   // --- Saturation ratio -------------------------------------------------------
   // The primary's chroma relative to the max achievable chroma at its L & H.
   // Non-primary hues use this ratio against their own max chroma so the whole
-  // palette feels cohesive.  The saturation slider scales the ratio further.
+  // palette feels cohesive.
   const saturationRatio = useMemo(() => {
     const maxC = maxChromaForLH(primaryL, primaryH);
-    const naturalRatio = maxC > 0 ? primaryC / maxC : 0;
-    return naturalRatio * (saturation / 100);
-  }, [primaryL, primaryH, primaryC, saturation]);
+    return maxC > 0 ? primaryC / maxC : 0;
+  }, [primaryL, primaryH, primaryC]);
 
   // --- Secondary --------------------------------------------------------------
   const secondaryColor = useMemo(() => {
@@ -75,30 +75,30 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     () =>
       generateOklchRamp(
         primaryH,
-        primaryC * (saturation / 100),
+        primaryC,
         primaryL,
-        CHROMA_FALLOFF,
+        falloff,
         uniformity,
       ),
-    [primaryH, primaryC, primaryL, saturation, uniformity],
+    [primaryH, primaryC, primaryL, falloff, uniformity],
   );
 
   const secondaryRamp = useMemo(() => {
     const sec = toOklch(secondaryColor);
-    if (!sec) return generateOklchRamp(0, 0, 0.5, CHROMA_FALLOFF, uniformity);
+    if (!sec) return generateOklchRamp(0, 0, 0.5, falloff, uniformity);
     return generateOklchRamp(
       sec.h || 0,
-      (sec.c || 0) * (saturation / 100),
+      sec.c || 0,
       sec.l,
-      CHROMA_FALLOFF,
+      falloff,
       uniformity,
     );
-  }, [secondaryColor, saturation, uniformity]);
+  }, [secondaryColor, falloff, uniformity]);
 
   // --- Neutral ----------------------------------------------------------------
   const neutralRamp = useMemo(
-    () => generateNeutralRamp(primaryH, config.neutralTint, primaryL, CHROMA_FALLOFF, uniformity),
-    [primaryH, config.neutralTint, primaryL, uniformity],
+    () => generateNeutralRamp(primaryH, config.neutralTint, primaryL, falloff, uniformity),
+    [primaryH, config.neutralTint, primaryL, falloff, uniformity],
   );
 
   // --- Additional named hue ramps --------------------------------------------
@@ -119,7 +119,7 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
           slot.hue,
           baseChroma,
           baseL,
-          CHROMA_FALLOFF,
+          falloff,
           uniformity,
         );
         return {
@@ -129,7 +129,7 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
           ramp,
         };
       });
-  }, [hueSelection, primaryL, saturationRatio, uniformity]);
+  }, [hueSelection, primaryL, saturationRatio, falloff, uniformity]);
 
   return {
     primaryRamp,

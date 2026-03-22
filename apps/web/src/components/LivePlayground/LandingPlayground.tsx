@@ -22,7 +22,7 @@ const LandingPlayground: React.FC = () => {
       return {
         primaryColor: brand.primaryColor,
         secondaryColor: brand.secondaryColor || '#8B5CF6',
-        saturation: brand.saturation,
+        saturation: 100,
         lightness: brand.uniformity,
         fontFamily: brand.primaryFont,
         roundness: brand.roundness,
@@ -57,7 +57,7 @@ const LandingPlayground: React.FC = () => {
       ...initialConfig,
       primaryColor: showcase.primaryColor,
       secondaryColor: showcase.secondaryColor,
-      saturation: showcase.saturation,
+      chromaFalloff: 80,
       uniformity: showcase.lightness,
       primaryFont: showcase.fontFamily,
       headingFont: showcase.fontFamily,

@@ -131,7 +131,7 @@ export function generateDesignTokens(
   const tokens: Record<string, string> = {};
 
   // --- Resolve colors using OKLCH pipeline ---
-  const CHROMA_FALLOFF = 0.8;
+  const falloff = config.chromaFalloff / 100;
 
   const primaryOklch = toOklch(config.primaryColor);
   const primaryH = primaryOklch?.h || 0;
@@ -150,14 +150,16 @@ export function generateDesignTokens(
   const secondaryC = secondaryOklch?.c ?? 0;
 
   // --- Color ramps (OKLCH) ---
+  // Base chroma is passed unscaled — the user's chosen color is always anchored.
+  // Only surrounding shades lose chroma according to the falloff parameter.
   const primaryRamp = generateOklchRamp(
-    primaryH, primaryC * (config.saturation / 100), primaryL, CHROMA_FALLOFF, config.uniformity,
+    primaryH, primaryC, primaryL, falloff, config.uniformity,
   );
   const secondaryRamp = generateOklchRamp(
-    secondaryH, secondaryC * (config.saturation / 100), secondaryL, CHROMA_FALLOFF, config.uniformity,
+    secondaryH, secondaryC, secondaryL, falloff, config.uniformity,
   );
   const neutralRamp = generateNeutralRamp(
-    primaryH, config.neutralTint, primaryL, CHROMA_FALLOFF, config.uniformity,
+    primaryH, config.neutralTint, primaryL, falloff, config.uniformity,
   );
 
   // Primitive color tokens
@@ -178,7 +180,7 @@ export function generateDesignTokens(
   for (const [name, hex] of Object.entries(statusMap)) {
     const statusOklch = toOklch(hex);
     const ramp = generateOklchRamp(
-      statusOklch?.h || 0, statusOklch?.c ?? 0, statusOklch?.l ?? 0.5, CHROMA_FALLOFF, 100,
+      statusOklch?.h || 0, statusOklch?.c ?? 0, statusOklch?.l ?? 0.5, 0.8, 100,
     );
     for (const [step, color] of Object.entries(ramp)) {
       tokens[`--color-${name}-${step}`] = color as string;
@@ -205,7 +207,7 @@ export function generateDesignTokens(
   for (const [name, hex] of Object.entries(statusMap)) {
     const sOklch = toOklch(hex);
     const ramp = generateOklchRamp(
-      sOklch?.h || 0, sOklch?.c ?? 0, sOklch?.l ?? 0.5, CHROMA_FALLOFF, 100,
+      sOklch?.h || 0, sOklch?.c ?? 0, sOklch?.l ?? 0.5, 0.8, 100,
     );
     statusRampCache[name] = ramp;
     tokens[`--color-background-${name}`] = isDark ? ramp[400] : ramp[500];
