@@ -76,7 +76,7 @@ const TabColor: React.FC = () => {
     <div className="flex flex-col gap-10">
       {/* Primary color picker */}
       <div className="flex flex-col gap-3">
-        <label className="text-sm font-bold text-charcoal">Primary Color</label>
+        <label className="text-sm font-medium text-charcoal">Primary Color</label>
         <div className="flex items-center gap-3">
           <ColorPickerPopover color={config.primaryColor} onChange={handlePrimaryChange} />
           <HexColorInput color={config.primaryColor} onChange={handlePrimaryChange} />
@@ -124,7 +124,7 @@ const TabColor: React.FC = () => {
 
       {/* Secondary color */}
       <div className="flex flex-col gap-3 pt-3 border-t border-charcoal/5">
-        <label className="text-sm font-bold text-charcoal">Secondary</label>
+        <label className="text-sm font-medium text-charcoal">Secondary</label>
         <div className="flex items-center gap-3">
           <ColorPickerPopover color={derived.secondaryColor} onChange={handleSecondaryChange} />
           <HexColorInput color={derived.secondaryColor} onChange={handleSecondaryChange} />
@@ -138,7 +138,7 @@ const TabColor: React.FC = () => {
 
       {/* Neutral tint */}
       <div className="flex flex-col gap-3 pt-3 border-t border-charcoal/5">
-        <label className="text-sm font-bold text-charcoal">Neutral</label>
+        <label className="text-sm font-medium text-charcoal">Neutral</label>
         <ColorRampView ramp={derived.neutralRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('neutral')} />
         <NeutralTintSelector
           value={config.neutralTint}

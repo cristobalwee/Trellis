@@ -70,7 +70,7 @@ const TabTypography: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Font selectors */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
         <Combobox
           label={config.useSingleTypeface ? 'Typeface' : 'Heading Typeface'}
           value={config.useSingleTypeface ? config.primaryFont : config.headingFont}
@@ -78,6 +78,7 @@ const TabTypography: React.FC = () => {
           options={GOOGLE_FONTS}
           placeholder="Search Google Fonts..."
           displayValue={config.useSingleTypeface ? config.customFontName : config.customHeadingFontName}
+          size="compact"
         />
 
         <AnimatePresence initial={false}>
@@ -89,14 +90,17 @@ const TabTypography: React.FC = () => {
               transition={EXPAND_TRANSITION}
               className="overflow-hidden"
             >
-              <Combobox
-                label="Body Typeface"
-                value={config.primaryFont}
-                onValueChange={handlePrimaryFontChange}
-                options={GOOGLE_FONTS}
-                placeholder="Search Google Fonts..."
-                displayValue={config.customBodyFontName}
-              />
+              <div className="pt-4">
+                <Combobox
+                  label="Body Typeface"
+                  value={config.primaryFont}
+                  onValueChange={handlePrimaryFontChange}
+                  options={GOOGLE_FONTS}
+                  placeholder="Search Google Fonts..."
+                  displayValue={config.customBodyFontName}
+                  size="compact"
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -131,7 +135,7 @@ const TabTypography: React.FC = () => {
       <div className="pt-3 border-t border-charcoal/5">
         <label className="flex items-center justify-between cursor-pointer">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-bold text-charcoal">
+            <span className="text-sm font-medium text-charcoal">
               Separate heading typeface
             </span>
             <span className="text-xs text-charcoal/60">
@@ -156,7 +160,7 @@ const TabTypography: React.FC = () => {
       </div>
 
       {/* Custom font upload placeholder */}
-      <div className="pt-3 border-t border-charcoal/10">
+      {/* <div className="pt-3 border-t border-charcoal/10">
         <div className="flex items-center gap-3 px-4 py-4 border border-dashed border-charcoal/15 rounded-xl bg-charcoal/2">
           <Upload size={16} className="text-charcoal/25 shrink-0" />
           <div className="flex flex-col gap-0.5">
@@ -168,7 +172,7 @@ const TabTypography: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

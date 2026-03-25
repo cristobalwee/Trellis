@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
-import { Sun, Moon, Upload, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Sun, Moon, Upload, PanelLeftClose, PanelLeftOpen, MousePointerClick } from 'lucide-react';
 
-import { $brandConfig, updateConfig, resetConfig, type TabId } from '../BrandIntake/store';
+import { $brandConfig, updateConfig, type TabId } from '../BrandIntake/store';
 import TabBar from '../BrandIntake/TabBar';
 import TabColor from '../BrandIntake/TabColor';
 import TabTypography from '../BrandIntake/TabTypography';
@@ -11,9 +11,9 @@ import TabStyle from '../BrandIntake/TabStyle';
 import PlaygroundDashboard from '../LivePlayground/PlaygroundDashboard';
 import PreviewTypography from '../LivePlayground/PreviewTypography';
 import type { PlaygroundConfig } from '../LivePlayground/types';
-import { AnimatedCTA } from '../AnimatedCTA';
 import { generateDesignTokens } from '../../utils/generateTokens';
 import { Tooltip } from '../ui/Tooltip';
+import InspectOverlay from './InspectOverlay';
 import logoIcon from '../../assets/logo_icon.svg';
 
 // ---------------------------------------------------------------------------
@@ -96,8 +96,6 @@ const MobileSegmentedController: React.FC<{
 // Main Configurator component
 // ---------------------------------------------------------------------------
 
-const isDev = import.meta.env.DEV;
-
 const Configurator: React.FC = () => {
   const config = useStore($brandConfig);
 
@@ -107,6 +105,9 @@ const Configurator: React.FC = () => {
   const [previewTab, setPreviewTab] = useState<PreviewTab>('dashboard');
   const [mobileSegment, setMobileSegment] = useState<MobileSegment>('configure');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isInspecting, setIsInspecting] = useState(false);
+
+  const previewContainerRef = useRef<HTMLDivElement>(null);
 
   // Scroll preservation per tab
   const scrollRefs = useRef<Record<TabId, number>>({ color: 0, typography: 0, style: 0 });
@@ -177,11 +178,11 @@ const Configurator: React.FC = () => {
       <div className="flex flex-col md:flex-row flex-1 min-h-0 bg-gray">
         {/* Left Panel — Configuration */}
         <motion.aside
-          animate={{ width: isCollapsed ? 72 : 400 }}
+          animate={{ width: isCollapsed ? 72 : 360 }}
           transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           className={`shrink-0 flex flex-col min-h-0 md:p-4 md:pr-0 ${
             mobileSegment === 'preview' ? 'hidden md:flex' : 'flex'
-          } ${isCollapsed ? '' : 'w-full md:w-[400px]'}`}
+          } ${isCollapsed ? '' : 'w-full md:w-[360px]'}`}
         >
           <div className="relative flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -291,15 +292,18 @@ const Configurator: React.FC = () => {
                 isDark={isDarkMode}
                 onToggle={() => setIsDarkMode(!isDarkMode)}
               />
-              {isDev && (
-                <button
-                  onClick={() => { if (confirm('Reset all config?')) resetConfig(); }}
-                  className="text-[10px] font-mono text-red-500/60 hover:text-red-500 transition-colors cursor-pointer px-2 py-1 rounded-md hover:bg-red-500/5"
-                >
-                  Reset
-                </button>
-              )}
-              <button className="btn btn-primary btn-sm flex items-center gap-1.5" onClick={() => {}}>
+              <button
+                onClick={() => setIsInspecting(!isInspecting)}
+                className={`flex items-center gap-1.5 text-xs font-medium border px-4 md:py-3 rounded-full transition-colors cursor-pointer ${
+                  isInspecting
+                    ? 'border-forest-green/50 bg-forest-green/10 text-forest-green'
+                    : 'border-transparent text-charcoal/80 hover:text-charcoal hover:bg-forest-green/10'
+                }`}
+              >
+                <MousePointerClick size={13} />
+                Inspect{isInspecting && ': On'}
+              </button>
+              <button className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5" onClick={() => {}}>
                 <Upload size={13} />
                 Export
               </button>
@@ -307,7 +311,7 @@ const Configurator: React.FC = () => {
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 pb-4">
-            <div className="rounded-3xl border-2 border-white overflow-hidden shadow-sm h-full min-h-[500px]" style={designTokens as React.CSSProperties}>
+            <div ref={previewContainerRef} className="relative rounded-3xl border-2 border-white overflow-hidden shadow-sm h-full min-h-[500px] max-w-[1600px] mx-auto max-h-[1200px]" style={designTokens as React.CSSProperties}>
               {previewTab === 'dashboard' && (
                 <PlaygroundDashboard
                   config={playgroundConfig}
@@ -334,6 +338,11 @@ const Configurator: React.FC = () => {
                   bodyFont={config.primaryFont}
                 />
               )}
+              <InspectOverlay
+                isActive={isInspecting && (previewTab === 'dashboard' || previewTab === 'blog')}
+                containerRef={previewContainerRef}
+                isDarkMode={isDarkMode}
+              />
             </div>
           </div>
         </main>

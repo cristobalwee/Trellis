@@ -8,12 +8,12 @@ import { Check, ChevronDown } from 'lucide-react';
 
 const TRIGGER_SIZES = {
   default: 'text-xl px-6 py-4 rounded-2xl',
-  compact: 'text-sm px-3 py-2 rounded-lg',
+  compact: 'text-base px-3 py-2 rounded-xl',
 } as const;
 
 const POPUP_SIZES = {
   default: 'rounded-2xl p-2',
-  compact: 'rounded-lg p-2',
+  compact: 'rounded-xl p-1.5',
 } as const;
 
 const ITEM_SIZES = {
@@ -63,7 +63,7 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <div className={`flex flex-col gap-3 w-full min-w-0 ${className}`}>
       {label && (
-        <span className="text-sm text-charcoal">{label}</span>
+        <span className="text-sm font-medium text-charcoal">{label}</span>
       )}
 
       <BaseSelect.Root
@@ -101,8 +101,8 @@ export const Select: React.FC<SelectProps> = ({
               className={`bg-white border border-charcoal/10 shadow-lg ${POPUP_SIZES[size]} outline-none max-h-60 overflow-y-auto overscroll-contain touch-pan-y
                 origin-top
                 transition-[transform,opacity] duration-150 ease-out
-                data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.95]
-                data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.95]`}
+                data-starting-style:opacity-0 data-starting-style:scale-[0.95]
+                data-ending-style:opacity-0 data-ending-style:scale-[0.95]`}
             >
               {options.map((option) => (
                 <BaseSelect.Item

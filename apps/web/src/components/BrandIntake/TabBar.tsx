@@ -15,7 +15,7 @@ interface TabBarProps {
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
-  <div className="flex border-b border-charcoal/10 px-6 shrink-0">
+  <div className="flex border-b border-charcoal/10 mx-auto shrink-0">
     {TABS.map((tab) => {
       const isActive = tab.id === activeTab;
       return (

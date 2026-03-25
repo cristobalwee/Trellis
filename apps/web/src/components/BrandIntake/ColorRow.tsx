@@ -75,7 +75,7 @@ export const RampSliders: React.FC<{
   <div className="flex flex-col gap-8" data-step-animate-children="ignore">
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
-        <label className="text-sm text-charcoal">Chroma Falloff</label>
+        <label className="text-sm font-medium text-charcoal">Chroma Falloff</label>
         <span className="text-xs font-mono text-charcoal">{chromaFalloff}%</span>
       </div>
       <input
@@ -93,7 +93,7 @@ export const RampSliders: React.FC<{
     </div>
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
-        <label className="text-sm text-charcoal">Uniformity</label>
+        <label className="text-sm font-medium text-charcoal">Uniformity</label>
         <span className="text-xs font-mono text-charcoal">{uniformity}%</span>
       </div>
       <input
@@ -106,7 +106,7 @@ export const RampSliders: React.FC<{
         className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
       />
     </div>
-    <p className="text-xs text-charcoal pt-4 border-t border-charcoal/10">
+    <p className="text-xs text-charcoal/60 pt-4 border-t border-charcoal/10">
       These settings affect all generated color ramps.
     </p>
   </div>

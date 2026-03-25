@@ -25,7 +25,7 @@ interface PresetSelectorProps {
 const PresetSelector: React.FC<PresetSelectorProps> = ({ label, description, value, options, onChange }) => (
   <div className="flex flex-col gap-2">
     <div className="flex flex-col gap-0.5">
-      <label className="text-sm font-bold text-charcoal">{label}</label>
+      <label className="text-sm font-medium text-charcoal">{label}</label>
       {description && <p className="text-xs text-charcoal/60">{description}</p>}
     </div>
     <div className="flex gap-1.5 flex-wrap">
@@ -175,7 +175,7 @@ const TabStyle: React.FC = () => {
               className="overflow-hidden"
             >
               <div className="py-4 px-4 bg-charcoal/5 rounded-xl mt-2">
-                <p className="text-xs text-charcoal/50">
+                <p className="text-xs text-charcoal/60">
                   Fine-grained controls for exact border-radius, shadow, spacing, and transition values coming soon.
                 </p>
               </div>

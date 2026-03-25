@@ -279,7 +279,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
 
         {/* Main Content — inset panel */}
         <div
-          className="flex-1 flex flex-col min-w-0 overflow-hidden my-3 mr-3 md:ml-0 ml-3"
+          className="flex-1 flex flex-col min-w-0 overflow-hidden my-2 mr-2 md:ml-0 ml-2"
           style={{
             backgroundColor: bg.base,
             borderRadius: radius.container,

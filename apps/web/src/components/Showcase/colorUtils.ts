@@ -2,7 +2,7 @@ import { converter, formatHex } from 'culori';
 
 const toOklch = converter('oklch');
 
-export const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000] as const;
+export const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000] as const;
 
 export interface ColorRamp {
   50: string;
@@ -15,6 +15,7 @@ export interface ColorRamp {
   700: string;
   800: string;
   900: string;
+  950: string;
   1000: string;
 }
 

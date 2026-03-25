@@ -42,6 +42,7 @@
   /* Custom Fonts */
   --font-serif: 'GT Sectra', Georgia, serif;
   --font-sans: 'Nunito Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
   /* Custom Spacing */
   --spacing-18: 4.5rem;

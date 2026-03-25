@@ -76,7 +76,6 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
         className="sticky top-0 z-10 flex items-center justify-between"
         style={{
           backgroundColor: bg.base,
-          borderBottom: `1px solid ${border.neutral}`,
           padding: `${space.shell} ${space.card}`,
           transition: transition.theme,
         }}
@@ -127,8 +126,8 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
 
       {/* ── Article ── */}
       <article
-        className="max-w-2xl mx-auto"
-        style={{ padding: space.card, marginTop: space.card }}
+        className="max-w-3xl mx-auto"
+        style={{ padding: space.card, marginTop: `calc(${space.card} + 24px)` }}
       >
         {/* Tags / Eyebrow */}
         <div className="flex items-center" style={{ gap: space.gap, marginBottom: space.card }}>
