@@ -73,7 +73,7 @@ const TabColor: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-8">
       {/* Primary color picker */}
       <div className="flex flex-col gap-3">
         <label className="text-sm font-medium text-charcoal">Primary Color</label>
@@ -123,13 +123,15 @@ const TabColor: React.FC = () => {
       </div>
 
       {/* Secondary color */}
-      <div className="flex flex-col gap-3 pt-3 border-t border-charcoal/5">
-        <label className="text-sm font-medium text-charcoal">Secondary</label>
-        <div className="flex items-center gap-3">
-          <ColorPickerPopover color={derived.secondaryColor} onChange={handleSecondaryChange} />
-          <HexColorInput color={derived.secondaryColor} onChange={handleSecondaryChange} />
+      <div className="flex flex-col gap-5 pt-6 border-t border-charcoal/10">
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-medium text-charcoal">Secondary</label>
+          <div className="flex items-center gap-3">
+            <ColorPickerPopover color={derived.secondaryColor} onChange={handleSecondaryChange} />
+            <HexColorInput color={derived.secondaryColor} onChange={handleSecondaryChange} />
+          </div>
+          <ColorRampView ramp={derived.secondaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('secondary')} />
         </div>
-        <ColorRampView ramp={derived.secondaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('secondary')} />
         <GenerationModeSelector
           value={config.secondaryGenerationMode}
           onChange={handleSecondaryGeneration}
@@ -137,7 +139,7 @@ const TabColor: React.FC = () => {
       </div>
 
       {/* Neutral tint */}
-      <div className="flex flex-col gap-3 pt-3 border-t border-charcoal/5">
+      <div className="flex flex-col gap-3 pt-6 border-t border-charcoal/10">
         <label className="text-sm font-medium text-charcoal">Neutral</label>
         <ColorRampView ramp={derived.neutralRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('neutral')} />
         <NeutralTintSelector
@@ -147,7 +149,7 @@ const TabColor: React.FC = () => {
       </div>
 
       {/* Additional colors */}
-      <div className="border-t border-charcoal/5 pt-3">
+      <div className="border-t border-charcoal/10 pt-6">
         <button
           onClick={() => setIsAdditionalOpen(!isAdditionalOpen)}
           className={`flex items-center justify-between w-full py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg ${

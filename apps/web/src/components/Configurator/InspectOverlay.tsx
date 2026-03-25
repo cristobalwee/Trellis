@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { extractTokensFromElement, findStyledAncestor, type TokenInfo } from './inspectUtils';
 import { InspectFlyout } from './InspectFlyout';
 
@@ -26,6 +27,8 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
   const rafRef = useRef<number>(0);
   const isFlyoutHoveredRef = useRef(false);
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Pending ancestor-switch timeout — cancelled if cursor reaches a sibling child first */
+  const ancestorDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearHighlight = useCallback(() => {
     setHighlight(null);
@@ -93,8 +96,11 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
         // Skip our own overlay elements
         if (target.closest('[data-inspect-overlay]')) return;
 
-        // Find nearest ancestor with inline token refs
-        const styled = findStyledAncestor(target, container);
+        // Find nearest ancestor with color/gradient token refs
+        const styled = findStyledAncestor(target, container, (el) => {
+          const tokens = extractTokensFromElement(el);
+          return tokens.some((t) => t.category === 'color' || t.category === 'gradient');
+        });
         if (!styled) {
           setHighlight(null);
           lastElementRef.current = null;
@@ -110,9 +116,29 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
           return;
         }
 
-        lastElementRef.current = styled;
-        updateHighlight(styled);
-        setEditingToken(null);
+        // Cancel any pending ancestor switch
+        if (ancestorDebounceRef.current) {
+          clearTimeout(ancestorDebounceRef.current);
+          ancestorDebounceRef.current = null;
+        }
+
+        const prev = lastElementRef.current;
+        const isMovingToAncestor = prev && styled.contains(prev);
+
+        if (isMovingToAncestor) {
+          // Delay switching to parent — cursor may be passing through to a sibling
+          ancestorDebounceRef.current = setTimeout(() => {
+            ancestorDebounceRef.current = null;
+            lastElementRef.current = styled;
+            updateHighlight(styled);
+            setEditingToken(null);
+          }, 80);
+        } else {
+          // Moving to a child or unrelated element — switch immediately
+          lastElementRef.current = styled;
+          updateHighlight(styled);
+          setEditingToken(null);
+        }
       });
     };
 
@@ -124,7 +150,7 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
         if (!isFlyoutHoveredRef.current) {
           clearHighlight();
         }
-      }, 100);
+      }, 300);
     };
 
     const handleScroll = () => {
@@ -142,6 +168,7 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
     return () => {
       cancelAnimationFrame(rafRef.current);
       if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+      if (ancestorDebounceRef.current) clearTimeout(ancestorDebounceRef.current);
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseleave', handleMouseLeave);
       container.removeEventListener('scroll', handleScroll, true);
@@ -149,31 +176,48 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
     };
   }, [isActive, containerRef, updateHighlight, editingToken, clearHighlight]);
 
-  if (!isActive || !highlight) return null;
+  // Only show color & gradient tokens in the flyout
+  const colorTokens = highlight?.tokens.filter(
+    (t) => t.category === 'color' || t.category === 'gradient',
+  ) ?? [];
+
+  const flyoutVisible = !!highlight && colorTokens.length > 0;
+
+  if (!isActive) return null;
 
   return (
     <>
-      {/* Highlight ring — fixed position tracking the element */}
-      <div
-        data-inspect-overlay
-        style={{
-          position: 'fixed',
-          top: highlight.rect.top - 2,
-          left: highlight.rect.left - 2,
-          width: highlight.rect.width + 4,
-          height: highlight.rect.height + 4,
-          border: '2px solid var(--color-background-primary, #3b82f6)',
-          borderRadius: highlight.borderRadius,
-          pointerEvents: 'none',
-          zIndex: 9998,
-          transition: 'top 0.1s ease-out, left 0.1s ease-out, width 0.1s ease-out, height 0.1s ease-out',
-        }}
-      />
+      {/* Highlight ring — fades in/out, no positional transition */}
+      <AnimatePresence>
+        {highlight && (
+          <motion.div
+            key="highlight-ring"
+            data-inspect-overlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'fixed',
+              top: highlight.rect.top - 2,
+              left: highlight.rect.left - 2,
+              width: highlight.rect.width + 4,
+              height: highlight.rect.height + 4,
+              border: '2px solid var(--color-background-primary, #3b82f6)',
+              borderRadius: highlight.borderRadius,
+              pointerEvents: 'none',
+              zIndex: 9998,
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Flyout */}
+      {/* Flyout — always mounted while inspect is active, visibility managed internally */}
       <InspectFlyout
-        tokens={highlight.tokens}
-        targetRect={highlight.rect}
+        visible={flyoutVisible}
+        tokens={colorTokens}
+        targetRect={highlight?.rect ?? null}
+        containerRef={containerRef}
         isDarkMode={isDarkMode}
         editingToken={editingToken}
         onEditToken={setEditingToken}

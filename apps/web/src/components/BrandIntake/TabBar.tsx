@@ -15,7 +15,7 @@ interface TabBarProps {
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
-  <div className="flex border-b border-charcoal/10 mx-auto shrink-0">
+  <div className="flex border-b border-charcoal/10 mx-auto shrink-0 w-full px-6 md:w-auto md:px-0">
     {TABS.map((tab) => {
       const isActive = tab.id === activeTab;
       return (
@@ -32,7 +32,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => (
             <motion.div
               layoutId="tab-underline"
               className="absolute bottom-0 left-0 right-0 h-0.5 bg-forest-green rounded-full"
-              transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             />
           )}
         </button>

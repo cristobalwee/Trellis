@@ -85,12 +85,15 @@ export function extractTokensFromElement(el: HTMLElement): TokenInfo[] {
 export function findStyledAncestor(
   el: HTMLElement,
   boundary: HTMLElement,
+  predicate?: (el: HTMLElement) => boolean,
 ): HTMLElement | null {
   let current: HTMLElement | null = el;
   while (current && current !== boundary) {
     if (current.style.cssText && VAR_RE.test(current.style.cssText)) {
       VAR_RE.lastIndex = 0;
-      return current;
+      if (!predicate || predicate(current)) {
+        return current;
+      }
     }
     VAR_RE.lastIndex = 0;
     current = current.parentElement;

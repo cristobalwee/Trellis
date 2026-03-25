@@ -23,12 +23,12 @@ import logoIcon from '../../assets/logo_icon.svg';
 type PreviewTab = 'dashboard' | 'components' | 'blog';
 
 const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) => void }> = ({ active, onChange }) => (
-  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5">
+  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 w-full md:w-auto justify-between md:justify-start">
     {(['dashboard', 'components', 'blog'] as const).map((tab) => (
       <button
         key={tab}
         onClick={() => onChange(tab)}
-        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer capitalize ${
+        className={`px-3 py-1.5 text-xs font-medium w-full md:w-auto rounded-md transition-all cursor-pointer capitalize ${
           active === tab
             ? 'bg-white text-charcoal shadow-sm'
             : 'text-charcoal/80 hover:text-charcoal'
@@ -96,8 +96,22 @@ const MobileSegmentedController: React.FC<{
 // Main Configurator component
 // ---------------------------------------------------------------------------
 
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : true
+  );
+  React.useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+  return isDesktop;
+};
+
 const Configurator: React.FC = () => {
   const config = useStore($brandConfig);
+  const isDesktop = useIsDesktop();
 
   // Local UI state
   const [activeTab, setActiveTab] = useState<TabId>('color');
@@ -171,18 +185,15 @@ const Configurator: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full" data-lenis-prevent="true">
-      {/* Mobile segmented controller */}
-      <MobileSegmentedController active={mobileSegment} onChange={setMobileSegment} />
-
       {/* Two-panel layout */}
       <div className="flex flex-col md:flex-row flex-1 min-h-0 bg-gray">
         {/* Left Panel — Configuration */}
         <motion.aside
-          animate={{ width: isCollapsed ? 72 : 360 }}
+          animate={isDesktop ? { width: isCollapsed ? 72 : 360 } : undefined}
           transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
           className={`shrink-0 flex flex-col min-h-0 md:p-4 md:pr-0 ${
             mobileSegment === 'preview' ? 'hidden md:flex' : 'flex'
-          } ${isCollapsed ? '' : 'w-full md:w-[360px]'}`}
+          } ${isCollapsed && isDesktop ? '' : 'w-full md:w-[360px]'}`}
         >
           <div className="relative flex flex-col flex-1 min-h-0 bg-white md:rounded-3xl overflow-hidden">
             <AnimatePresence mode="popLayout" initial={false}>
@@ -246,7 +257,7 @@ const Configurator: React.FC = () => {
                     </Tooltip>
                     <button
                       onClick={() => setIsCollapsed(true)}
-                      className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
+                      className="hidden md:block text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer"
                       aria-label="Collapse sidebar"
                     >
                       <PanelLeftClose size={18} />
@@ -285,28 +296,30 @@ const Configurator: React.FC = () => {
         <main className={`flex-1 flex flex-col min-h-0 overflow-hidden ${
           mobileSegment === 'configure' ? 'hidden md:flex' : 'flex'
         }`}>
-          <div className="flex items-center justify-between px-4 md:px-8 py-4 shrink-0">
+          <div className="flex flex-wrap items-center justify-between gap-4 px-4 md:px-8 py-4 shrink-0">
             <PreviewTabBar active={previewTab} onChange={setPreviewTab} />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
               <DarkModeToggle
                 isDark={isDarkMode}
                 onToggle={() => setIsDarkMode(!isDarkMode)}
               />
-              <button
-                onClick={() => setIsInspecting(!isInspecting)}
-                className={`flex items-center gap-1.5 text-xs font-medium border px-4 md:py-3 rounded-full transition-colors cursor-pointer ${
-                  isInspecting
-                    ? 'border-forest-green/50 bg-forest-green/10 text-forest-green'
-                    : 'border-transparent text-charcoal/80 hover:text-charcoal hover:bg-forest-green/10'
-                }`}
-              >
-                <MousePointerClick size={13} />
-                Inspect{isInspecting && ': On'}
-              </button>
-              <button className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5" onClick={() => {}}>
-                <Upload size={13} />
-                Export
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsInspecting(!isInspecting)}
+                  className={`flex items-center gap-1.5 text-xs font-medium border px-4 md:py-3 rounded-full active:scale-95  hover:scale-105 transition-all duration-250 cursor-pointer ${
+                    isInspecting
+                      ? 'border-forest-green/50 bg-forest-green/10 text-forest-green'
+                      : 'border-transparent text-charcoal/80 hover:text-charcoal hover:bg-forest-green/10'
+                  }`}
+                >
+                  <MousePointerClick size={13} />
+                  Inspect{isInspecting && ': On'}
+                </button>
+                <button className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5" onClick={() => {}}>
+                  <Upload size={13} />
+                  Export
+                </button>
+              </div>
             </div>
           </div>
 
@@ -347,6 +360,8 @@ const Configurator: React.FC = () => {
           </div>
         </main>
       </div>
+      {/* Mobile segmented controller */}
+      <MobileSegmentedController active={mobileSegment} onChange={setMobileSegment} />
     </div>
   );
 };

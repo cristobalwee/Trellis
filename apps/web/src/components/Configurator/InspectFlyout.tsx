@@ -1,7 +1,7 @@
 import React, { useState, useLayoutEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Pencil, Palette, Ruler, Type, Layers, Zap, Sparkles } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { Pencil, Palette, Sparkles } from 'lucide-react';
 import {
   type TokenInfo,
   type TokenCategory,
@@ -19,34 +19,35 @@ const FLYOUT_W = 300;
 const FLYOUT_MAX_H = 320;
 const MARGIN = 12;
 const GAP = 8;
+/** Invisible hit-area padding so the cursor can easily reach the flyout */
+const SAFE_ZONE = 12;
 
-const CATEGORY_ICONS: Record<TokenCategory, React.FC<{ size: number }>> = {
+const CATEGORY_ICONS: Partial<Record<TokenCategory, React.FC<{ size: number }>>> = {
   color: Palette,
-  spacing: Ruler,
-  radius: Layers,
-  typography: Type,
-  shadow: Layers,
-  transition: Zap,
   gradient: Sparkles,
 };
 
 const CATEGORY_ORDER: TokenCategory[] = [
   'color',
   'gradient',
-  'spacing',
-  'radius',
-  'typography',
-  'shadow',
-  'transition',
 ];
+
+/** CSS easing for the flyout slide */
+const SLIDE_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)'; // ease-out-expo
+const SLIDE_DURATION = '0.8s';
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 interface InspectFlyoutProps {
+  /** Whether the flyout content should be visible (opaque + interactive) */
+  visible: boolean;
   tokens: TokenInfo[];
-  targetRect: DOMRect;
+  /** null when no element is highlighted — flyout holds its last position */
+  targetRect: DOMRect | null;
+  /** Container element — used to seed the initial position at its centre */
+  containerRef: React.RefObject<HTMLElement | null>;
   isDarkMode: boolean;
   editingToken: string | null;
   onEditToken: (tokenName: string) => void;
@@ -56,8 +57,10 @@ interface InspectFlyoutProps {
 }
 
 export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
+  visible,
   tokens,
   targetRect,
+  containerRef,
   isDarkMode,
   editingToken,
   onEditToken,
@@ -66,7 +69,18 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
   onMouseLeave,
 }) => {
   const flyoutRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  // Seed at the centre of the dashboard container
+  const [position, setPosition] = useState(() => {
+    const el = containerRef.current;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      return {
+        top: r.top + r.height / 2,
+        left: r.left + r.width / 2 - FLYOUT_W / 2,
+      };
+    }
+    return { top: window.innerHeight / 2, left: window.innerWidth / 2 - FLYOUT_W / 2 };
+  });
   const [editAnchorRect, setEditAnchorRect] = useState<DOMRect | null>(null);
 
   // Group tokens by category
@@ -82,8 +96,10 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
       .map((cat) => ({ category: cat, tokens: map.get(cat)! }));
   }, [tokens]);
 
-  // Position the flyout relative to the target element
+  // Reposition when target changes — skip when null so we hold last position
   useLayoutEffect(() => {
+    if (!targetRect) return;
+
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
@@ -106,28 +122,38 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
     setPosition({ top, left });
   }, [targetRect]);
 
-  if (tokens.length === 0) return null;
-
   return createPortal(
     <>
-      <AnimatePresence mode="wait">
-        <motion.div
+      {/* Invisible safe-zone wrapper — extends the flyout hit area so the
+          cursor can travel from the highlighted element to the flyout without
+          accidentally dismissing it.
+          Uses plain CSS transitions for position so the element never resets
+          to 0,0 — it simply holds its last position when invisible. */}
+      <div
+        data-inspect-overlay
+        className="fixed z-[9999]"
+        style={{
+          top: position.top - SAFE_ZONE,
+          left: position.left - SAFE_ZONE,
+          width: FLYOUT_W + SAFE_ZONE * 2,
+          height: FLYOUT_MAX_H + SAFE_ZONE * 2,
+          opacity: visible ? 1 : 0,
+          pointerEvents: visible ? 'auto' : 'none',
+          transition: `top ${SLIDE_DURATION} ${SLIDE_EASE}, left ${SLIDE_DURATION} ${SLIDE_EASE}, opacity 0.18s ease`,
+        }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <div
           ref={flyoutRef}
-          key={`flyout-${targetRect.top}-${targetRect.left}`}
           data-inspect-overlay
-          initial={{ opacity: 0, y: -8, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.97 }}
-          transition={{ duration: 0.15 }}
-          className="fixed z-[9999] bg-white rounded-xl shadow-xl border border-charcoal/10 overflow-hidden"
+          className="bg-white rounded-xl shadow-xl border border-charcoal/10 overflow-hidden"
           style={{
-            top: position.top,
-            left: position.left,
+            marginTop: SAFE_ZONE,
+            marginLeft: SAFE_ZONE,
             width: FLYOUT_W,
             maxHeight: FLYOUT_MAX_H,
           }}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div className="overflow-y-auto p-3" style={{ maxHeight: FLYOUT_MAX_H }}>
@@ -137,7 +163,7 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
                 <div key={category} className="mb-3 last:mb-0">
                   {/* Category header */}
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <Icon size={10} />
+                    {Icon && <Icon size={10} />}
                     <span className="text-[10px] font-bold uppercase tracking-wider text-charcoal/50">
                       {CATEGORY_LABELS[category]}
                     </span>
@@ -160,8 +186,8 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
               );
             })}
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </div>
 
       {/* Token editor popover */}
       <AnimatePresence>
