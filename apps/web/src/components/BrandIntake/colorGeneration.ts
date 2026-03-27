@@ -321,19 +321,6 @@ function baselineLightness(steps: number): number[] {
   return out;
 }
 
-/**
- * Stretch lightness values around their midpoint to increase contrast.
- * factor=1 means no change; higher values push extremes further apart.
- */
-function applyUniformity(lightnessArray: number[], factor: number): number[] {
-  const CAP_MIN = 0.05;
-  const CAP_MAX = 0.99;
-  const baseMin = lightnessArray[lightnessArray.length - 1];
-  const baseMax = lightnessArray[0];
-  const mid = (baseMin + baseMax) / 2;
-  return lightnessArray.map((L) => clampValue(mid + (L - mid) * factor, CAP_MIN, CAP_MAX));
-}
-
 function closestIndex(values: number[], target: number): number {
   let bestIdx = 0;
   let bestDist = Infinity;
@@ -354,21 +341,16 @@ function closestIndex(values: number[], target: number): number {
  * @param baseChroma   Chroma at the base lightness position
  * @param baseL        The base lightness (typically the primary's L)
  * @param chromaFalloff 0–1: how much chroma decreases toward ramp extremes
- * @param uniformity   0–100: higher = more uniform lightness distribution
- *                     (100 = perfectly uniform, 0 = max contrast stretch)
  */
 export function generateOklchRamp(
   hue: number,
   baseChroma: number,
   baseL: number,
   chromaFalloff: number = 0.8,
-  uniformity: number = 100,
 ): ColorRamp {
   const steps = RAMP_STEPS;
 
-  // Map uniformity (100 = uniform, 0 = high contrast) to stretch factor
-  const uniformityFactor = 1 + ((100 - uniformity) / 100) * 1.2;
-  const targetLightness = applyUniformity(baselineLightness(steps), uniformityFactor);
+  const targetLightness = baselineLightness(steps);
   const basePosition = closestIndex(targetLightness, baseL);
 
   // Chroma decreases linearly from base position toward extremes
@@ -417,7 +399,6 @@ export function generateNeutralRamp(
   mode: 'pure' | 'cool' | 'warm' | 'brand-tinted',
   baseL: number,
   chromaFalloff: number = 0.8,
-  uniformity: number = 100,
 ): ColorRamp {
   let hue = 0;
   let chroma = 0;
@@ -441,5 +422,5 @@ export function generateNeutralRamp(
       break;
   }
 
-  return generateOklchRamp(hue, chroma, baseL, chromaFalloff, uniformity);
+  return generateOklchRamp(hue, chroma, baseL, chromaFalloff);
 }

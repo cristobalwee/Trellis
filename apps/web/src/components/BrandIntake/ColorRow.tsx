@@ -68,46 +68,24 @@ export const GenerationModeSelector: React.FC<{
 
 export const RampSliders: React.FC<{
   chromaFalloff: number;
-  uniformity: number;
   onChromaFalloffChange: (value: number) => void;
-  onUniformityChange: (value: number) => void;
-}> = ({ chromaFalloff, uniformity, onChromaFalloffChange, onUniformityChange }) => (
-  <div className="flex flex-col gap-8" data-step-animate-children="ignore">
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between">
-        <label className="text-sm font-medium text-charcoal">Chroma Falloff</label>
-        <span className="text-xs font-mono text-charcoal">{chromaFalloff}%</span>
-      </div>
-      <input
-        type="range"
-        aria-label="Chroma Falloff"
-        min="0"
-        max="100"
-        value={chromaFalloff}
-        onChange={(e) => onChromaFalloffChange(parseInt(e.target.value))}
-        className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
-      />
-      <p className="text-xs text-charcoal/60">
-        How much color intensity fades in lighter and darker shades. Your chosen color is always preserved.
-      </p>
+}> = ({ chromaFalloff, onChromaFalloffChange }) => (
+  <div className="flex flex-col gap-4" data-step-animate-children="ignore">
+    <div className="flex justify-between">
+      <label className="text-sm font-medium text-charcoal">Chroma Falloff</label>
+      <span className="text-xs font-mono text-charcoal">{chromaFalloff}%</span>
     </div>
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between">
-        <label className="text-sm font-medium text-charcoal">Uniformity</label>
-        <span className="text-xs font-mono text-charcoal">{uniformity}%</span>
-      </div>
-      <input
-        type="range"
-        aria-label="Uniformity"
-        min="0"
-        max="100"
-        value={uniformity}
-        onChange={(e) => onUniformityChange(parseInt(e.target.value))}
-        className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
-      />
-    </div>
-    <p className="text-xs text-charcoal/60 pt-4 border-t border-charcoal/10">
-      These settings affect all generated color ramps.
+    <input
+      type="range"
+      aria-label="Chroma Falloff"
+      min="0"
+      max="100"
+      value={chromaFalloff}
+      onChange={(e) => onChromaFalloffChange(parseInt(e.target.value))}
+      className="w-full h-1.5 bg-charcoal/10 rounded-full appearance-none cursor-pointer accent-forest-green"
+    />
+    <p className="text-xs text-charcoal/60">
+      How much color intensity fades in lighter and darker shades. Your chosen color is always preserved.
     </p>
   </div>
 );

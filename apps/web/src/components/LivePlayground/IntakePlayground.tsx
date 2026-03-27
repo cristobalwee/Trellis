@@ -13,7 +13,7 @@ const IntakePlayground: React.FC = () => {
     primaryColor: brand.primaryColor,
     secondaryColor: brand.secondaryColor || '#8B5CF6',
     saturation: 100,
-    lightness: brand.uniformity,
+    lightness: 100,
     fontFamily: brand.primaryFont,
     roundness: brand.roundness === 'subtle' ? 'rounded' : brand.roundness,
     density: brand.density,
@@ -30,7 +30,7 @@ const IntakePlayground: React.FC = () => {
       brandUpdates.useCustomSecondary = true;
     }
     // playground saturation is a different concept; don't map to chromaFalloff
-    if (updates.lightness !== undefined) brandUpdates.uniformity = updates.lightness;
+
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;
       if (brand.useSingleTypeface) {

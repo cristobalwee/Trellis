@@ -8,39 +8,24 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: 'Can I customize everything?',
+    question: 'What do I get with the free tier?',
     answer:
-      "Absolutely. This is your codebase, not a locked library. You own the code, the tokens, the components—everything. Modify anything you want. There are no proprietary formats or dependencies that lock you in. It's just well-structured, documented code that follows industry best practices.",
+      'A complete token system exported as DTCG JSON, a CSS stylesheet, Tailwind config, shadcn-compatible config, and Figma variables — generated from your brand colors and typography choices. No account required.',
   },
   {
-    question: 'Who is Trellis for?',
+    question: "How is this different from customizing shadcn's theme?",
     answer:
-      "Trellis is for product teams that need a design system but don't want to spend months building infrastructure. Perfect for startups launching products, agencies building for multiple clients, or in-house teams at mid-size companies. If you're a solo developer, you might be better off with a component library. If you're an enterprise with 50+ designers, you'll need something more custom.",
+      'shadcn gives you HSL sliders and leaves the design decisions to you. Trellis uses OKLCH perceptual color science to generate semantically layered tokens — background surfaces, interactive state scrims, accessible foreground pairings — that would take a design systems engineer weeks to architect manually.',
   },
   {
-    question: 'What if I need support?',
+    question: 'Does this work with my existing component library?',
     answer:
-      "Every purchase includes 30 days of email support. I'll help you get set up, answer questions about customization, and troubleshoot any issues. After 30 days, you'll have access to a private Discord community where you can get help from other Trellis users. For ongoing priority support, the enhanced tier (coming Feb 2026) includes 90 days.",
+      'Yes. Trellis generates the design system layer, not the components. The output tokens and styles can power shadcn, Radix, Chakra, HeroUI, or any component library that consumes CSS custom properties or Tailwind config.',
   },
   {
-    question: 'Can I get a refund?',
+    question: "What's coming in the paid tier?",
     answer:
-      "Unfortunately, we don't have a refund policy; Trellis is a one-time purchase, not a subscription. You fully own the generated code, tokens, and figma file forever.",
-  },
-  {
-    question: 'Is this better than building from scratch?',
-    answer:
-      "Depends on your timeline and resources. Building from scratch gives you 100% control but takes months. Using a component library is fast but lacks governance. Trellis is the middle ground: you get a professionally structured foundation that you own completely, saving months of setup while maintaining full customization. Most teams find this is the sweet spot.",
-  },
-  {
-    question: 'What frameworks are supported?',
-    answer:
-      'Currently, React is available with TypeScript support. Vue, Svelte, and Solid support are coming in February 2026 as part of the enhanced tier. The design tokens and Figma files are framework-agnostic, so you can use them with any framework if you want to port the components yourself.',
-  },
-  {
-    question: 'Will I get updates?',
-    answer:
-      "Yes. You'll get access to a private GitHub repository with updates and improvements. Since you own the code, you can choose when (or if) to pull in updates. No forced upgrades, no breaking changes pushed to your production app. You control your upgrade path.",
+      'A production-ready React component library on Base UI, Figma component library, Storybook documentation, and governance files — all wired to your generated token system. Join the waitlist to get early access.',
   },
 ];
 

@@ -36,7 +36,6 @@ export interface BrandConfig {
   rampOverrides: Record<string, Partial<ColorRamp>>;
 
   chromaFalloff: number; // 0-100: how much chroma decreases toward ramp extremes
-  uniformity: number; // 0-100
   statusColors: {
     success: string;
     warning: string;
@@ -74,7 +73,6 @@ export const initialConfig: BrandConfig = {
   useCustomAccent: false,
   accentGenerationMode: 'triadic',
   chromaFalloff: 80,
-  uniformity: 100,
   statusColors: {
     success: '#10b981',
     warning: '#f59e0b',

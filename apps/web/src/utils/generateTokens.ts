@@ -153,13 +153,13 @@ export function generateDesignTokens(
   // Base chroma is passed unscaled — the user's chosen color is always anchored.
   // Only surrounding shades lose chroma according to the falloff parameter.
   const primaryRamp = generateOklchRamp(
-    primaryH, primaryC, primaryL, falloff, config.uniformity,
+    primaryH, primaryC, primaryL, falloff,
   );
   const secondaryRamp = generateOklchRamp(
-    secondaryH, secondaryC, secondaryL, falloff, config.uniformity,
+    secondaryH, secondaryC, secondaryL, falloff,
   );
   const neutralRamp = generateNeutralRamp(
-    primaryH, config.neutralTint, primaryL, falloff, config.uniformity,
+    primaryH, config.neutralTint, primaryL, falloff,
   );
 
   // Primitive color tokens

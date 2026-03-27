@@ -62,11 +62,6 @@ const TabColor: React.FC = () => {
     [],
   );
 
-  const handleUniformityChange = useCallback(
-    (value: number) => updateConfig({ uniformity: value }),
-    [],
-  );
-
   const handleRampStep = useCallback(
     (rampKey: string) => (step: number, color: string) => updateRampStep(rampKey, step, color),
     [],
@@ -111,9 +106,7 @@ const TabColor: React.FC = () => {
               <div className="bg-charcoal/5 rounded-xl p-4 mt-2">
                 <RampSliders
                   chromaFalloff={config.chromaFalloff}
-                  uniformity={config.uniformity}
                   onChromaFalloffChange={handleChromaFalloffChange}
-                  onUniformityChange={handleUniformityChange}
                 />
               </div>
             </motion.div>

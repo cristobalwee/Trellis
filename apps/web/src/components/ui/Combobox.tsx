@@ -83,27 +83,30 @@ export const Combobox: React.FC<ComboboxProps> = ({
             side="bottom"
             sideOffset={4}
             className="z-60"
+            style={{ width: 'var(--anchor-width)' }}
           >
             <BaseCombobox.Popup
               data-lenis-prevent
               className={`bg-white border border-charcoal/10 shadow-lg ${POPUP_SIZES[size]} max-h-60 overflow-y-auto overscroll-contain touch-pan-y outline-none
                 origin-top
-                transition-[transform,opacity] duration-150 ease-out
-                data-starting-style:opacity-0 data-starting-style:scale-[0.95]
-                data-ending-style:opacity-0 data-ending-style:scale-[0.95]`}
+                transition-[transform,opacity] duration-100 ease-out
+                data-starting-style:opacity-0 data-starting-style:scale-y-[0.96]
+                data-ending-style:opacity-0 data-ending-style:scale-y-[0.96]`}
             >
-              {options.map((option) => (
-                <BaseCombobox.Item
-                  key={option}
-                  value={option}
-                  className={`w-full text-left ${ITEM_SIZES[size]} text-charcoal cursor-pointer
-                    transition-colors hover:bg-charcoal/5
-                    data-highlighted:bg-charcoal/5
-                    data-selected:font-medium data-selected:text-forest-green`}
-                >
-                  {option}
-                </BaseCombobox.Item>
-              ))}
+              <BaseCombobox.List>
+                {(item: string) => (
+                  <BaseCombobox.Item
+                    key={item}
+                    value={item}
+                    className={`w-full text-left ${ITEM_SIZES[size]} text-charcoal cursor-pointer
+                      transition-colors hover:bg-charcoal/5
+                      data-highlighted:bg-charcoal/5
+                      data-selected:font-medium data-selected:text-forest-green`}
+                  >
+                    {item}
+                  </BaseCombobox.Item>
+                )}
+              </BaseCombobox.List>
 
               <BaseCombobox.Empty className="px-4 py-3 text-sm text-charcoal/40">
                 No results found.

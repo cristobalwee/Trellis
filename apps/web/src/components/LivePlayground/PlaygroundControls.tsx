@@ -97,12 +97,12 @@ const SliderControl: React.FC<SliderControlProps> = ({ label, value, onChange, m
 
 const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChange, onClose, showDarkModeToggle }) => {
   const primaryRamp = useMemo(
-    () => generateRamp(config.primaryColor, config.saturation, 100, false, config.lightness),
+    () => generateRamp(config.primaryColor, config.saturation, false, config.lightness),
     [config.primaryColor, config.saturation, config.lightness]
   );
 
   const secondaryRamp = useMemo(
-    () => generateRamp(config.secondaryColor, config.saturation, 100, false, config.lightness),
+    () => generateRamp(config.secondaryColor, config.saturation, false, config.lightness),
     [config.secondaryColor, config.saturation, config.lightness]
   );
 

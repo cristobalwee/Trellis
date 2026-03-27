@@ -22,7 +22,6 @@ export interface ColorRamp {
 export function generateRamp(
   baseHex: string,
   saturation = 100,
-  uniformity = 100,
   isNeutral = false,
   lightnessShift = 100
 ): ColorRamp {
@@ -33,8 +32,7 @@ export function generateRamp(
 
   STEPS.forEach((step) => {
     const t = (step - 50) / 950; // 0 to 1
-    const exponent = 1 + (100 - uniformity) / 100;
-    let lightness = 0.98 - Math.pow(t, exponent) * (0.98 - 0.32);
+    let lightness = 0.98 - t * (0.98 - 0.32);
     lightness = Math.max(0.05, Math.min(0.99, lightness + lShift));
 
     let chroma = base?.c || 0;
@@ -42,7 +40,6 @@ export function generateRamp(
       chroma = Math.min(chroma, 0.01 + t * 0.01);
     } else {
       chroma *= saturation / 100;
-      chroma *= 1 - t * 0.2 * (1 - uniformity / 100);
     }
 
     const color = {

@@ -152,7 +152,7 @@ const Configurator: React.FC = () => {
     primaryColor: config.primaryColor,
     secondaryColor: config.secondaryColor || '#8B5CF6',
     saturation: 100,
-    lightness: config.uniformity,
+    lightness: 100,
     fontFamily: config.primaryFont,
     roundness: config.roundness,
     density: config.density,
@@ -169,7 +169,7 @@ const Configurator: React.FC = () => {
       brandUpdates.useCustomSecondary = true;
     }
     // playground saturation is a different concept (scales base chroma); don't map to chromaFalloff
-    if (updates.lightness !== undefined) brandUpdates.uniformity = updates.lightness;
+
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;
       if (config.useSingleTypeface) brandUpdates.headingFont = updates.fontFamily;

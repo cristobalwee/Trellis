@@ -44,7 +44,7 @@ export interface DerivedColors {
 }
 
 export function useColorRamps(config: BrandConfig): DerivedColors {
-  const { primaryColor, chromaFalloff, uniformity } = config;
+  const { primaryColor, chromaFalloff } = config;
 
   // --- Parse primary to OKLCH -------------------------------------------------
   const primaryOklch = useMemo(() => toOklch(primaryColor), [primaryColor]);
@@ -89,27 +89,25 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
         primaryC,
         primaryL,
         falloff,
-        uniformity,
       ),
-    [primaryH, primaryC, primaryL, falloff, uniformity],
+    [primaryH, primaryC, primaryL, falloff],
   );
 
   const secondaryRamp = useMemo(() => {
     const sec = toOklch(secondaryColor);
-    if (!sec) return generateOklchRamp(0, 0, 0.5, falloff, uniformity);
+    if (!sec) return generateOklchRamp(0, 0, 0.5, falloff);
     return generateOklchRamp(
       sec.h || 0,
       sec.c || 0,
       sec.l,
       falloff,
-      uniformity,
     );
-  }, [secondaryColor, falloff, uniformity]);
+  }, [secondaryColor, falloff]);
 
   // --- Neutral ----------------------------------------------------------------
   const neutralRamp = useMemo(
-    () => generateNeutralRamp(primaryH, config.neutralTint, primaryL, falloff, uniformity),
-    [primaryH, config.neutralTint, primaryL, falloff, uniformity],
+    () => generateNeutralRamp(primaryH, config.neutralTint, primaryL, falloff),
+    [primaryH, config.neutralTint, primaryL, falloff],
   );
 
   // --- Additional named hue ramps --------------------------------------------
@@ -131,7 +129,6 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
           baseChroma,
           baseL,
           falloff,
-          uniformity,
         );
         return {
           name: slot.name,
@@ -140,7 +137,7 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
           ramp,
         };
       });
-  }, [hueSelection, primaryL, saturationRatio, falloff, uniformity]);
+  }, [hueSelection, primaryL, saturationRatio, falloff]);
 
   const overrides = config.rampOverrides;
 
