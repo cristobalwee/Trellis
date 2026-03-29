@@ -5,6 +5,34 @@ import {
   generateOklchRamp,
   generateNeutralRamp,
 } from '../components/BrandIntake/colorGeneration';
+import type { ColorRamp } from '../components/Showcase/colorUtils';
+import { pickStep, pickContrastingFg } from './contrastUtils';
+
+// ---------------------------------------------------------------------------
+// Lightness targets — the tunable "knobs" for semantic mapping
+// ---------------------------------------------------------------------------
+
+const LIGHTNESS_TARGETS = {
+  strong:      { light: 0.50, dark: 0.55 },  // primary/accent/status filled backgrounds
+  strongHover: { light: 0.43, dark: 0.62 },  // hover states
+  subtle:      { light: 0.97, dark: 0.18 },  // subtle backgrounds
+  fgColored:   { light: 0.42, dark: 0.65 },  // colored text on base surfaces
+};
+
+// ---------------------------------------------------------------------------
+// Types for the semantic → primitive mapping (used by inspector)
+// ---------------------------------------------------------------------------
+
+export interface PrimitiveMapping {
+  ramp: string | null;
+  lightStep: number | null;
+  darkStep: number | null;
+}
+
+export interface TokenResult {
+  tokens: Record<string, string>;
+  semanticMap: Record<string, PrimitiveMapping>;
+}
 
 // ---------------------------------------------------------------------------
 // Preset → token value mappings
@@ -127,7 +155,7 @@ function transitionTokens(
 export function generateDesignTokens(
   config: BrandConfig,
   isDarkMode: boolean
-): Record<string, string> {
+): TokenResult {
   const tokens: Record<string, string> = {};
 
   // --- Resolve colors using OKLCH pipeline ---
@@ -170,89 +198,171 @@ export function generateDesignTokens(
     }
   }
 
-  // --- Status color ramps ---
+  // --- Status color ramps (single generation, used for both primitive + semantic) ---
   const statusMap = {
     success: config.statusColors.success,
     warning: config.statusColors.warning,
     critical: config.statusColors.error,
     info: config.statusColors.info,
   };
+  const statusRampCache: Record<string, ColorRamp> = {};
   for (const [name, hex] of Object.entries(statusMap)) {
     const statusOklch = toOklch(hex);
     const ramp = generateOklchRamp(
-      statusOklch?.h || 0, statusOklch?.c ?? 0, statusOklch?.l ?? 0.5, 0.8, 100,
+      statusOklch?.h || 0, statusOklch?.c ?? 0, statusOklch?.l ?? 0.5, 0.8,
     );
+    statusRampCache[name] = ramp;
     for (const [step, color] of Object.entries(ramp)) {
       tokens[`--color-${name}-${step}`] = color as string;
     }
   }
 
   const isDark = isDarkMode;
+  const semanticMap: Record<string, PrimitiveMapping> = {};
 
-  // --- Semantic background tokens ---
-  tokens['--color-background-base'] = isDark ? neutralRamp[900] : '#ffffff';
-  tokens['--color-background-sunken'] = isDark ? neutralRamp[1000] : neutralRamp[50];
-  tokens['--color-background-raised'] = isDark ? neutralRamp[800] : '#ffffff';
-  tokens['--color-background-raisedHover'] = isDark ? neutralRamp[700] : neutralRamp[50];
-  tokens['--color-background-overlay'] = isDark ? neutralRamp[800] : '#ffffff';
+  // --- Helpers for building semanticMap entries alongside token assignments ---
 
-  tokens['--color-background-primary'] = isDark ? primaryRamp[400] : primaryRamp[500];
-  tokens['--color-background-primaryHover'] = isDark ? primaryRamp[300] : primaryRamp[600];
-  tokens['--color-background-primarySubtle'] = isDark ? primaryRamp[900] : primaryRamp[50];
-  tokens['--color-background-accent'] = isDark ? secondaryRamp[400] : secondaryRamp[500];
-  tokens['--color-background-accentSubtle'] = isDark ? secondaryRamp[900] : secondaryRamp[50];
+  /** Assign a token from a fixed value (not ramp-derived, or fixed ramp steps). */
+  function assignFixed(
+    tokenSuffix: string,
+    light: string,
+    dark: string,
+    mapping: PrimitiveMapping,
+  ) {
+    tokens[`--color-${tokenSuffix}`] = isDark ? dark : light;
+    semanticMap[`color-${tokenSuffix}`] = mapping;
+  }
+
+  /** Assign a token by picking the ramp step closest to a lightness target. */
+  function assignPicked(
+    tokenSuffix: string,
+    rampName: string,
+    ramp: ColorRamp,
+    target: { light: number; dark: number },
+  ) {
+    const lightStep = pickStep(ramp, target.light);
+    const darkStep = pickStep(ramp, target.dark);
+    const step = isDark ? darkStep : lightStep;
+    tokens[`--color-${tokenSuffix}`] = ramp[step];
+    semanticMap[`color-${tokenSuffix}`] = { ramp: rampName, lightStep, darkStep };
+  }
+
+  /** Assign a foreground token by walking the ramp for WCAG AA contrast. */
+  function assignContrastFg(
+    tokenSuffix: string,
+    bgTokenSuffix: string,
+    rampName: string,
+    ramp: ColorRamp,
+  ) {
+    const bgHex = tokens[`--color-${bgTokenSuffix}`];
+    const result = pickContrastingFg(bgHex, ramp, isDark);
+    tokens[`--color-${tokenSuffix}`] = result.hex;
+
+    // Compute both light/dark steps for the inspector
+    const lightBg = tokens[`--color-${bgTokenSuffix}`]; // current mode bg
+    const lightResult = pickContrastingFg(lightBg, ramp, false);
+    const darkResult = pickContrastingFg(lightBg, ramp, true);
+    semanticMap[`color-${tokenSuffix}`] = {
+      ramp: result.step !== null ? rampName : null,
+      lightStep: lightResult.step,
+      darkStep: darkResult.step,
+    };
+  }
+
+  // =========================================================================
+  // Phase A — Backgrounds & non-contrast-dependent foregrounds
+  // =========================================================================
+
+  // --- Surface backgrounds (fixed ramp steps) ---
+  assignFixed('background-base', '#ffffff', neutralRamp[900],
+    { ramp: 'neutral', lightStep: null, darkStep: 900 });
+  assignFixed('background-sunken', neutralRamp[50], neutralRamp[1000],
+    { ramp: 'neutral', lightStep: 50, darkStep: 1000 });
+  assignFixed('background-raised', '#ffffff', neutralRamp[800],
+    { ramp: 'neutral', lightStep: null, darkStep: 800 });
+  assignFixed('background-raisedHover', neutralRamp[50], neutralRamp[700],
+    { ramp: 'neutral', lightStep: 50, darkStep: 700 });
+  assignFixed('background-overlay', '#ffffff', neutralRamp[800],
+    { ramp: 'neutral', lightStep: null, darkStep: 800 });
+
+  // --- Colored backgrounds (lightness-target-based) ---
+  assignPicked('background-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+  assignPicked('background-primaryHover', 'primary', primaryRamp, LIGHTNESS_TARGETS.strongHover);
+  assignPicked('background-primarySubtle', 'primary', primaryRamp, LIGHTNESS_TARGETS.subtle);
+  assignPicked('background-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.strong);
+  assignPicked('background-accentSubtle', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.subtle);
 
   // Status backgrounds
-  const statusRampCache: Record<string, ReturnType<typeof generateOklchRamp>> = {};
-  for (const [name, hex] of Object.entries(statusMap)) {
-    const sOklch = toOklch(hex);
-    const ramp = generateOklchRamp(
-      sOklch?.h || 0, sOklch?.c ?? 0, sOklch?.l ?? 0.5, 0.8, 100,
-    );
-    statusRampCache[name] = ramp;
-    tokens[`--color-background-${name}`] = isDark ? ramp[400] : ramp[500];
-    tokens[`--color-background-${name}Subtle`] = isDark ? ramp[900] : ramp[50];
-  }
-
-  // --- Semantic foreground tokens ---
-  tokens['--color-foreground-onBase'] = isDark ? neutralRamp[50] : neutralRamp[1000];
-  tokens['--color-foreground-onBaseMuted'] = isDark ? neutralRamp[400] : neutralRamp[500];
-  tokens['--color-foreground-onBaseFaint'] = isDark ? neutralRamp[600] : neutralRamp[300];
-  tokens['--color-foreground-onRaised'] = isDark ? neutralRamp[50] : neutralRamp[1000];
-  tokens['--color-foreground-onSunken'] = isDark ? neutralRamp[100] : neutralRamp[900];
-
-  tokens['--color-foreground-primary'] = isDark ? primaryRamp[400] : primaryRamp[600];
-  tokens['--color-foreground-onPrimary'] = isDark ? primaryRamp[1000] : '#ffffff';
-  tokens['--color-foreground-accent'] = isDark ? secondaryRamp[400] : secondaryRamp[600];
-  tokens['--color-foreground-onAccent'] = isDark ? secondaryRamp[1000] : '#ffffff';
-
-  // Status foregrounds
   for (const [name, ramp] of Object.entries(statusRampCache)) {
-    tokens[`--color-foreground-${name}`] = isDark ? ramp[300] : ramp[600];
-    tokens[`--color-foreground-on${name.charAt(0).toUpperCase() + name.slice(1)}`] = '#ffffff';
-    tokens[`--color-foreground-on${name.charAt(0).toUpperCase() + name.slice(1)}Subtle`] = isDark ? ramp[200] : ramp[800];
+    assignPicked(`background-${name}`, name, ramp, LIGHTNESS_TARGETS.strong);
+    assignPicked(`background-${name}Subtle`, name, ramp, LIGHTNESS_TARGETS.subtle);
   }
 
-  // CTA / gradient surface
-  tokens['--color-foreground-onGradient'] = '#ffffff';
-  tokens['--color-foreground-onGradientMuted'] = 'rgba(255,255,255,0.8)';
-  tokens['--color-background-gradientSoft'] = 'rgba(255,255,255,0.15)';
+  // --- Neutral foreground hierarchy (fixed ramp steps) ---
+  assignFixed('foreground-onBase', neutralRamp[1000], neutralRamp[50],
+    { ramp: 'neutral', lightStep: 1000, darkStep: 50 });
+  assignFixed('foreground-onBaseMuted', neutralRamp[500], neutralRamp[400],
+    { ramp: 'neutral', lightStep: 500, darkStep: 400 });
+  assignFixed('foreground-onBaseFaint', neutralRamp[300], neutralRamp[600],
+    { ramp: 'neutral', lightStep: 300, darkStep: 600 });
+  assignFixed('foreground-onRaised', neutralRamp[1000], neutralRamp[50],
+    { ramp: 'neutral', lightStep: 1000, darkStep: 50 });
+  assignFixed('foreground-onSunken', neutralRamp[900], neutralRamp[100],
+    { ramp: 'neutral', lightStep: 900, darkStep: 100 });
+
+  // --- Colored foregrounds on base surfaces (lightness-target-based) ---
+  assignPicked('foreground-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.fgColored);
+  assignPicked('foreground-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.fgColored);
+  for (const [name, ramp] of Object.entries(statusRampCache)) {
+    assignPicked(`foreground-${name}`, name, ramp, LIGHTNESS_TARGETS.fgColored);
+  }
+
+  // =========================================================================
+  // Phase B — Contrast-dependent foregrounds (require resolved backgrounds)
+  // =========================================================================
+
+  assignContrastFg('foreground-onPrimary', 'background-primary', 'primary', primaryRamp);
+  assignContrastFg('foreground-onAccent', 'background-accent', 'secondary', secondaryRamp);
+
+  for (const [name, ramp] of Object.entries(statusRampCache)) {
+    const cap = name.charAt(0).toUpperCase() + name.slice(1);
+    assignContrastFg(`foreground-on${cap}`, `background-${name}`, name, ramp);
+    assignContrastFg(`foreground-on${cap}Subtle`, `background-${name}Subtle`, name, ramp);
+  }
+
+  // CTA / gradient surface (hardcoded — always on gradient backgrounds)
+  assignFixed('foreground-onGradient', '#ffffff', '#ffffff',
+    { ramp: null, lightStep: null, darkStep: null });
+  assignFixed('foreground-onGradientMuted', 'rgba(255,255,255,0.8)', 'rgba(255,255,255,0.8)',
+    { ramp: null, lightStep: null, darkStep: null });
+  assignFixed('background-gradientSoft', 'rgba(255,255,255,0.15)', 'rgba(255,255,255,0.15)',
+    { ramp: null, lightStep: null, darkStep: null });
 
   // --- Semantic border tokens ---
-  tokens['--color-border-neutral'] = isDark ? `rgba(255,255,255,0.09)` : `rgba(15,23,42,0.08)`;
-  tokens['--color-border-strong'] = isDark ? `rgba(255,255,255,0.14)` : `rgba(15,23,42,0.14)`;
-  tokens['--color-border-primary'] = isDark ? primaryRamp[400] : primaryRamp[500];
-  tokens['--color-border-accent'] = isDark ? secondaryRamp[400] : secondaryRamp[500];
-  tokens['--color-border-success'] = isDark ? statusRampCache.success[400] : statusRampCache.success[500];
-  tokens['--color-border-warning'] = isDark ? statusRampCache.warning[400] : statusRampCache.warning[500];
-  tokens['--color-border-critical'] = isDark ? statusRampCache.critical[400] : statusRampCache.critical[500];
-  tokens['--color-border-info'] = isDark ? statusRampCache.info[400] : statusRampCache.info[500];
+  assignFixed('border-neutral',
+    'rgba(15,23,42,0.08)', 'rgba(255,255,255,0.09)',
+    { ramp: null, lightStep: null, darkStep: null });
+  assignFixed('border-strong',
+    'rgba(15,23,42,0.14)', 'rgba(255,255,255,0.14)',
+    { ramp: null, lightStep: null, darkStep: null });
+  assignPicked('border-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+  assignPicked('border-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.strong);
+  for (const [name, ramp] of Object.entries(statusRampCache)) {
+    assignPicked(`border-${name}`, name, ramp, LIGHTNESS_TARGETS.strong);
+  }
 
   // --- Chart-specific tokens ---
-  tokens['--color-chart-grid'] = isDark ? 'rgba(241,245,249,0.07)' : 'rgba(15,23,42,0.08)';
+  assignFixed('chart-grid',
+    'rgba(15,23,42,0.08)', 'rgba(241,245,249,0.07)',
+    { ramp: null, lightStep: null, darkStep: null });
+  // Chart colors mirror the primary background
+  const bgPrimaryMapping = semanticMap['color-background-primary'];
   tokens['--color-chart-primary'] = tokens['--color-background-primary'];
   tokens['--color-chart-primaryGradientStart'] = tokens['--color-background-primary'];
   tokens['--color-chart-primaryGradientEnd'] = tokens['--color-background-primary'];
+  semanticMap['color-chart-primary'] = { ...bgPrimaryMapping };
+  semanticMap['color-chart-primaryGradientStart'] = { ...bgPrimaryMapping };
+  semanticMap['color-chart-primaryGradientEnd'] = { ...bgPrimaryMapping };
 
   // --- Gradient ---
   tokens['--gradient-primary'] = `linear-gradient(135deg, ${tokens['--color-background-primary']}, ${tokens['--color-background-accent']})`;
@@ -273,5 +383,5 @@ export function generateDesignTokens(
   // --- Transition tokens ---
   Object.assign(tokens, transitionTokens(config.expressiveness));
 
-  return tokens;
+  return { tokens, semanticMap };
 }

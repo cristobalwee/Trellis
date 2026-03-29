@@ -21,7 +21,7 @@ const steps = [
 ];
 ---
 
-<section id="how-it-works" class="section-spacing mb-16">
+<section id="how-it-works" class="section-spacing mb-16 bg-gray/80">
   <div class="container-custom">
     <!-- Section Header -->
     <div class="text-center mb-16 md:mb-20 flex flex-col gap-4">
@@ -36,7 +36,7 @@ const steps = [
 
       <!-- Card 1: Generate your tokens -->
       <div class="pipeline-card flex flex-col">
-        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+        <div class="anim-container aspect-[4/3] rounded-3xl bg-white mb-6">
           <div class="anim1" data-anim="color-swatch">
             <div class="anim1-header">
               <div class="anim1-swatch"></div>
@@ -61,7 +61,7 @@ const steps = [
 
       <!-- Card 2: Drop them in your project -->
       <div class="pipeline-card flex flex-col">
-        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+        <div class="anim-container aspect-[4/3] rounded-3xl bg-white mb-6">
           <div class="anim2">
             <div class="anim2-bar anim2-bar-1"></div>
             <div class="anim2-bar anim2-bar-2"></div>
@@ -78,7 +78,7 @@ const steps = [
 
       <!-- Card 3: Start building -->
       <div class="pipeline-card flex flex-col">
-        <div class="anim-container aspect-[4/3] rounded-2xl bg-gray mb-6">
+        <div class="anim-container aspect-[4/3] rounded-3xl bg-white mb-6">
           <div class="anim3">
             <!-- Browser frame -->
             <div class="anim3-frame">
@@ -149,14 +149,13 @@ const steps = [
   .anim1-header {
     display: flex;
     align-items: center;
-    gap: 10%;
+    gap: 1rem;
   }
 
   .anim1-swatch {
     width: 24%;
     aspect-ratio: 1;
     border-radius: 18%;
-    border: 3px solid white;
     box-shadow: 0 3px 14px oklch(24.3% 0 0 / 0.10), 0 1px 3px oklch(24.3% 0 0 / 0.06);
     transition: background-color 0.35s var(--ease-anim), transform 0.15s var(--ease-anim);
     flex-shrink: 0;
@@ -170,14 +169,13 @@ const steps = [
 
   /* Hex input display */
   .anim1-hex {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.04em;
+    font-family: IBM Plex Mono, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
     color: oklch(24.3% 0 0 / 0.65);
     background: white;
     border: 1px solid oklch(24.3% 0 0 / 0.10);
-    border-radius: 6px;
-    padding: 5px 8px;
+    border-radius: 10px;
+    padding: 12px 10px;
     line-height: 1;
     white-space: nowrap;
   }
@@ -205,7 +203,7 @@ const steps = [
 
   .anim1-cell {
     flex: 1;
-    height: 18px;
+    height: 24px;
     transition: background-color 0.3s var(--ease-anim);
     will-change: background-color, transform;
   }
@@ -224,10 +222,10 @@ const steps = [
   .anim1-ptr {
     position: absolute;
     top: 28%;
-    left: 26%;
+    left: 20%;
     opacity: 0;
-    transform: translate(100px, 70px);
-    transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate(300px, 100px);
+    transition: opacity 0.85s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 10;
     filter: drop-shadow(0 1px 3px oklch(24.3% 0 0 / 0.22));

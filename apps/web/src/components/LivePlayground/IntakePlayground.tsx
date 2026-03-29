@@ -47,7 +47,7 @@ const IntakePlayground: React.FC = () => {
     }
   };
 
-  const designTokens = useMemo(
+  const { tokens: designTokens } = useMemo(
     () => generateDesignTokens(brand, isDarkMode),
     [brand, isDarkMode]
   );

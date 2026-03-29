@@ -48,7 +48,7 @@ const LandingPlayground: React.FC = () => {
   }, [hasBrandConfig, brand, showcase]);
 
   const sourceConfig = hasBrandConfig ? brand : undefined;
-  const designTokens = useMemo(() => {
+  const { tokens: designTokens } = useMemo(() => {
     if (sourceConfig) {
       return generateDesignTokens(sourceConfig, config.isDarkMode);
     }

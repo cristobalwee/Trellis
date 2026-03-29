@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { extractTokensFromElement, findStyledAncestor, type TokenInfo } from './inspectUtils';
 import { InspectFlyout } from './InspectFlyout';
+import type { PrimitiveMapping } from '../../utils/generateTokens';
 
 interface InspectOverlayProps {
   isActive: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
   isDarkMode: boolean;
+  semanticMap: Record<string, PrimitiveMapping>;
 }
 
 interface HighlightState {
@@ -20,6 +22,7 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
   isActive,
   containerRef,
   isDarkMode,
+  semanticMap,
 }) => {
   const [highlight, setHighlight] = useState<HighlightState | null>(null);
   const [editingToken, setEditingToken] = useState<string | null>(null);
@@ -219,6 +222,7 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
         targetRect={highlight?.rect ?? null}
         containerRef={containerRef}
         isDarkMode={isDarkMode}
+        semanticMap={semanticMap}
         editingToken={editingToken}
         onEditToken={setEditingToken}
         onCloseEditor={() => setEditingToken(null)}

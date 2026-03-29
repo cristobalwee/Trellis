@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { HexColorPicker } from 'react-colorful';
 import { getTokenEditInfo } from './inspectUtils';
 import { updateRampStep } from '../BrandIntake/store';
+import type { PrimitiveMapping } from '../../utils/generateTokens';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -18,6 +19,7 @@ const MARGIN = 12;
 interface InspectTokenEditorProps {
   tokenName: string;
   isDarkMode: boolean;
+  semanticMap: Record<string, PrimitiveMapping>;
   anchorRect: DOMRect;
   onClose: () => void;
 }
@@ -25,10 +27,11 @@ interface InspectTokenEditorProps {
 export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
   tokenName,
   isDarkMode,
+  semanticMap,
   anchorRect,
   onClose,
 }) => {
-  const info = getTokenEditInfo(tokenName, isDarkMode);
+  const info = getTokenEditInfo(tokenName, isDarkMode, semanticMap);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 

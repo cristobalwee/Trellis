@@ -94,7 +94,7 @@ const BrandIntake: React.FC = () => {
   }, [activeTab]);
 
   // Generate design tokens as CSS custom properties
-  const designTokens = useMemo(
+  const { tokens: designTokens } = useMemo(
     () => generateDesignTokens(config, isDarkMode),
     [config, isDarkMode]
   );

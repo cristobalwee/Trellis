@@ -79,10 +79,17 @@ export function invertForDarkMode(ramp: ColorRamp): ColorRamp {
   return inverted as ColorRamp;
 }
 
+const toLrgb = converter('lrgb');
+
 export function getContrastColor(hex: string): string {
-  const color = toOklch(hex);
-  if (!color) return '#000000';
-  return color.l > 0.6 ? '#000000' : '#ffffff';
+  const c = toLrgb(hex);
+  if (!c) return '#000000';
+  // WCAG relative luminance
+  const L = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+  // Compare contrast against white vs black
+  const contrastWhite = (1.05) / (L + 0.05);
+  const contrastBlack = (L + 0.05) / (0.05);
+  return contrastWhite >= contrastBlack ? '#ffffff' : '#000000';
 }
 
 export function adjustLightness(hex: string, amount: number): string {

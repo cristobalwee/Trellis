@@ -142,7 +142,7 @@ const Configurator: React.FC = () => {
   }, [activeTab]);
 
   // Generate design tokens as CSS custom properties
-  const designTokens = useMemo(
+  const { tokens: designTokens, semanticMap } = useMemo(
     () => generateDesignTokens(config, isDarkMode),
     [config, isDarkMode]
   );
@@ -355,6 +355,7 @@ const Configurator: React.FC = () => {
                 isActive={isInspecting && (previewTab === 'dashboard' || previewTab === 'blog')}
                 containerRef={previewContainerRef}
                 isDarkMode={isDarkMode}
+                semanticMap={semanticMap}
               />
             </div>
           </div>

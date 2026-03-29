@@ -10,6 +10,7 @@ import {
   getEditLabel,
 } from './inspectUtils';
 import { InspectTokenEditor } from './InspectTokenEditor';
+import type { PrimitiveMapping } from '../../utils/generateTokens';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -49,6 +50,7 @@ interface InspectFlyoutProps {
   /** Container element — used to seed the initial position at its centre */
   containerRef: React.RefObject<HTMLElement | null>;
   isDarkMode: boolean;
+  semanticMap: Record<string, PrimitiveMapping>;
   editingToken: string | null;
   onEditToken: (tokenName: string) => void;
   onCloseEditor: () => void;
@@ -62,6 +64,7 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
   targetRect,
   containerRef,
   isDarkMode,
+  semanticMap,
   editingToken,
   onEditToken,
   onCloseEditor,
@@ -175,6 +178,7 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
                       key={token.tokenName}
                       token={token}
                       isDarkMode={isDarkMode}
+                      semanticMap={semanticMap}
                       isEditing={editingToken === token.tokenName}
                       onEdit={(anchorRect) => {
                         setEditAnchorRect(anchorRect);
@@ -196,6 +200,7 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
             key={editingToken}
             tokenName={editingToken}
             isDarkMode={isDarkMode}
+            semanticMap={semanticMap}
             anchorRect={editAnchorRect}
             onClose={onCloseEditor}
           />
@@ -213,13 +218,14 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
 const TokenRow: React.FC<{
   token: TokenInfo;
   isDarkMode: boolean;
+  semanticMap: Record<string, PrimitiveMapping>;
   isEditing: boolean;
   onEdit: (anchorRect: DOMRect) => void;
-}> = ({ token, isDarkMode, isEditing, onEdit }) => {
+}> = ({ token, isDarkMode, semanticMap, isEditing, onEdit }) => {
   const [isHovered, setIsHovered] = useState(false);
   const editBtnRef = useRef<HTMLButtonElement>(null);
-  const editable = isEditableToken(token.tokenName, isDarkMode);
-  const editLabel = getEditLabel(token.tokenName, isDarkMode);
+  const editable = isEditableToken(token.tokenName, isDarkMode, semanticMap);
+  const editLabel = getEditLabel(token.tokenName, isDarkMode, semanticMap);
 
   // Strip common prefix for shorter display
   const displayName = token.tokenName
