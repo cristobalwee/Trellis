@@ -2,7 +2,9 @@ import { converter, formatHex } from 'culori';
 
 const toOklch = converter('oklch');
 
-export const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000] as const;
+export const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
+
+export const NEUTRAL_STEPS = [0, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1050] as const;
 
 export interface ColorRamp {
   50: string;
@@ -15,8 +17,11 @@ export interface ColorRamp {
   700: string;
   800: string;
   900: string;
-  950: string;
-  1000: string;
+}
+
+export interface NeutralColorRamp extends ColorRamp {
+  0: string;
+  1050: string;
 }
 
 export function generateRamp(
@@ -31,7 +36,7 @@ export function generateRamp(
   const lShift = (lightnessShift - 100) / 200; // -0.5 to +0.5
 
   STEPS.forEach((step) => {
-    const t = (step - 50) / 950; // 0 to 1
+    const t = (step - 50) / 850; // 0 to 1
     let lightness = 0.98 - t * (0.98 - 0.32);
     lightness = Math.max(0.05, Math.min(0.99, lightness + lShift));
 

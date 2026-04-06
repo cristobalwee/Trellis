@@ -5,7 +5,7 @@ import {
   generateOklchRamp,
   generateNeutralRamp,
 } from '../components/BrandIntake/colorGeneration';
-import type { ColorRamp } from '../components/Showcase/colorUtils';
+import type { ColorRamp, NeutralColorRamp } from '../components/Showcase/colorUtils';
 import { pickStep, pickContrastingFg } from './contrastUtils';
 
 // ---------------------------------------------------------------------------
@@ -276,8 +276,8 @@ export function generateDesignTokens(
   // --- Surface backgrounds (fixed ramp steps) ---
   assignFixed('background-base', '#ffffff', neutralRamp[900],
     { ramp: 'neutral', lightStep: null, darkStep: 900 });
-  assignFixed('background-sunken', neutralRamp[50], neutralRamp[1000],
-    { ramp: 'neutral', lightStep: 50, darkStep: 1000 });
+  assignFixed('background-sunken', neutralRamp[50], neutralRamp[900],
+    { ramp: 'neutral', lightStep: 50, darkStep: 900 });
   assignFixed('background-raised', '#ffffff', neutralRamp[800],
     { ramp: 'neutral', lightStep: null, darkStep: 800 });
   assignFixed('background-raisedHover', neutralRamp[50], neutralRamp[700],
@@ -299,14 +299,14 @@ export function generateDesignTokens(
   }
 
   // --- Neutral foreground hierarchy (fixed ramp steps) ---
-  assignFixed('foreground-onBase', neutralRamp[1000], neutralRamp[50],
-    { ramp: 'neutral', lightStep: 1000, darkStep: 50 });
+  assignFixed('foreground-onBase', neutralRamp[900], neutralRamp[50],
+    { ramp: 'neutral', lightStep: 900, darkStep: 50 });
   assignFixed('foreground-onBaseMuted', neutralRamp[500], neutralRamp[400],
     { ramp: 'neutral', lightStep: 500, darkStep: 400 });
   assignFixed('foreground-onBaseFaint', neutralRamp[300], neutralRamp[600],
     { ramp: 'neutral', lightStep: 300, darkStep: 600 });
-  assignFixed('foreground-onRaised', neutralRamp[1000], neutralRamp[50],
-    { ramp: 'neutral', lightStep: 1000, darkStep: 50 });
+  assignFixed('foreground-onRaised', neutralRamp[900], neutralRamp[50],
+    { ramp: 'neutral', lightStep: 900, darkStep: 50 });
   assignFixed('foreground-onSunken', neutralRamp[900], neutralRamp[100],
     { ramp: 'neutral', lightStep: 900, darkStep: 100 });
 

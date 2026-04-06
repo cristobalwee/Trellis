@@ -1,5 +1,5 @@
 import { converter, formatHex, displayable } from 'culori';
-import { STEPS, type ColorRamp } from '../Showcase/colorUtils';
+import { STEPS, type ColorRamp, type NeutralColorRamp } from '../Showcase/colorUtils';
 
 export const toOklch = converter('oklch');
 
@@ -297,20 +297,22 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
 
 // ========== Ramp Generation ==================================================
 
-const RAMP_STEPS = STEPS.length; // 11 steps matching the ColorRamp type
+const RAMP_STEPS = STEPS.length;
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
 /**
- * Generate baseline lightness values for N steps using a gentle gamma curve
- * from bright (0.97) to dark (0.34).
+ * Generate baseline lightness values for N steps.
+ *
+ * Uses a gentle gamma curve from bright to dark. Endpoints sit slightly inside
+ * pure white/black so ramp edges don’t read as washed or crushed.
  */
 function baselineLightness(steps: number): number[] {
-  const maxL = 0.97;
-  const minL = 0.34;
-  const gamma = 1.05;
+  const maxL = 0.976;
+  const minL = 0.279;
+  const gamma = 0.9;
   const out: number[] = [];
 
   for (let i = 0; i < steps; i++) {
@@ -337,6 +339,10 @@ function closestIndex(values: number[], target: number): number {
 /**
  * Generate a gamut-safe OKLCH color ramp.
  *
+ * Chroma and lightness dropoff accelerate progressively toward the ramp edges
+ * (quadratic easing), so fewer steps can span the same perceptual range as a
+ * 12-step ramp while preserving richness in the mid-tones.
+ *
  * @param hue          OKLCH hue angle
  * @param baseChroma   Chroma at the base lightness position
  * @param baseL        The base lightness (typically the primary's L)
@@ -353,9 +359,7 @@ export function generateOklchRamp(
   const targetLightness = baselineLightness(steps);
   const basePosition = closestIndex(targetLightness, baseL);
 
-  // Chroma decreases linearly from base position toward extremes
   const maxDistance = Math.max(basePosition, steps - 1 - basePosition);
-  const chromaStep = maxDistance > 0 ? (baseChroma * chromaFalloff) / maxDistance : 0;
 
   const ramp: Partial<ColorRamp> = {};
 
@@ -363,21 +367,25 @@ export function generateOklchRamp(
     let shadeL: number;
     let shadeC: number;
 
+    const distance = Math.abs(i - basePosition);
+    // Normalized 0→1 distance from base to the farthest edge
+    const tNorm = maxDistance > 0 ? distance / maxDistance : 0;
+    // Progressive (quadratic) easing — accelerates toward extremes
+    const tProg = tNorm * tNorm;
+
     if (i === basePosition) {
       shadeL = baseL;
     } else {
-      // Smooth transition through the base color position
       const baseLTarget = targetLightness[basePosition];
       const lDiff = baseL - baseLTarget;
-      const distance = Math.abs(i - basePosition);
-      const weight = 1 - distance / steps;
+      // Weight decays progressively instead of linearly
+      const weight = 1 - tProg;
       shadeL = targetLightness[i] + lDiff * weight * 0.5;
       shadeL = clampValue(shadeL, 0.05, 0.99);
     }
 
-    // Chroma: uniform steps from base, with a floor based on falloff
-    const distance = Math.abs(i - basePosition);
-    shadeC = baseChroma - distance * chromaStep;
+    // Chroma drops progressively rather than linearly
+    shadeC = baseChroma * (1 - chromaFalloff * tProg);
     shadeC = Math.max(shadeC, baseChroma * (1 - chromaFalloff));
 
     // Clamp chroma to fit in sRGB gamut
@@ -393,13 +401,17 @@ export function generateOklchRamp(
 
 /**
  * Generate a neutral ramp tinted according to the chosen strategy.
+ *
+ * The neutral ramp includes two extra extremes beyond the standard 10 steps:
+ *   - `0`    → near-white (L 0.99) for true white-like backgrounds
+ *   - `1050` → near-black (L 0.20) for true black-like foregrounds
  */
 export function generateNeutralRamp(
   primaryHue: number,
   mode: 'pure' | 'cool' | 'warm' | 'brand-tinted',
   baseL: number,
   chromaFalloff: number = 0.8,
-): ColorRamp {
+): NeutralColorRamp {
   let hue = 0;
   let chroma = 0;
 
@@ -422,5 +434,12 @@ export function generateNeutralRamp(
       break;
   }
 
-  return generateOklchRamp(hue, chroma, baseL, chromaFalloff);
+  const baseRamp = generateOklchRamp(hue, chroma, baseL, chromaFalloff);
+  const shade1050C = Math.min(chroma, maxChromaForLH(0.24, hue));
+
+  return {
+    ...baseRamp,
+    0: formatHex({ mode: 'oklch', l: 0.99, c: 0, h: hue }) || '#fefefe',
+    1050: formatHex({ mode: 'oklch', l: 0.24, c: shade1050C, h: hue }) || '#1a1a1a',
+  };
 }

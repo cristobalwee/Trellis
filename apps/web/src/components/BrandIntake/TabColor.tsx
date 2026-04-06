@@ -8,6 +8,7 @@ import { useColorRamps, type ColorSlot } from './useColorRamps';
 import { HexColorInput, RampSliders, NeutralTintSelector, GenerationModeSelector } from './ColorRow';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
+import { NEUTRAL_STEPS } from '../Showcase/colorUtils';
 import type { GenerationMode } from './colorGeneration';
 import { SEMANTIC_HUES } from './colorGeneration';
 
@@ -134,7 +135,7 @@ const TabColor: React.FC = () => {
       {/* Neutral tint */}
       <div className="flex flex-col gap-3 pt-6 border-t border-charcoal/10">
         <label className="text-sm font-medium text-charcoal">Neutral</label>
-        <ColorRampView ramp={derived.neutralRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('neutral')} />
+        <ColorRampView ramp={derived.neutralRamp} steps={NEUTRAL_STEPS} className="h-8 rounded-lg" onStepChange={handleRampStep('neutral')} />
         <NeutralTintSelector
           value={config.neutralTint}
           onChange={handleNeutralTintChange}

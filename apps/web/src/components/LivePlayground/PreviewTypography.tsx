@@ -12,6 +12,8 @@ const bg = {
   raised: t('color-background-raised'),
   primarySubtle: t('color-background-primarySubtle'),
   primary: t('color-background-primary'),
+  accent: t('color-background-accent'),
+  accentSubtle: t('color-background-accentSubtle'),
 };
 const fg = {
   onBase: t('color-foreground-onBase'),
@@ -19,6 +21,8 @@ const fg = {
   onPrimary: t('color-foreground-onPrimary'),
   primary: t('color-foreground-primary'),
   onGradient: t('color-foreground-onGradient'),
+  onAccent: t('color-foreground-onAccent'),
+  onAccentSubtle: t('color-foreground-onAccentSubtle'),
 };
 const border = {
   neutral: t('color-border-neutral'),
@@ -84,8 +88,8 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           <div
             className="w-7 h-7 flex items-center justify-center text-xs font-bold"
             style={{
-              background: gradient,
-              color: fg.onGradient,
+              background: bg.accent,
+              color: fg.onAccent,
               borderRadius: radius.badge,
               transition: transition.theme,
             }}
@@ -132,7 +136,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
         {/* Tags / Eyebrow */}
         <div className="flex items-center" style={{ gap: space.gap, marginBottom: space.card }}>
           <span
-            className="text-[11px] font-semibold uppercase tracking-widest"
+            className="text-[11px] font-semibold"
             style={{
               backgroundColor: bg.primarySubtle,
               color: fg.primary,
@@ -144,7 +148,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
             Design Systems
           </span>
           <span
-            className="text-[11px] font-medium"
+            className="text-[11px]"
             style={{ color: fg.onBaseMuted }}
           >
             8 min read
@@ -169,6 +173,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
         {/* Subtitle */}
         <p
           style={{
+            fontFamily: font.primary,
             fontSize: '1.125rem',
             lineHeight: 1.5,
             color: fg.onBaseMuted,
@@ -194,9 +199,9 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           <div
             className="w-9 h-9 flex items-center justify-center text-xs font-bold shrink-0"
             style={{
-              background: gradient,
-              color: fg.onGradient,
-              borderRadius: radius.action,
+              background: bg.accentSubtle,
+              color: fg.onAccentSubtle,
+              borderRadius: radius.container,
               transition: transition.theme,
             }}
           >
@@ -207,7 +212,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               className="text-sm font-semibold"
               style={{ fontFamily: font.primary, color: fg.onBase }}
             >
-              Elena Kim — <span className="font-normal" style={{ color: fg.onBaseMuted }}>{bodyFontName}</span>
+              Elena Kim
             </span>
             <span
               className="text-xs"
@@ -223,6 +228,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           <div className="flex flex-col" style={{ gap: space.card }}>
             <p
               style={{
+                fontFamily: font.primary,
                 fontSize: '1rem',
                 lineHeight: 1.75,
                 color: fg.onBase,
@@ -250,6 +256,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
 
             <p
               style={{
+                fontFamily: font.primary,
                 fontSize: '1rem',
                 lineHeight: 1.75,
                 color: fg.onBase,
@@ -264,13 +271,13 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
             {/* Pull quote */}
             <blockquote
               style={{
-                borderLeft: `3px solid ${border.primary}`,
+                borderLeft: `3px solid ${border.neutral}`,
                 fontFamily: font.secondary,
                 fontSize: '1.125rem',
                 fontWeight: 500,
                 fontStyle: 'italic',
                 lineHeight: 1.5,
-                color: fg.primary,
+                color: fg.onBaseMuted,
                 margin: 0,
                 padding: `${space.ctrlY} ${space.card}`,
               }}
@@ -280,6 +287,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
 
             <p
               style={{
+                fontFamily: font.primary,
                 fontSize: '1rem',
                 lineHeight: 1.75,
                 color: fg.onBase,
@@ -307,6 +315,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
 
             <p
               style={{
+                fontFamily: font.primary,
                 fontSize: '1rem',
                 lineHeight: 1.75,
                 color: fg.onBase,
@@ -341,7 +350,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
                 </span>
                 <span
                   className="text-sm"
-                  style={{ color: fg.primary, lineHeight: 1.6 }}
+                  style={{ fontFamily: font.primary, color: fg.primary, lineHeight: 1.6 }}
                 >
                   Test your type pairing at real content lengths, not just "Lorem ipsum." Reading comfort only reveals
                   itself after a few paragraphs.
@@ -351,6 +360,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
 
             <p
               style={{
+                fontFamily: font.primary,
                 fontSize: '1rem',
                 lineHeight: 1.75,
                 color: fg.onBase,

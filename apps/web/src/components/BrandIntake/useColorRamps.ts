@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { BrandConfig } from './store';
-import type { ColorRamp } from '../Showcase/colorUtils';
+import type { ColorRamp, NeutralColorRamp } from '../Showcase/colorUtils';
 import { STEPS } from '../Showcase/colorUtils';
 import {
   toOklch,
@@ -15,12 +15,13 @@ import {
   type HueSelection,
 } from './colorGeneration';
 
+function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp;
+function applyOverrides(ramp: NeutralColorRamp, overrides?: Partial<NeutralColorRamp>): NeutralColorRamp;
 function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp {
   if (!overrides) return ramp;
   const result = { ...ramp };
-  for (const step of STEPS) {
-    const val = overrides[step as keyof ColorRamp];
-    if (val) result[step as keyof ColorRamp] = val;
+  for (const [key, val] of Object.entries(overrides)) {
+    if (val) (result as Record<string, string>)[key] = val;
   }
   return result;
 }
@@ -36,7 +37,7 @@ export interface DerivedColors {
   primaryRamp: ColorRamp;
   secondaryColor: string;
   secondaryRamp: ColorRamp;
-  neutralRamp: ColorRamp;
+  neutralRamp: NeutralColorRamp;
   /** Named hue slots (excluding the primary's slot, which is shown separately). */
   additionalColors: ColorSlot[];
   /** Full hue selection metadata (for debug / tooltips). */
@@ -152,7 +153,7 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
   );
 
   const finalNeutralRamp = useMemo(
-    () => applyOverrides(neutralRamp, overrides.neutral),
+    () => applyOverrides(neutralRamp, overrides.neutral as Partial<NeutralColorRamp>),
     [neutralRamp, overrides.neutral],
   );
 

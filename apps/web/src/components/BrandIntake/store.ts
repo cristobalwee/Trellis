@@ -1,7 +1,7 @@
 import { map } from 'nanostores';
-import type { ColorRamp } from '../Showcase/colorUtils';
+import type { ColorRamp, NeutralColorRamp } from '../Showcase/colorUtils';
 
-export type { ColorRamp };
+export type { ColorRamp, NeutralColorRamp };
 
 export type TabId = 'color' | 'typography' | 'style';
 
@@ -24,7 +24,7 @@ export interface BrandConfig {
   tertiaryRamp?: ColorRamp;
 
   neutralTint: 'pure' | 'cool' | 'warm' | 'brand-tinted';
-  neutralRamp?: ColorRamp;
+  neutralRamp?: NeutralColorRamp;
 
   accentColor?: string;
   useAccent: boolean;

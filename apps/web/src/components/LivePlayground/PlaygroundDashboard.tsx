@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -126,18 +126,7 @@ interface PlaygroundDashboardProps {
 const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onChange }) => {
   const [activeNav, setActiveNav] = useState('dashboard');
   void onChange;
-
-  // Font loading side-effect (CSS vars can't trigger this)
-  useEffect(() => {
-    const id = `playground-font-${config.fontFamily.replace(/\s+/g, '+')}`;
-    if (!document.getElementById(id)) {
-      const link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      link.href = `https://fonts.googleapis.com/css2?family=${config.fontFamily.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
-      document.head.appendChild(link);
-    }
-  }, [config.fontFamily]);
+  void config;
 
   // --- Static data ---
 
@@ -208,7 +197,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             <div
               className="w-6 h-6 flex items-center justify-center text-white text-[10px] font-bold"
               style={{
-                background: gradient,
+                background: bg.accent,
                 borderRadius: radius.badge,
                 transition: transition.theme,
               }}
@@ -218,7 +207,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             <span className="text-sm font-semibold" style={{ color: fg.onBase }}>Acme</span>
           </div>
 
-          <div className="text-[9px] font-semibold uppercase tracking-wider px-4 mb-2" style={{ color: fg.onBaseFaint }}>
+          <div className="text-[11px] font-semibold px-4 mb-2" style={{ color: fg.onBaseFaint }}>
             General
           </div>
 
@@ -248,9 +237,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
 
           <div className="mt-auto px-3" style={{ transition: transition.theme }}>
             <div
-              className="border"
               style={{
-                borderColor: border.neutral,
                 backgroundColor: bg.raised,
                 borderRadius: radius.container,
                 padding: space.card,

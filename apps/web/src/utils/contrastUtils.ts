@@ -30,8 +30,8 @@ export function pickStep(ramp: ColorRamp, targetL: number): StepKey {
  * Walk a foreground ramp from the perceptual extreme toward the middle,
  * returning the first step that achieves WCAG AA contrast against `bgHex`.
  *
- * Light mode: walks 50 → 1000 (lightest first, finds darkest-enough step)
- * Dark mode:  walks 1000 → 50 (darkest first, finds lightest-enough step)
+ * Light mode: walks 50 → 900 (lightest first, finds darkest-enough step)
+ * Dark mode:  walks 900 → 50 (darkest first, finds lightest-enough step)
  *
  * Falls back to pure white or black if no ramp step passes.
  */

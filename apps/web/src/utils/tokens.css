@@ -227,10 +227,10 @@
   --color-foreground-onOverlay: var(--color-neutral-1000);
   --color-foreground-onSunken: var(--color-neutral-1000);
   --color-foreground-onHighContrast: var(--color-neutral-1000);
-  --color-foreground-onBaseMuted: var(--color-neutral-700);
-  --color-foreground-onRaisedMuted: var(--color-neutral-700);
-  --color-foreground-onOverlayMuted: var(--color-neutral-700);
-  --color-foreground-onSunkenMuted: var(--color-neutral-700);
+  --color-foreground-onBaseMuted: var(--color-neutral-800);
+  --color-foreground-onRaisedMuted: var(--color-neutral-800);
+  --color-foreground-onOverlayMuted: var(--color-neutral-800);
+  --color-foreground-onSunkenMuted: var(--color-neutral-800);
   --color-border-primary: var(--color-cyan-700);
   --color-border-accent: var(--color-purple-700);
   --color-border-success: var(--color-green-600);
@@ -240,7 +240,7 @@
   --color-border-neutral: var(--color-neutral-100);
   --color-border-strong: var(--color-neutral-200);
   --color-border-focus: var(--color-blue-600);
-  --color-foreground-onHighContrastMuted: var(--color-neutral-700);
+  --color-foreground-onHighContrastMuted: var(--color-neutral-800);
   --font-container: var(--dimension-200);
   --font-action: var(--dimension-max);
   --font-field: var(--dimension-max);
