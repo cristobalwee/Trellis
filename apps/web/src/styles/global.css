@@ -96,9 +96,9 @@ h1 {
   @apply text-4xl md:text-6xl lg:text-7xl xl:text-7xl 2xl:text-8xl;
 }
 
-h2 {
+/* h2 {
   @apply text-4xl md:text-5xl lg:text-6xl;
-}
+} */
 
 h3 {
   @apply text-3xl md:text-4xl lg:text-5xl;

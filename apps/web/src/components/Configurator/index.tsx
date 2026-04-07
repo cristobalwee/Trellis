@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
-import { Sun, Moon, Upload, PanelLeftClose, PanelLeftOpen, MousePointerClick } from 'lucide-react';
+import { Sun, Moon, PanelLeftClose, PanelLeftOpen, MousePointerClick } from 'lucide-react';
 
 import { $brandConfig, updateConfig, type TabId } from '../BrandIntake/store';
 import TabBar from '../BrandIntake/TabBar';
@@ -14,6 +14,7 @@ import type { PlaygroundConfig } from '../LivePlayground/types';
 import { generateDesignTokens } from '../../utils/generateTokens';
 import { Tooltip } from '../ui/Tooltip';
 import InspectOverlay from './InspectOverlay';
+import ExportDialog from './ExportDialog';
 import logoIcon from '../../assets/logo_icon.svg';
 
 // ---------------------------------------------------------------------------
@@ -329,10 +330,7 @@ const Configurator: React.FC = () => {
                   <MousePointerClick size={13} />
                   Inspect{isInspecting && ': On'}
                 </button>
-                <button className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5" onClick={() => {}}>
-                  <Upload size={13} />
-                  Export
-                </button>
+                <ExportDialog tokens={designTokens} />
               </div>
             </div>
           </div>
