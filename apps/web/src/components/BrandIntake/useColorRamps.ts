@@ -2,21 +2,22 @@ import { useMemo } from 'react';
 
 import type { BrandConfig } from './store';
 import type { ColorRamp, NeutralColorRamp } from '../Showcase/colorUtils';
-import { STEPS } from '../Showcase/colorUtils';
 import {
   toOklch,
   getGeneratedColor,
   selectHues,
   generateOklchRamp,
   generateNeutralRamp,
-  getAdditionalRampSeed,
   maxChromaForLH,
+  applyChromaGuardrails,
+  falloffToSigma,
+  type ColorMode,
   type HueSlot,
   type HueSelection,
 } from './colorGeneration';
 
-function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp;
 function applyOverrides(ramp: NeutralColorRamp, overrides?: Partial<NeutralColorRamp>): NeutralColorRamp;
+function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp;
 function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp {
   if (!overrides) return ramp;
   const result = { ...ramp };
@@ -42,6 +43,72 @@ export interface DerivedColors {
   additionalColors: ColorSlot[];
   /** Full hue selection metadata (for debug / tooltips). */
   hueSelection: HueSelection;
+  /** Dark mode variants */
+  dark: {
+    primaryRamp: ColorRamp;
+    secondaryRamp: ColorRamp;
+    neutralRamp: NeutralColorRamp;
+    additionalColors: ColorSlot[];
+  } | null;
+}
+
+function generateRampsForMode(
+  mode: ColorMode,
+  primaryH: number,
+  primaryC: number,
+  primaryL: number,
+  sigma: number,
+  secondaryColor: string,
+  neutralTint: BrandConfig['neutralTint'],
+  hueSelection: HueSelection,
+  saturationRatio: number,
+): {
+  primaryRamp: ColorRamp;
+  secondaryRamp: ColorRamp;
+  neutralRamp: NeutralColorRamp;
+  additionalColors: ColorSlot[];
+} {
+  const opts = { mode, sigma };
+
+  // Primary ramp — pinned in light mode, unpinned in dark
+  const primaryRamp = generateOklchRamp(
+    primaryH, primaryC, primaryL, 0,
+    { ...opts, pin: mode === 'light' },
+  );
+
+  // Secondary ramp
+  const sec = toOklch(secondaryColor);
+  const secondaryRamp = sec
+    ? generateOklchRamp(sec.h || 0, sec.c || 0, sec.l, 0, opts)
+    : generateOklchRamp(0, 0, 0.5, 0, opts);
+
+  // Neutral ramp
+  const neutralRamp = generateNeutralRamp(primaryH, neutralTint, primaryL, 0, { mode });
+
+  // Additional named hue ramps
+  const additionalRamps = hueSelection.selected
+    .filter((slot) => !slot.isPrimary)
+    .map((slot: HueSlot) => {
+      const peakL = mode === 'dark' ? 0.65 : 0.60;
+      const hueMaxC = maxChromaForLH(peakL, slot.hue);
+      const baseChroma = Math.min(hueMaxC * Math.min(saturationRatio, 1.0), hueMaxC);
+      const ramp = generateOklchRamp(slot.hue, baseChroma, peakL, 0, opts);
+      return { name: slot.name, hue: slot.hue, isPrimary: false, ramp };
+    });
+
+  // Apply chroma guardrails to balance semantic colors
+  const balanced = applyChromaGuardrails(additionalRamps);
+  const additionalColors: ColorSlot[] = balanced.map((r) => ({
+    ...r,
+    isPrimary: false,
+  }));
+
+  return {
+    primaryRamp,
+    secondaryRamp,
+    neutralRamp,
+    additionalColors,
+  };
 }
 
 export function useColorRamps(config: BrandConfig): DerivedColors {
@@ -54,15 +121,9 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
   const primaryL = primaryOklch?.l ?? 0.5;
   const primaryC = primaryOklch?.c ?? 0;
 
-  // --- Chroma falloff (0–1) ---------------------------------------------------
-  // Passed directly to generateOklchRamp. The base color is always anchored;
-  // only surrounding shades lose chroma toward the ramp extremes.
-  const falloff = chromaFalloff / 100;
+  const sigma = useMemo(() => falloffToSigma(chromaFalloff), [chromaFalloff]);
 
   // --- Saturation ratio -------------------------------------------------------
-  // The primary's chroma relative to the max achievable chroma at its L & H.
-  // Non-primary hues use this ratio against their own max chroma so the whole
-  // palette feels cohesive.
   const saturationRatio = useMemo(() => {
     const maxC = maxChromaForLH(primaryL, primaryH);
     return maxC > 0 ? primaryC / maxC : 0;
@@ -82,88 +143,49 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
   // --- Hue selection ----------------------------------------------------------
   const hueSelection = useMemo(() => selectHues(primaryH, secondaryH), [primaryH, secondaryH]);
 
-  // --- Primary ramp -----------------------------------------------------------
-  const primaryRamp = useMemo(
-    () =>
-      generateOklchRamp(
-        primaryH,
-        primaryC,
-        primaryL,
-        falloff,
-      ),
-    [primaryH, primaryC, primaryL, falloff],
+  // --- Light mode ramps -------------------------------------------------------
+  const lightRamps = useMemo(
+    () => generateRampsForMode(
+      'light', primaryH, primaryC, primaryL, sigma,
+      secondaryColor, config.neutralTint, hueSelection, saturationRatio,
+    ),
+    [primaryH, primaryC, primaryL, sigma, secondaryColor, config.neutralTint, hueSelection, saturationRatio],
   );
 
-  const secondaryRamp = useMemo(() => {
-    const sec = toOklch(secondaryColor);
-    if (!sec) return generateOklchRamp(0, 0, 0.5, falloff);
-    return generateOklchRamp(
-      sec.h || 0,
-      sec.c || 0,
-      sec.l,
-      falloff,
-    );
-  }, [secondaryColor, falloff]);
-
-  // --- Neutral ----------------------------------------------------------------
-  const neutralRamp = useMemo(
-    () => generateNeutralRamp(primaryH, config.neutralTint, primaryL, falloff),
-    [primaryH, config.neutralTint, primaryL, falloff],
+  // --- Dark mode ramps --------------------------------------------------------
+  const darkRamps = useMemo(
+    () => generateRampsForMode(
+      'dark', primaryH, primaryC, primaryL, sigma,
+      secondaryColor, config.neutralTint, hueSelection, saturationRatio,
+    ),
+    [primaryH, primaryC, primaryL, sigma, secondaryColor, config.neutralTint, hueSelection, saturationRatio],
   );
 
-  // --- Additional named hue ramps --------------------------------------------
-  // Every selected hue except the primary's slot (which is already displayed
-  // as "Primary"). Each ramp's base chroma is derived from the primary's
-  // saturation ratio applied to that hue's maximum gamut chroma.
-  const additionalColors = useMemo((): ColorSlot[] => {
-    return hueSelection.selected
-      .filter((slot) => !slot.isPrimary)
-      .map((slot: HueSlot) => {
-        const { baseL, baseChroma } = getAdditionalRampSeed(
-          slot.name,
-          slot.hue,
-          primaryL,
-          saturationRatio,
-        );
-        const ramp = generateOklchRamp(
-          slot.hue,
-          baseChroma,
-          baseL,
-          falloff,
-        );
-        return {
-          name: slot.name,
-          hue: slot.hue,
-          isPrimary: false,
-          ramp,
-        };
-      });
-  }, [hueSelection, primaryL, saturationRatio, falloff]);
-
+  // --- Apply overrides (light mode only — dark mode is auto-generated) --------
   const overrides = config.rampOverrides;
 
   const finalPrimaryRamp = useMemo(
-    () => applyOverrides(primaryRamp, overrides.primary),
-    [primaryRamp, overrides.primary],
+    () => applyOverrides(lightRamps.primaryRamp, overrides.primary),
+    [lightRamps.primaryRamp, overrides.primary],
   );
 
   const finalSecondaryRamp = useMemo(
-    () => applyOverrides(secondaryRamp, overrides.secondary),
-    [secondaryRamp, overrides.secondary],
+    () => applyOverrides(lightRamps.secondaryRamp, overrides.secondary),
+    [lightRamps.secondaryRamp, overrides.secondary],
   );
 
   const finalNeutralRamp = useMemo(
-    () => applyOverrides(neutralRamp, overrides.neutral as Partial<NeutralColorRamp>),
-    [neutralRamp, overrides.neutral],
+    () => applyOverrides(lightRamps.neutralRamp, overrides.neutral as Partial<NeutralColorRamp>),
+    [lightRamps.neutralRamp, overrides.neutral],
   );
 
   const finalAdditionalColors = useMemo(
     (): ColorSlot[] =>
-      additionalColors.map((slot) => ({
+      lightRamps.additionalColors.map((slot) => ({
         ...slot,
         ramp: applyOverrides(slot.ramp, overrides[slot.name]),
       })),
-    [additionalColors, overrides],
+    [lightRamps.additionalColors, overrides],
   );
 
   return {
@@ -173,5 +195,6 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     neutralRamp: finalNeutralRamp,
     additionalColors: finalAdditionalColors,
     hueSelection,
+    dark: darkRamps,
   };
 }

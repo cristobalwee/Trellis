@@ -5,6 +5,7 @@ import {
   generateOklchRamp,
   generateNeutralRamp,
 } from '../components/BrandIntake/colorGeneration';
+import type { ColorMode } from '../components/BrandIntake/colorGeneration';
 import type { ColorRamp, NeutralColorRamp } from '../components/Showcase/colorUtils';
 import { pickStep, pickContrastingFg } from './contrastUtils';
 
@@ -177,17 +178,19 @@ export function generateDesignTokens(
   const secondaryL = secondaryOklch?.l ?? 0.5;
   const secondaryC = secondaryOklch?.c ?? 0;
 
-  // --- Color ramps (OKLCH) ---
-  // Base chroma is passed unscaled — the user's chosen color is always anchored.
-  // Only surrounding shades lose chroma according to the falloff parameter.
+  // --- Color ramps (Gaussian OKLCH) ---
+  const mode: ColorMode = isDarkMode ? 'dark' : 'light';
   const primaryRamp = generateOklchRamp(
     primaryH, primaryC, primaryL, falloff,
+    { mode, pin: mode === 'light' },
   );
   const secondaryRamp = generateOklchRamp(
     secondaryH, secondaryC, secondaryL, falloff,
+    { mode },
   );
   const neutralRamp = generateNeutralRamp(
     primaryH, config.neutralTint, primaryL, falloff,
+    { mode },
   );
 
   // Primitive color tokens
@@ -210,6 +213,7 @@ export function generateDesignTokens(
     const statusOklch = toOklch(hex);
     const ramp = generateOklchRamp(
       statusOklch?.h || 0, statusOklch?.c ?? 0, statusOklch?.l ?? 0.5, 0.8,
+      { mode },
     );
     statusRampCache[name] = ramp;
     for (const [step, color] of Object.entries(ramp)) {

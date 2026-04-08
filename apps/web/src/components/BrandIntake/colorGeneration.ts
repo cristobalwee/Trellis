@@ -34,10 +34,6 @@ export function getGeneratedColor(baseHex: string, mode: GenerationMode): string
 }
 
 // ========== Named Hue System =================================================
-//
-// 12 canonical OKLCH hue angles that form a perceptually balanced color wheel.
-// The primary color replaces the nearest slot; semantic hues (Red, Green, Blue,
-// Yellow) are always retained to guarantee stable baselines for feedback colors.
 
 export interface NamedHue {
   name: string;
@@ -49,19 +45,47 @@ export const NAMED_HUES: NamedHue[] = [
   { name: 'Orange', hue: 55 },
   { name: 'Amber', hue: 75 },
   { name: 'Yellow', hue: 95 },
-  { name: 'Lime', hue: 130 },
+  { name: 'Lime', hue: 125 },
   { name: 'Green', hue: 150 },
   { name: 'Teal', hue: 175 },
   { name: 'Cyan', hue: 200 },
-  { name: 'Blue', hue: 255 },
-  { name: 'Indigo', hue: 280 },
+  { name: 'Blue', hue: 240 },
+  { name: 'Indigo', hue: 275 },
   { name: 'Purple', hue: 305 },
-  { name: 'Pink', hue: 350 },
+  { name: 'Pink', hue: 345 },
 ];
 
 /** Hues that are always retained regardless of hue selection. */
 export const SEMANTIC_HUES = ['Red', 'Green', 'Blue', 'Yellow'];
 const SEMANTIC_OCCUPATION_THRESHOLD = 24;
+
+// ========== Lightness Targets ================================================
+
+export const LIGHT_MODE_LIGHTNESS: Record<number, number> = {
+  50: 0.975,
+  100: 0.93,
+  200: 0.87,
+  300: 0.78,
+  400: 0.68,
+  500: 0.58,
+  600: 0.48,
+  700: 0.39,
+  800: 0.31,
+  900: 0.24,
+};
+
+export const DARK_MODE_LIGHTNESS: Record<number, number> = {
+  50: 0.18,
+  100: 0.22,
+  200: 0.27,
+  300: 0.33,
+  400: 0.40,
+  500: 0.48,
+  600: 0.56,
+  700: 0.65,
+  800: 0.77,
+  900: 0.88,
+};
 
 // ========== Gamut Utilities ==================================================
 
@@ -69,8 +93,19 @@ function isInGamut(L: number, C: number, H: number): boolean {
   return displayable({ mode: 'oklch', l: L, c: C, h: H });
 }
 
+/** Max chroma cache: keyed by `${hue_rounded}-${lightness_rounded}` */
+const maxChromaCache = new Map<string, number>();
+
 /** Find the maximum chroma that fits in sRGB for a given lightness and hue. */
 export function maxChromaForLH(L: number, H: number): number {
+  // Round for cache efficiency (resolution ~0.01 L, ~1° H)
+  const lKey = Math.round(L * 100);
+  const hKey = Math.round(H);
+  const key = `${hKey}-${lKey}`;
+
+  const cached = maxChromaCache.get(key);
+  if (cached !== undefined) return cached;
+
   let low = 0;
   let high = 0.4;
 
@@ -80,79 +115,29 @@ export function maxChromaForLH(L: number, H: number): number {
     else high = mid;
   }
 
-  return low;
+  // 0.95 safety margin to avoid edge clipping
+  const result = low * 0.95;
+  maxChromaCache.set(key, result);
+  return result;
 }
 
-// ========== Additional Hue Seeding ===========================================
+// ========== Gaussian Chroma Distribution =====================================
 
-export interface AdditionalRampSeed {
-  baseL: number;
-  baseChroma: number;
+function gaussianChroma(L: number, peakL: number, sigma: number, peakC: number): number {
+  return peakC * Math.exp(-0.5 * ((L - peakL) / sigma) ** 2);
 }
 
-interface AdditionalHueProfile {
-  baseL: number;
-  baseChroma: number;
-  minL: number;
-  maxL: number;
-  minC: number;
-  maxC: number;
-}
+// ========== Sigma Mapping ====================================================
 
 /**
- * Baseline perceptual anchors for additional ramps.
- * Core semantic colors stay close to these targets so they preserve meaning.
+ * Map the UI chromaFalloff (0–100) to a Gaussian sigma.
+ * Higher falloff → tighter bell → smaller sigma.
+ *   falloff=0   → sigma=0.40 (very wide, uniform chroma)
+ *   falloff=80  → sigma=0.20 (default-like)
+ *   falloff=100 → sigma=0.15 (tight, chroma drops fast)
  */
-const ADDITIONAL_HUE_PROFILES: Record<string, AdditionalHueProfile> = {
-  Red: { baseL: 0.62, baseChroma: 0.19, minL: 0.56, maxL: 0.68, minC: 0.14, maxC: 0.24 },
-  Yellow: { baseL: 0.82, baseChroma: 0.18, minL: 0.76, maxL: 0.9, minC: 0.13, maxC: 0.24 },
-  Green: { baseL: 0.71, baseChroma: 0.17, minL: 0.64, maxL: 0.79, minC: 0.12, maxC: 0.23 },
-  Blue: { baseL: 0.6, baseChroma: 0.16, minL: 0.54, maxL: 0.68, minC: 0.11, maxC: 0.22 },
-};
-
-const DEFAULT_ADDITIONAL_PROFILE: AdditionalHueProfile = {
-  baseL: 0.66,
-  baseChroma: 0.15,
-  minL: 0.58,
-  maxL: 0.78,
-  minC: 0.1,
-  maxC: 0.21,
-};
-
-/**
- * Compute seeded base lightness/chroma for additional ramps.
- *
- * Ramps are anchored to stable hue-specific targets and only mildly influenced
- * by the primary's characteristics to keep semantic colors recognizable.
- */
-export function getAdditionalRampSeed(
-  slotName: string,
-  hue: number,
-  primaryL: number,
-  saturationRatio: number,
-): AdditionalRampSeed {
-  const profile = ADDITIONAL_HUE_PROFILES[slotName] ?? DEFAULT_ADDITIONAL_PROFILE;
-
-  // Keep lightness centered around hue defaults with only subtle primary bias.
-  const normalizedPrimaryL = clampValue(primaryL, 0, 1);
-  const lightnessBias = (normalizedPrimaryL - 0.62) * 0.12;
-  const baseL = clampValue(profile.baseL + lightnessBias, profile.minL, profile.maxL);
-
-  // Keep chroma near semantic defaults; let saturation nudge within a tight band.
-  const normalizedSaturation = clampValue(saturationRatio, 0, 1.35);
-  const saturationBias = (normalizedSaturation - 0.7) * 0.3;
-  const seededChroma = clampValue(
-    profile.baseChroma * (1 + saturationBias),
-    profile.minC,
-    profile.maxC,
-  );
-
-  // Final safety clamp against sRGB gamut at the seeded base lightness.
-  const maxC = maxChromaForLH(baseL, hue);
-  return {
-    baseL,
-    baseChroma: Math.min(seededChroma, maxC),
-  };
+export function falloffToSigma(chromaFalloff: number): number {
+  return 0.15 + (1 - chromaFalloff / 100) * 0.25;
 }
 
 // ========== Hue Selection ====================================================
@@ -192,13 +177,6 @@ export interface HueSelection {
 
 /**
  * Select 9 chromatic hues from the 12 named hues using a greedy algorithm.
- *
- * The primary's actual hue replaces the nearest named slot. Semantic hues
- * (Red, Green, Blue, Yellow) are locked in unless either the primary or
- * secondary hue is already close to that semantic target. In that case, the
- * semantic ramp is omitted to avoid near-duplicate clashes and another hue is
- * selected instead. Remaining slots are chosen to maximise the minimum angular
- * distance between any two selected hues, ensuring a well-distributed palette.
  */
 export function selectHues(primaryHue: number, secondaryHue?: number): HueSelection {
   const nearestNamed = findNearestHue(primaryHue);
@@ -225,7 +203,6 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
     }
   }
 
-  // Start with the primary slot + locked semantic hues
   const selected: HueSlot[] = [];
   const primaryCandidate = candidates.find((c) => c.name === nearestNamed.name)!;
   selected.push(primaryCandidate);
@@ -237,7 +214,6 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
     }
   }
 
-  // Remaining candidates for greedy selection
   const excludedSemanticNames = new Set(
     Array.from(occupiedSemanticBy.keys()).filter((name) => name !== nearestNamed.name),
   );
@@ -245,7 +221,6 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
     (c) => !selected.includes(c) && !excludedSemanticNames.has(c.name),
   );
 
-  // Greedy: pick the hue with the greatest minimum distance to selected set
   while (selected.length < 9 && remaining.length > 0) {
     let bestCandidate: HueSlot | null = null;
     let bestMinDist = -1;
@@ -267,7 +242,6 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
     }
   }
 
-  // Record which hues were dropped and why
   const dropped = Array.from(occupiedSemanticBy.entries())
     .filter(([name]) => name !== nearestNamed.name)
     .map(([name, source]) => ({
@@ -277,15 +251,15 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
 
   dropped.push(
     ...remaining.map((r) => {
-    let closestSelected = selected[0];
-    let closestDist = angularDistance(r.hue, closestSelected.hue);
-    for (const s of selected) {
-      const dist = angularDistance(r.hue, s.hue);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestSelected = s;
+      let closestSelected = selected[0];
+      let closestDist = angularDistance(r.hue, closestSelected.hue);
+      for (const s of selected) {
+        const dist = angularDistance(r.hue, s.hue);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestSelected = s;
+        }
       }
-    }
       return { name: r.name, reason: `too close to ${closestSelected.name}` };
     }),
   );
@@ -295,105 +269,142 @@ export function selectHues(primaryHue: number, secondaryHue?: number): HueSelect
   return { selected, dropped, primaryName: nearestNamed.name };
 }
 
-// ========== Ramp Generation ==================================================
+// ========== Core Ramp Generation (Gaussian OKLCH) ============================
 
-const RAMP_STEPS = STEPS.length;
+export type ColorMode = 'light' | 'dark';
 
-function clampValue(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+interface GaussianParams {
+  peakL: number;
+  sigma: number;
+  peakC: number;
 }
 
 /**
- * Generate baseline lightness values for N steps.
- *
- * Uses a gentle gamma curve from bright to dark. Endpoints sit slightly inside
- * pure white/black so ramp edges don’t read as washed or crushed.
+ * Compute the Gaussian parameters for a ramp given a hue and an anchor
+ * chroma/lightness. This decouples peakC from the input: peakC is solved
+ * such that the Gaussian passes through `anchorC` at `anchorL`.
  */
-function baselineLightness(steps: number): number[] {
-  const maxL = 0.976;
-  const minL = 0.279;
-  const gamma = 0.9;
-  const out: number[] = [];
+function computeGaussianParams(
+  hue: number,
+  anchorL: number,
+  anchorC: number,
+  sigma: number,
+  mode: ColorMode,
+): GaussianParams {
+  const peakL = mode === 'dark' ? 0.65 : 0.60;
+  const hueMaxC = maxChromaForLH(peakL, hue);
 
-  for (let i = 0; i < steps; i++) {
-    const t = steps === 1 ? 0 : i / (steps - 1);
-    out.push(maxL + (minL - maxL) * Math.pow(t, gamma));
+  // Normalized Gaussian value at the anchor's lightness (peakC = 1)
+  const gaussianAtAnchor = gaussianChroma(anchorL, peakL, sigma, 1.0);
+
+  let peakC: number;
+  if (gaussianAtAnchor > 0.001) {
+    peakC = Math.min(anchorC / gaussianAtAnchor, hueMaxC);
+  } else {
+    // Anchor is far from the peak — use hue max
+    peakC = hueMaxC;
   }
 
-  return out;
+  return { peakL, sigma, peakC };
 }
 
-function closestIndex(values: number[], target: number): number {
-  let bestIdx = 0;
-  let bestDist = Infinity;
-  for (let i = 0; i < values.length; i++) {
-    const dist = Math.abs(values[i] - target);
-    if (dist < bestDist) {
-      bestDist = dist;
-      bestIdx = i;
+/**
+ * Find the step whose lightness target is closest to a given lightness value.
+ */
+function findClosestStep(L: number, lightnessMap: Record<number, number>): number {
+  let closestStep: number = STEPS[0];
+  let minDist = Infinity;
+  for (const step of STEPS) {
+    const dist = Math.abs(lightnessMap[step] - L);
+    if (dist < minDist) {
+      minDist = dist;
+      closestStep = step;
     }
   }
-  return bestIdx;
+  return closestStep;
 }
 
 /**
- * Generate a gamut-safe OKLCH color ramp.
- *
- * Chroma and lightness dropoff accelerate progressively toward the ramp edges
- * (quadratic easing), so fewer steps can span the same perceptual range as a
- * 12-step ramp while preserving richness in the mid-tones.
+ * Generate a 10-step OKLCH color ramp using Gaussian chroma distribution.
  *
  * @param hue          OKLCH hue angle
- * @param baseChroma   Chroma at the base lightness position
- * @param baseL        The base lightness (typically the primary's L)
- * @param chromaFalloff 0–1: how much chroma decreases toward ramp extremes
+ * @param baseChroma   Chroma of the anchor color (used to derive peakC)
+ * @param baseL        Lightness of the anchor color
+ * @param chromaFalloff 0–100 UI slider value (mapped to sigma internally)
+ * @param options      Optional: mode ('light'|'dark'), pin input, sigma override
  */
 export function generateOklchRamp(
   hue: number,
   baseChroma: number,
   baseL: number,
   chromaFalloff: number = 0.8,
+  options?: {
+    mode?: ColorMode;
+    pin?: boolean;
+    sigma?: number;
+  },
 ): ColorRamp {
-  const steps = RAMP_STEPS;
+  const mode = options?.mode ?? 'light';
+  const shouldPin = options?.pin ?? false;
+  const sigma = options?.sigma ?? falloffToSigma(
+    // Support legacy 0–1 range: if < 1.5 treat as fraction
+    chromaFalloff > 1.5 ? chromaFalloff : chromaFalloff * 100,
+  );
 
-  const targetLightness = baselineLightness(steps);
-  const basePosition = closestIndex(targetLightness, baseL);
+  const lightnessMap = mode === 'dark' ? DARK_MODE_LIGHTNESS : LIGHT_MODE_LIGHTNESS;
+  const { peakL, peakC } = computeGaussianParams(hue, baseL, baseChroma, sigma, mode);
 
-  const maxDistance = Math.max(basePosition, steps - 1 - basePosition);
+  // Find the pinned step (closest to input lightness)
+  const pinnedStep = shouldPin ? findClosestStep(baseL, lightnessMap) : null;
 
-  const ramp: Partial<ColorRamp> = {};
+  // First pass: compute raw Gaussian chroma for each step
+  const rawChroma: Record<number, number> = {};
+  for (const step of STEPS) {
+    const L = lightnessMap[step];
+    const C_raw = gaussianChroma(L, peakL, sigma, peakC);
+    const C_max = maxChromaForLH(L, hue);
+    rawChroma[step] = Math.min(C_raw, C_max);
+  }
 
-  for (let i = 0; i < steps; i++) {
-    let shadeL: number;
-    let shadeC: number;
+  // Smoothing: if pinned, blend neighbors toward the input to avoid discontinuity
+  const finalChroma: Record<number, number> = { ...rawChroma };
+  if (pinnedStep !== null) {
+    const pinnedIdx = STEPS.indexOf(pinnedStep as (typeof STEPS)[number]);
+    const predictedC = rawChroma[pinnedStep];
+    const discontinuity = Math.abs(baseChroma - predictedC) / Math.max(predictedC, 0.001);
 
-    const distance = Math.abs(i - basePosition);
-    // Normalized 0→1 distance from base to the farthest edge
-    const tNorm = maxDistance > 0 ? distance / maxDistance : 0;
-    // Progressive (quadratic) easing — accelerates toward extremes
-    const tProg = tNorm * tNorm;
-
-    if (i === basePosition) {
-      shadeL = baseL;
-    } else {
-      const baseLTarget = targetLightness[basePosition];
-      const lDiff = baseL - baseLTarget;
-      // Weight decays progressively instead of linearly
-      const weight = 1 - tProg;
-      shadeL = targetLightness[i] + lDiff * weight * 0.5;
-      shadeL = clampValue(shadeL, 0.05, 0.99);
+    if (discontinuity > 0.2) {
+      // Blend immediate neighbors toward a smooth transition
+      for (const offset of [-1, 1]) {
+        const neighborIdx = pinnedIdx + offset;
+        if (neighborIdx >= 0 && neighborIdx < STEPS.length) {
+          const neighborStep = STEPS[neighborIdx];
+          const neighborL = lightnessMap[neighborStep];
+          // What chroma would smoothly connect to the pinned input?
+          const smoothTarget = gaussianChroma(neighborL, peakL, sigma, peakC);
+          const C_max = maxChromaForLH(neighborL, hue);
+          finalChroma[neighborStep] = Math.min(
+            (rawChroma[neighborStep] + smoothTarget) / 2,
+            C_max,
+          );
+        }
+      }
     }
+  }
 
-    // Chroma drops progressively rather than linearly
-    shadeC = baseChroma * (1 - chromaFalloff * tProg);
-    shadeC = Math.max(shadeC, baseChroma * (1 - chromaFalloff));
-
-    // Clamp chroma to fit in sRGB gamut
-    const maxC = maxChromaForLH(shadeL, hue);
-    shadeC = Math.min(shadeC, maxC);
-
-    const hex = formatHex({ mode: 'oklch', l: shadeL, c: shadeC, h: hue });
-    ramp[STEPS[i] as keyof ColorRamp] = hex || '#808080';
+  // Build the ramp
+  const ramp: Partial<ColorRamp> = {};
+  for (const step of STEPS) {
+    if (step === pinnedStep) {
+      // Exact input color — no modification
+      ramp[step as keyof ColorRamp] =
+        formatHex({ mode: 'oklch', l: baseL, c: baseChroma, h: hue }) || '#808080';
+    } else {
+      const L = lightnessMap[step];
+      const C = finalChroma[step];
+      ramp[step as keyof ColorRamp] =
+        formatHex({ mode: 'oklch', l: L, c: C, h: hue }) || '#808080';
+    }
   }
 
   return ramp as ColorRamp;
@@ -403,43 +414,160 @@ export function generateOklchRamp(
  * Generate a neutral ramp tinted according to the chosen strategy.
  *
  * The neutral ramp includes two extra extremes beyond the standard 10 steps:
- *   - `0`    → near-white (L 0.99) for true white-like backgrounds
- *   - `1050` → near-black (L 0.20) for true black-like foregrounds
+ *   - `0`    → near-white (L 0.99) for light mode / near-black for dark mode
+ *   - `1050` → near-black (L ~0.20) for light mode / near-white for dark mode
  */
 export function generateNeutralRamp(
   primaryHue: number,
-  mode: 'pure' | 'cool' | 'warm' | 'brand-tinted',
-  baseL: number,
-  chromaFalloff: number = 0.8,
+  tintMode: 'pure' | 'cool' | 'warm' | 'brand-tinted',
+  _baseL: number,
+  _chromaFalloff: number = 0.8,
+  options?: { mode?: ColorMode },
 ): NeutralColorRamp {
-  let hue = 0;
-  let chroma = 0;
+  const mode = options?.mode ?? 'light';
+  const isDark = mode === 'dark';
+  const lightnessMap = isDark ? DARK_MODE_LIGHTNESS : LIGHT_MODE_LIGHTNESS;
 
-  switch (mode) {
+  let hue = 0;
+  let peakNeutralC = 0;
+
+  switch (tintMode) {
     case 'pure':
-      chroma = 0;
+      peakNeutralC = 0;
       break;
     case 'warm':
-      hue = 75;
-      chroma = 0.01;
+      hue = 60;
+      peakNeutralC = 0.012;
       break;
     case 'cool':
-      hue = 260;
-      chroma = 0.01;
+      hue = 255;
+      peakNeutralC = 0.012;
       break;
     case 'brand-tinted':
       hue = primaryHue;
       // Slightly reduce tint for yellow-green hues which can feel overpowering
-      chroma = primaryHue >= 70 && primaryHue <= 140 ? 0.008 : 0.015;
+      peakNeutralC = primaryHue >= 70 && primaryHue <= 140 ? 0.007 : 0.009;
       break;
   }
 
-  const baseRamp = generateOklchRamp(hue, chroma, baseL, chromaFalloff);
-  const shade1050C = Math.min(chroma, maxChromaForLH(0.24, hue));
+  // Use a gentle Gaussian for neutral chroma distribution
+  const neutralPeakL = 0.55;
+  const neutralSigma = 0.3;
+
+  const ramp: Partial<ColorRamp> = {};
+  for (const step of STEPS) {
+    const L = lightnessMap[step];
+    const C = peakNeutralC > 0
+      ? Math.min(
+          gaussianChroma(L, neutralPeakL, neutralSigma, peakNeutralC),
+          maxChromaForLH(L, hue),
+        )
+      : 0;
+    ramp[step as keyof ColorRamp] =
+      formatHex({ mode: 'oklch', l: L, c: C, h: hue }) || '#808080';
+  }
+
+  // Extreme endpoints
+  const endpointC = (v: number) =>
+    peakNeutralC > 0
+      ? Math.min(gaussianChroma(v, neutralPeakL, neutralSigma, peakNeutralC), maxChromaForLH(v, hue))
+      : 0;
+
+  if (isDark) {
+    // Dark mode: step 0 is very dark, step 1050 is very light
+    return {
+      ...ramp as ColorRamp,
+      0: formatHex({ mode: 'oklch', l: 0.13, c: endpointC(0.13), h: hue }) || '#121212',
+      1050: formatHex({ mode: 'oklch', l: 0.95, c: endpointC(0.95), h: hue }) || '#f0f0f0',
+    };
+  }
 
   return {
-    ...baseRamp,
+    ...ramp as ColorRamp,
     0: formatHex({ mode: 'oklch', l: 0.99, c: 0, h: hue }) || '#fefefe',
-    1050: formatHex({ mode: 'oklch', l: 0.24, c: shade1050C, h: hue }) || '#1a1a1a',
+    1050: formatHex({ mode: 'oklch', l: 0.20, c: endpointC(0.20), h: hue }) || '#1a1a1a',
   };
+}
+
+// ========== Chroma Guardrails for Semantic/Accent Colors =====================
+
+/**
+ * Balance chroma across multiple ramps so no single hue dominates or recedes.
+ * Operates on step 600 (the "solid" step) — if any ramp's chroma exceeds
+ * 1.4× the average or falls below 0.6×, it's scaled proportionally.
+ */
+export function applyChromaGuardrails(
+  ramps: { name: string; hue: number; ramp: ColorRamp }[],
+): { name: string; hue: number; ramp: ColorRamp }[] {
+  if (ramps.length === 0) return ramps;
+
+  // Measure chroma at step 600 for each ramp
+  const step600Chromas: { idx: number; C: number }[] = ramps.map((r, idx) => {
+    const color = toOklch(r.ramp[600]);
+    return { idx, C: color?.c ?? 0 };
+  });
+
+  const avgC = step600Chromas.reduce((sum, s) => sum + s.C, 0) / step600Chromas.length;
+  if (avgC < 0.001) return ramps; // all near-zero, nothing to balance
+
+  const upperBound = avgC * 1.4;
+  const lowerBound = avgC * 0.6;
+
+  // Find ramps that need scaling
+  const needsScaling = step600Chromas.some((s) => s.C > upperBound || s.C < lowerBound);
+  if (!needsScaling) return ramps;
+
+  return ramps.map((r, idx) => {
+    const measured = step600Chromas[idx].C;
+    if (measured <= upperBound && measured >= lowerBound) return r;
+
+    // Compute scaling factor
+    const targetC = measured > upperBound ? upperBound : lowerBound;
+    const scale = measured > 0.001 ? targetC / measured : 1;
+
+    // Re-generate ramp with scaled chroma
+    const newRamp: Partial<ColorRamp> = {};
+    for (const step of STEPS) {
+      const color = toOklch(r.ramp[step as keyof ColorRamp]);
+      if (!color) {
+        newRamp[step as keyof ColorRamp] = r.ramp[step as keyof ColorRamp];
+        continue;
+      }
+      const scaledC = Math.min(color.c * scale, maxChromaForLH(color.l, color.h || 0));
+      newRamp[step as keyof ColorRamp] =
+        formatHex({ mode: 'oklch', l: color.l, c: scaledC, h: color.h || 0 }) ||
+        r.ramp[step as keyof ColorRamp];
+    }
+
+    return { ...r, ramp: newRamp as ColorRamp };
+  });
+}
+
+// ========== Legacy Compatibility =============================================
+
+/**
+ * Compute seeded base lightness/chroma for additional ramps.
+ * Now delegates to the Gaussian algorithm — the seed values feed into
+ * generateOklchRamp which handles the full curve computation.
+ *
+ * @deprecated Use generateOklchRamp directly with the hue's natural parameters.
+ */
+export interface AdditionalRampSeed {
+  baseL: number;
+  baseChroma: number;
+}
+
+export function getAdditionalRampSeed(
+  _slotName: string,
+  hue: number,
+  _primaryL: number,
+  saturationRatio: number,
+): AdditionalRampSeed {
+  // Use the Gaussian peak lightness as the base
+  const peakL = 0.60;
+  const hueMaxC = maxChromaForLH(peakL, hue);
+  // Scale chroma by the primary's saturation ratio
+  const baseChroma = Math.min(hueMaxC * Math.min(saturationRatio, 1.0), hueMaxC);
+
+  return { baseL: peakL, baseChroma };
 }
