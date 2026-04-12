@@ -17,7 +17,7 @@ import { pickStep, pickContrastingFg } from './contrastUtils';
 const LIGHTNESS_TARGETS = {
   strong:      { light: 0.50, dark: 0.55 },  // primary/accent/status filled backgrounds
   strongHover: { light: 0.43, dark: 0.62 },  // hover states
-  subtle:      { light: 0.97, dark: 0.18 },  // subtle backgrounds
+  subtle:      { light: 0.97, dark: 0.3 },  // subtle backgrounds
   fgColored:   { light: 0.42, dark: 0.65 },  // colored text on base surfaces
 };
 
@@ -285,13 +285,13 @@ export function generateDesignTokens(
   // =========================================================================
 
   // --- Surface backgrounds (fixed ramp steps) ---
-  assignFixed('background-base', '#ffffff', neutralRamp[900],
+  assignFixed('background-base', '#ffffff', neutralRamp[800],
     { ramp: 'neutral', lightStep: null, darkStep: 900 });
   assignFixed('background-sunken', neutralRamp[50], neutralRamp[900],
     { ramp: 'neutral', lightStep: 50, darkStep: 900 });
-  assignFixed('background-raised', '#ffffff', neutralRamp[800],
+  assignFixed('background-raised', '#ffffff', neutralRamp[700],
     { ramp: 'neutral', lightStep: null, darkStep: 800 });
-  assignFixed('background-raisedHover', neutralRamp[50], neutralRamp[700],
+  assignFixed('background-raisedHover', neutralRamp[50], neutralRamp[600],
     { ramp: 'neutral', lightStep: 50, darkStep: 700 });
   assignFixed('background-overlay', '#ffffff', neutralRamp[800],
     { ramp: 'neutral', lightStep: null, darkStep: 800 });

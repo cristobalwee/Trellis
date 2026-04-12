@@ -74,17 +74,19 @@ export const LIGHT_MODE_LIGHTNESS: Record<number, number> = {
   900: 0.24,
 };
 
+// Step 50 = lightest tint, step 900 = darkest tint — same semantic as light mode,
+// just tuned for dark-mode surfaces (peaks are less extreme than light mode).
 export const DARK_MODE_LIGHTNESS: Record<number, number> = {
-  50: 0.18,
-  100: 0.22,
-  200: 0.27,
-  300: 0.33,
-  400: 0.40,
-  500: 0.48,
-  600: 0.56,
-  700: 0.65,
-  800: 0.77,
-  900: 0.88,
+  50: 0.88,
+  100: 0.77,
+  200: 0.65,
+  300: 0.56,
+  400: 0.48,
+  500: 0.40,
+  600: 0.33,
+  700: 0.27,
+  800: 0.22,
+  900: 0.18,
 };
 
 // ========== Gamut Utilities ==================================================
