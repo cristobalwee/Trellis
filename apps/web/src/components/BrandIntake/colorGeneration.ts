@@ -121,6 +121,15 @@ export function maxChromaForLH(L: number, H: number): number {
   return result;
 }
 
+// ========== Chroma Floor =====================================================
+
+/**
+ * Proportion of gamut-max chroma used as a floor at each step, scaled by input
+ * saturation ratio. Lifts chroma at ramp extremes for vivid inputs so that the
+ * entire ramp feels more cohesive with the input color.
+ */
+const CHROMA_FLOOR_FACTOR = 0.15;
+
 // ========== Gaussian Chroma Distribution =====================================
 
 function gaussianChroma(L: number, peakL: number, sigma: number, peakC: number): number {
@@ -309,29 +318,13 @@ function computeGaussianParams(
 }
 
 /**
- * Find the step whose lightness target is closest to a given lightness value.
- */
-function findClosestStep(L: number, lightnessMap: Record<number, number>): number {
-  let closestStep: number = STEPS[0];
-  let minDist = Infinity;
-  for (const step of STEPS) {
-    const dist = Math.abs(lightnessMap[step] - L);
-    if (dist < minDist) {
-      minDist = dist;
-      closestStep = step;
-    }
-  }
-  return closestStep;
-}
-
-/**
  * Generate a 10-step OKLCH color ramp using Gaussian chroma distribution.
  *
  * @param hue          OKLCH hue angle
  * @param baseChroma   Chroma of the anchor color (used to derive peakC)
  * @param baseL        Lightness of the anchor color
  * @param chromaFalloff 0–100 UI slider value (mapped to sigma internally)
- * @param options      Optional: mode ('light'|'dark'), pin input, sigma override
+ * @param options      Optional: mode ('light'|'dark'), sigma override, satRatio
  */
 export function generateOklchRamp(
   hue: number,
@@ -340,71 +333,30 @@ export function generateOklchRamp(
   chromaFalloff: number = 0.8,
   options?: {
     mode?: ColorMode;
-    pin?: boolean;
     sigma?: number;
+    satRatio?: number;
   },
 ): ColorRamp {
   const mode = options?.mode ?? 'light';
-  const shouldPin = options?.pin ?? false;
   const sigma = options?.sigma ?? falloffToSigma(
     // Support legacy 0–1 range: if < 1.5 treat as fraction
     chromaFalloff > 1.5 ? chromaFalloff : chromaFalloff * 100,
   );
+  const satRatio = options?.satRatio ?? 0;
 
   const lightnessMap = mode === 'dark' ? DARK_MODE_LIGHTNESS : LIGHT_MODE_LIGHTNESS;
   const { peakL, peakC } = computeGaussianParams(hue, baseL, baseChroma, sigma, mode);
 
-  // Find the pinned step (closest to input lightness)
-  const pinnedStep = shouldPin ? findClosestStep(baseL, lightnessMap) : null;
-
-  // First pass: compute raw Gaussian chroma for each step
-  const rawChroma: Record<number, number> = {};
-  for (const step of STEPS) {
-    const L = lightnessMap[step];
-    const C_raw = gaussianChroma(L, peakL, sigma, peakC);
-    const C_max = maxChromaForLH(L, hue);
-    rawChroma[step] = Math.min(C_raw, C_max);
-  }
-
-  // Smoothing: if pinned, blend neighbors toward the input to avoid discontinuity
-  const finalChroma: Record<number, number> = { ...rawChroma };
-  if (pinnedStep !== null) {
-    const pinnedIdx = STEPS.indexOf(pinnedStep as (typeof STEPS)[number]);
-    const predictedC = rawChroma[pinnedStep];
-    const discontinuity = Math.abs(baseChroma - predictedC) / Math.max(predictedC, 0.001);
-
-    if (discontinuity > 0.2) {
-      // Blend immediate neighbors toward a smooth transition
-      for (const offset of [-1, 1]) {
-        const neighborIdx = pinnedIdx + offset;
-        if (neighborIdx >= 0 && neighborIdx < STEPS.length) {
-          const neighborStep = STEPS[neighborIdx];
-          const neighborL = lightnessMap[neighborStep];
-          // What chroma would smoothly connect to the pinned input?
-          const smoothTarget = gaussianChroma(neighborL, peakL, sigma, peakC);
-          const C_max = maxChromaForLH(neighborL, hue);
-          finalChroma[neighborStep] = Math.min(
-            (rawChroma[neighborStep] + smoothTarget) / 2,
-            C_max,
-          );
-        }
-      }
-    }
-  }
-
   // Build the ramp
   const ramp: Partial<ColorRamp> = {};
   for (const step of STEPS) {
-    if (step === pinnedStep) {
-      // Exact input color — no modification
-      ramp[step as keyof ColorRamp] =
-        formatHex({ mode: 'oklch', l: baseL, c: baseChroma, h: hue }) || '#808080';
-    } else {
-      const L = lightnessMap[step];
-      const C = finalChroma[step];
-      ramp[step as keyof ColorRamp] =
-        formatHex({ mode: 'oklch', l: L, c: C, h: hue }) || '#808080';
-    }
+    const L = lightnessMap[step];
+    const C_gaussian = gaussianChroma(L, peakL, sigma, peakC);
+    const C_max = maxChromaForLH(L, hue);
+    const C_floor = C_max * satRatio * CHROMA_FLOOR_FACTOR;
+    const C = Math.min(Math.max(C_gaussian, C_floor), C_max);
+    ramp[step as keyof ColorRamp] =
+      formatHex({ mode: 'oklch', l: L, c: C, h: hue }) || '#808080';
   }
 
   return ramp as ColorRamp;

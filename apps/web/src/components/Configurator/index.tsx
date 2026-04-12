@@ -10,6 +10,7 @@ import TabTypography from '../BrandIntake/TabTypography';
 import TabStyle from '../BrandIntake/TabStyle';
 import PlaygroundDashboard from '../LivePlayground/PlaygroundDashboard';
 import PreviewTypography from '../LivePlayground/PreviewTypography';
+import PreviewComponents from '../ComponentSampler';
 import type { PlaygroundConfig } from '../LivePlayground/types';
 import { generateDesignTokens } from '../../utils/generateTokens';
 import { Tooltip } from '../ui/Tooltip';
@@ -343,18 +344,7 @@ const Configurator: React.FC = () => {
                   onChange={handlePlaygroundChange}
                 />
               )}
-              {previewTab === 'components' && (
-                <div
-                  className="h-full flex items-center justify-center"
-                  style={{
-                    backgroundColor: 'var(--color-background-base)',
-                    color: 'var(--color-foreground-onBaseMuted)',
-                    fontFamily: 'var(--font-family-primary)',
-                  }}
-                >
-                  <p className="text-sm">Component sampler coming soon</p>
-                </div>
-              )}
+              {previewTab === 'components' && <PreviewComponents />}
               {previewTab === 'blog' && (
                 <PreviewTypography
                   fontScale={config.fontScale}
@@ -364,7 +354,7 @@ const Configurator: React.FC = () => {
                 />
               )}
               <InspectOverlay
-                isActive={isInspecting && (previewTab === 'dashboard' || previewTab === 'blog')}
+                isActive={isInspecting && (previewTab === 'dashboard' || previewTab === 'components' || previewTab === 'blog')}
                 containerRef={previewContainerRef}
                 isDarkMode={isDarkMode}
                 semanticMap={semanticMap}

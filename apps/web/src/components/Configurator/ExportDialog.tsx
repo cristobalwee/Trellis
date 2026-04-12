@@ -124,9 +124,11 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-6 mb-1">
-                  <Dialog.Title className="text-2xl text-charcoal">
-                    Export system
-                  </Dialog.Title>
+                  <Dialog.Title render={() => (
+                    <h4 className="text-xl text-charcoal">
+                      Export system
+                    </h4>
+                  )}></Dialog.Title>
                   <Dialog.Close className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer p-1 rounded-lg hover:bg-charcoal/5">
                     <X size={18} />
                   </Dialog.Close>

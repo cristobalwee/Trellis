@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Sun, Moon, Settings2 } from 'lucide-react';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PlaygroundDashboard from './PlaygroundDashboard';
 import PlaygroundControls from './PlaygroundControls';
 import type { LivePlaygroundProps } from './types';
@@ -39,7 +39,6 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
 }) => {
   const [isControlsOpen, setIsControlsOpen] = useState(defaultControlsOpen);
   const toggleRef = useRef<HTMLDivElement>(null);
-  const isToggleInView = useInView(toggleRef, { once: true, margin: '-10% 0px' });
 
   return (
     <div className="flex flex-col items-center" data-step-animate-children="ignore">
@@ -47,7 +46,7 @@ const LivePlayground: React.FC<LivePlaygroundProps> = ({
       {showExternalDarkModeToggle && (
         <div 
           ref={toggleRef}
-          className={`relative rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex-row justify-between items-center self-center w-full hidden md:flex z-0 transition-all duration-400 ease-out ${isToggleInView ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}
+          className={`relative rounded-2xl bg-gray/70 pt-3 pb-8 px-4 -mb-6 max-w-xs mx-auto flex-row justify-between items-center self-center w-full hidden md:flex z-0 transition-all duration-400 ease-out`}
         >
           <p className="text-xs">Dark mode included</p>
           <DarkModeToggle

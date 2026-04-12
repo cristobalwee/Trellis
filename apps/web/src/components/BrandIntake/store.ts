@@ -61,7 +61,7 @@ export interface BrandConfig {
 }
 
 export const initialConfig: BrandConfig = {
-  primaryColor: '#2D5016',
+  primaryColor: '#2e7bab',
   rampOverrides: {},
   useCustomSecondary: false,
   secondaryGenerationMode: 'complementary',

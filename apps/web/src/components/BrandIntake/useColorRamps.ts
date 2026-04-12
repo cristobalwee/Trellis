@@ -70,16 +70,18 @@ function generateRampsForMode(
 } {
   const opts = { mode, sigma };
 
-  // Primary ramp — pinned in light mode, unpinned in dark
+  // Primary ramp
   const primaryRamp = generateOklchRamp(
     primaryH, primaryC, primaryL, 0,
-    { ...opts, pin: mode === 'light' },
+    { ...opts, satRatio: saturationRatio },
   );
 
   // Secondary ramp
   const sec = toOklch(secondaryColor);
+  const secMaxC = sec ? maxChromaForLH(sec.l, sec.h || 0) : 0;
+  const secSatRatio = secMaxC > 0 ? (sec?.c ?? 0) / secMaxC : 0;
   const secondaryRamp = sec
-    ? generateOklchRamp(sec.h || 0, sec.c || 0, sec.l, 0, opts)
+    ? generateOklchRamp(sec.h || 0, sec.c || 0, sec.l, 0, { ...opts, satRatio: secSatRatio })
     : generateOklchRamp(0, 0, 0.5, 0, opts);
 
   // Neutral ramp
@@ -92,7 +94,7 @@ function generateRampsForMode(
       const peakL = mode === 'dark' ? 0.65 : 0.60;
       const hueMaxC = maxChromaForLH(peakL, slot.hue);
       const baseChroma = Math.min(hueMaxC * Math.min(saturationRatio, 1.0), hueMaxC);
-      const ramp = generateOklchRamp(slot.hue, baseChroma, peakL, 0, opts);
+      const ramp = generateOklchRamp(slot.hue, baseChroma, peakL, 0, { ...opts, satRatio: saturationRatio });
       return { name: slot.name, hue: slot.hue, isPrimary: false, ramp };
     });
 

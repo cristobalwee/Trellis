@@ -4,6 +4,7 @@ import {
   getGeneratedColor,
   generateOklchRamp,
   generateNeutralRamp,
+  maxChromaForLH,
 } from '../components/BrandIntake/colorGeneration';
 import type { ColorMode } from '../components/BrandIntake/colorGeneration';
 import type { ColorRamp, NeutralColorRamp } from '../components/Showcase/colorUtils';
@@ -180,13 +181,19 @@ export function generateDesignTokens(
 
   // --- Color ramps (Gaussian OKLCH) ---
   const mode: ColorMode = isDarkMode ? 'dark' : 'light';
+
+  const primaryMaxC = maxChromaForLH(primaryL, primaryH);
+  const primarySatRatio = primaryMaxC > 0 ? primaryC / primaryMaxC : 0;
   const primaryRamp = generateOklchRamp(
     primaryH, primaryC, primaryL, falloff,
-    { mode, pin: mode === 'light' },
+    { mode, satRatio: primarySatRatio },
   );
+
+  const secondaryMaxC = maxChromaForLH(secondaryL, secondaryH);
+  const secondarySatRatio = secondaryMaxC > 0 ? secondaryC / secondaryMaxC : 0;
   const secondaryRamp = generateOklchRamp(
     secondaryH, secondaryC, secondaryL, falloff,
-    { mode },
+    { mode, satRatio: secondarySatRatio },
   );
   const neutralRamp = generateNeutralRamp(
     primaryH, config.neutralTint, primaryL, falloff,
@@ -289,11 +296,23 @@ export function generateDesignTokens(
   assignFixed('background-overlay', '#ffffff', neutralRamp[800],
     { ramp: 'neutral', lightStep: null, darkStep: 800 });
 
-  // --- Colored backgrounds (lightness-target-based) ---
-  assignPicked('background-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+  // --- Colored backgrounds ---
+  // Light mode: use the raw input color as the "solid" primary/accent (Radix-style).
+  // Dark mode: derive from ramp since the input is typically a light-mode color.
+  if (isDark) {
+    assignPicked('background-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+    assignPicked('background-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.strong);
+  } else {
+    const darkPrimaryStep = pickStep(primaryRamp, LIGHTNESS_TARGETS.strong.dark);
+    tokens['--color-background-primary'] = config.primaryColor;
+    semanticMap['color-background-primary'] = { ramp: null, lightStep: null, darkStep: darkPrimaryStep };
+
+    const darkAccentStep = pickStep(secondaryRamp, LIGHTNESS_TARGETS.strong.dark);
+    tokens['--color-background-accent'] = secondaryColor;
+    semanticMap['color-background-accent'] = { ramp: null, lightStep: null, darkStep: darkAccentStep };
+  }
   assignPicked('background-primaryHover', 'primary', primaryRamp, LIGHTNESS_TARGETS.strongHover);
   assignPicked('background-primarySubtle', 'primary', primaryRamp, LIGHTNESS_TARGETS.subtle);
-  assignPicked('background-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.strong);
   assignPicked('background-accentSubtle', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.subtle);
 
   // Status backgrounds
@@ -349,7 +368,13 @@ export function generateDesignTokens(
   assignFixed('border-strong',
     'rgba(15,23,42,0.14)', 'rgba(255,255,255,0.14)',
     { ramp: null, lightStep: null, darkStep: null });
-  assignPicked('border-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+  if (isDark) {
+    assignPicked('border-primary', 'primary', primaryRamp, LIGHTNESS_TARGETS.strong);
+  } else {
+    const darkBorderStep = pickStep(primaryRamp, LIGHTNESS_TARGETS.strong.dark);
+    tokens['--color-border-primary'] = config.primaryColor;
+    semanticMap['color-border-primary'] = { ramp: null, lightStep: null, darkStep: darkBorderStep };
+  }
   assignPicked('border-accent', 'secondary', secondaryRamp, LIGHTNESS_TARGETS.strong);
   for (const [name, ramp] of Object.entries(statusRampCache)) {
     assignPicked(`border-${name}`, name, ramp, LIGHTNESS_TARGETS.strong);
