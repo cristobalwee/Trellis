@@ -14,8 +14,26 @@ import {
   AlignCenter,
   AlignRight,
   ChevronDown,
+  ChevronRight,
   Link as LinkIcon,
   Users,
+  ArrowUpRight,
+  ArrowDownRight,
+  LayoutDashboard,
+  CreditCard,
+  Wallet,
+  Bell,
+  Settings,
+  Coffee,
+  Music,
+  ShoppingBag,
+  Upload,
+  UserPlus,
+  AtSign,
+  Globe,
+  Cloud,
+  Music2,
+  ChevronUp,
 } from 'lucide-react';
 import { bg, fg, border, radius, space, shadow, transition, font, gradient } from './tokens';
 import Button from './Button';
@@ -348,6 +366,776 @@ const ChecklistBlock: React.FC<{
 );
 
 // ---------------------------------------------------------------------------
+// Balance Card
+// ---------------------------------------------------------------------------
+
+const BalanceCard: React.FC = () => {
+  const rows = [
+    { label: 'Pending', value: '$1,240.50' },
+    { label: 'Processing', value: '$320.00' },
+    { label: 'Available', value: '$8,410.12' },
+  ];
+  return (
+    <Card>
+      <div style={{ fontSize: '11px', color: fg.onBaseMuted, textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 500 }}>
+        Current Balance
+      </div>
+      <div
+        style={{
+          fontFamily: font.secondary,
+          fontSize: '28px',
+          fontWeight: 700,
+          color: fg.onBase,
+          marginTop: '4px',
+          marginBottom: space.gap,
+          letterSpacing: '-0.02em',
+        }}
+      >
+        $9,970.62
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: `1px solid ${border.neutral}`, paddingTop: space.gap }}>
+        {rows.map((r) => (
+          <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+            <span style={{ color: fg.onBaseMuted }}>{r.label}</span>
+            <span style={{ color: fg.onBase, fontWeight: 600 }}>{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Transaction List
+// ---------------------------------------------------------------------------
+
+interface Transaction {
+  merchant: string;
+  date: string;
+  amount: number;
+  icon: React.FC<{ size?: number }>;
+  tint: string;
+}
+
+const TRANSACTIONS: Transaction[] = [
+  { merchant: 'Blue Bottle Coffee', date: 'Today, 08:42', amount: -6.50, icon: Coffee, tint: bg.warningSubtle },
+  { merchant: 'Acme Payroll', date: 'Yesterday', amount: 2450.00, icon: Wallet, tint: bg.successSubtle },
+  { merchant: 'Vinyl Records Co.', date: 'Mar 12', amount: -42.80, icon: Music, tint: bg.accentSubtle },
+  { merchant: 'Daily Provisions', date: 'Mar 10', amount: -28.15, icon: ShoppingBag, tint: bg.infoSubtle },
+];
+
+const TransactionList: React.FC = () => (
+  <Card style={{ padding: 0 }}>
+    <div style={{ padding: `${space.card} ${space.card} ${space.gap}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: fg.onBase }}>Recent Transactions</div>
+      <span className="cs-link" style={{ fontSize: '11px', color: fg.primary, fontWeight: 600, cursor: 'pointer' }}>
+        View all
+      </span>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {TRANSACTIONS.map((tx, i) => {
+        const Icon = tx.icon;
+        const positive = tx.amount > 0;
+        return (
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: `10px ${space.card}`,
+              borderTop: `1px solid ${border.neutral}`,
+            }}
+          >
+            <div
+              style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: radius.action,
+                backgroundColor: tx.tint,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: fg.onBase,
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={14} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: fg.onBase, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {tx.merchant}
+              </div>
+              <div style={{ fontSize: '11px', color: fg.onBaseMuted, marginTop: '2px' }}>{tx.date}</div>
+            </div>
+            <div
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: positive ? fg.success : fg.critical,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2px',
+                flexShrink: 0,
+              }}
+            >
+              {positive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+              {positive ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </Card>
+);
+
+// ---------------------------------------------------------------------------
+// Navigation List
+// ---------------------------------------------------------------------------
+
+interface NavItem {
+  label: string;
+  icon: React.FC<{ size?: number }>;
+  badge?: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Dashboard', icon: LayoutDashboard },
+  { label: 'Transactions', icon: CreditCard, badge: '12' },
+  { label: 'Accounts', icon: Wallet },
+  { label: 'Notifications', icon: Bell, badge: '3' },
+  { label: 'Settings', icon: Settings },
+];
+
+const NavList: React.FC = () => {
+  const [active, setActive] = useState('Dashboard');
+  return (
+    <Card style={{ padding: `${space.ctrlY} 0` }}>
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const isActive = active === item.label;
+        return (
+          <button
+            key={item.label}
+            className="cs-tree-row"
+            onClick={() => setActive(item.label)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              width: '100%',
+              border: 'none',
+              background: isActive ? bg.primarySubtle : 'none',
+              cursor: 'pointer',
+              padding: `8px ${space.card}`,
+              fontSize: '12px',
+              fontWeight: isActive ? 600 : 500,
+              color: isActive ? fg.primary : fg.onBase,
+              fontFamily: 'inherit',
+              transition: transition.interactive,
+              textAlign: 'left',
+            }}
+          >
+            <Icon size={14} />
+            <span style={{ flex: 1 }}>{item.label}</span>
+            {item.badge && (
+              <span
+                style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  padding: '2px 6px',
+                  borderRadius: radius.badge,
+                  backgroundColor: isActive ? bg.primary : bg.raisedHover,
+                  color: isActive ? fg.onPrimary : fg.onBaseMuted,
+                }}
+              >
+                {item.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </Card>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Donut Stat Card
+// ---------------------------------------------------------------------------
+
+const DonutStatCard: React.FC = () => {
+  const progress = 0.68;
+  const size = 96;
+  const stroke = 10;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  return (
+    <Card>
+      <div style={{ display: 'flex', alignItems: 'center', gap: space.gap }}>
+        <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+          <svg width={size} height={size}>
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={border.neutral} strokeWidth={stroke} />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={fg.primary}
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              strokeDasharray={c}
+              strokeDashoffset={c * (1 - progress)}
+              transform={`rotate(-90 ${size / 2} ${size / 2})`}
+              style={{ transition: transition.chart }}
+            />
+          </svg>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: fg.onBase,
+              fontFamily: font.secondary,
+            }}
+          >
+            {Math.round(progress * 100)}%
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '11px', color: fg.onBaseMuted, textTransform: 'uppercase', fontWeight: 500, letterSpacing: '0.04em' }}>
+            Monthly Goal
+          </div>
+          <div
+            style={{
+              fontFamily: font.secondary,
+              fontSize: '22px',
+              fontWeight: 700,
+              color: fg.onBase,
+              margin: '4px 0',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            $24,000
+          </div>
+          <div style={{ fontSize: '11px', color: fg.success, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <ArrowUpRight size={11} /> +12.4% vs last month
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Horizontal Bar Chart
+// ---------------------------------------------------------------------------
+
+const BarChartCard: React.FC = () => {
+  const data = [
+    { label: 'Initech', value: 3842 },
+    { label: 'Hooli', value: 2540 },
+    { label: 'Vandelay', value: 1910 },
+    { label: 'Soylent', value: 860 },
+  ];
+  const max = Math.max(...data.map((d) => d.value));
+  return (
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: space.gap }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: fg.onBase }}>Q2 Income</div>
+        <div style={{ fontSize: '11px', color: fg.onBaseMuted }}>By client</div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {data.map((d) => (
+          <div key={d.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+              <span style={{ color: fg.onBaseMuted }}>{d.label}</span>
+              <span style={{ color: fg.onBase, fontWeight: 600 }}>${d.value.toLocaleString()}</span>
+            </div>
+            <div style={{ height: '6px', borderRadius: radius.badge, backgroundColor: bg.raisedHover, overflow: 'hidden' }}>
+              <div
+                style={{
+                  width: `${(d.value / max) * 100}%`,
+                  height: '100%',
+                  background: gradient,
+                  transition: transition.chart,
+                }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Empty-state CTA Card
+// ---------------------------------------------------------------------------
+
+const EmptyStateCard: React.FC<{
+  icon: React.FC<{ size?: number }>;
+  title: string;
+  description: string;
+  buttonLabel: string;
+}> = ({ icon: Icon, title, description, buttonLabel }) => (
+  <Card style={{ textAlign: 'center', padding: `${space.card} ${space.card}` }}>
+    <div
+      style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '999px',
+        backgroundColor: bg.raisedHover,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: fg.onBaseMuted,
+        margin: '0 auto',
+      }}
+    >
+      <Icon size={18} />
+    </div>
+    <div
+      style={{
+        fontSize: '14px',
+        fontWeight: 600,
+        color: fg.onBase,
+        marginTop: space.gap,
+      }}
+    >
+      {title}
+    </div>
+    <div
+      style={{
+        fontSize: '12px',
+        color: fg.onBaseMuted,
+        marginTop: '6px',
+        lineHeight: 1.5,
+        maxWidth: '260px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }}
+    >
+      {description}
+    </div>
+    <Button variant="primary" size="md" style={{ marginTop: space.gap }}>
+      {buttonLabel}
+    </Button>
+  </Card>
+);
+
+// ---------------------------------------------------------------------------
+// QR Connect Card
+// ---------------------------------------------------------------------------
+
+const QR_SIZE = 17;
+
+const buildQRMatrix = (): boolean[][] => {
+  const m: boolean[][] = Array.from({ length: QR_SIZE }, () => Array(QR_SIZE).fill(false));
+  const finder = (r0: number, c0: number) => {
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const edge = r === 0 || r === 6 || c === 0 || c === 6;
+        const inner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+        m[r0 + r][c0 + c] = edge || inner;
+      }
+    }
+  };
+  finder(0, 0);
+  finder(0, QR_SIZE - 7);
+  finder(QR_SIZE - 7, 0);
+  // Deterministic pseudo-random fill for remaining cells
+  for (let r = 0; r < QR_SIZE; r++) {
+    for (let c = 0; c < QR_SIZE; c++) {
+      const inFinder =
+        (r < 8 && c < 8) ||
+        (r < 8 && c >= QR_SIZE - 8) ||
+        (r >= QR_SIZE - 8 && c < 8);
+      if (inFinder) continue;
+      m[r][c] = ((r * 31 + c * 17 + r * c) % 7) < 3;
+    }
+  }
+  return m;
+};
+
+const QRCodeArt: React.FC<{ size?: number }> = ({ size = 140 }) => {
+  const matrix = React.useMemo(buildQRMatrix, []);
+  const cell = size / QR_SIZE;
+  return (
+    <svg width={size} height={size} aria-hidden="true">
+      {matrix.map((row, r) =>
+        row.map((on, c) =>
+          on ? (
+            <rect
+              key={`${r}-${c}`}
+              x={c * cell}
+              y={r * cell}
+              width={cell}
+              height={cell}
+              fill={fg.onBase}
+            />
+          ) : null
+        )
+      )}
+    </svg>
+  );
+};
+
+const QRConnectCard: React.FC = () => (
+  <Card style={{ textAlign: 'center' }}>
+    <div
+      style={{
+        display: 'inline-block',
+        padding: space.gap,
+        border: `1px solid ${border.neutral}`,
+        borderRadius: radius.sub,
+        backgroundColor: bg.base,
+      }}
+    >
+      <QRCodeArt size={140} />
+    </div>
+    <div style={{ fontSize: '14px', fontWeight: 600, color: fg.onBase, marginTop: space.gap }}>
+      Scan to pair this device
+    </div>
+    <div
+      style={{
+        fontSize: '12px',
+        color: fg.onBaseMuted,
+        marginTop: '6px',
+        lineHeight: 1.5,
+        maxWidth: '260px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+      }}
+    >
+      Open the mobile app and scan this code to link your account.
+    </div>
+    <Button variant="outline" size="md" style={{ marginTop: space.gap, width: '100%' }}>
+      Got it
+    </Button>
+  </Card>
+);
+
+// ---------------------------------------------------------------------------
+// Social Links Form
+// ---------------------------------------------------------------------------
+
+const IconInput: React.FC<{
+  icon: React.FC<{ size?: number }>;
+  placeholder: string;
+  defaultValue?: string;
+  label: string;
+}> = ({ icon: Icon, placeholder, defaultValue, label }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+    <label style={{ fontSize: '11px', fontWeight: 500, color: fg.onBase }}>{label}</label>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        border: `1px solid ${border.neutral}`,
+        borderRadius: radius.field,
+        backgroundColor: bg.sunken,
+        padding: `${space.ctrlY} ${space.ctrlX}`,
+        transition: transition.interactive,
+      }}
+    >
+      <Icon size={13} />
+      <input
+        aria-label={label}
+        placeholder={placeholder}
+        defaultValue={defaultValue}
+        style={{
+          border: 'none',
+          background: 'none',
+          outline: 'none',
+          fontSize: '12px',
+          color: fg.onBase,
+          fontFamily: 'inherit',
+          width: '100%',
+        }}
+      />
+    </div>
+  </div>
+);
+
+const SocialLinksForm: React.FC = () => (
+  <Card>
+    <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase, marginBottom: space.gap }}>
+      Social Links
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+      <IconInput icon={Music2} label="Spotify Artist URL" placeholder="spotify.com/artist/…" defaultValue="spotify.com/artist/3j…2k" />
+      <IconInput icon={AtSign} label="Instagram Handle" placeholder="@handle" defaultValue="@julianduryea_music" />
+      <IconInput icon={Cloud} label="SoundCloud URL" placeholder="soundcloud.com/username" />
+      <IconInput icon={Globe} label="Website" placeholder="https://yoursite.com" />
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: space.card }}>
+      <Button variant="outline" size="md">Discard</Button>
+      <Button variant="primary" size="md">Save Changes</Button>
+    </div>
+  </Card>
+);
+
+// ---------------------------------------------------------------------------
+// Notifications Preferences
+// ---------------------------------------------------------------------------
+
+interface NotifOption {
+  key: string;
+  label: string;
+  description: string;
+}
+
+const NOTIF_OPTIONS: NotifOption[] = [
+  { key: 'transactions', label: 'Transaction alerts', description: 'Deposits, withdrawals, and transfers.' },
+  { key: 'security', label: 'Security alerts', description: 'Login attempts and account changes.' },
+  { key: 'goals', label: 'Goal milestones', description: 'Updates at 25%, 50%, 75%, and 100%.' },
+  { key: 'market', label: 'Market updates', description: 'Daily portfolio summary and price alerts.' },
+];
+
+const PrefCheckbox: React.FC<{ checked: boolean; onChange: () => void }> = ({ checked, onChange }) => (
+  <button
+    role="checkbox"
+    aria-checked={checked}
+    onClick={onChange}
+    style={{
+      width: '16px',
+      height: '16px',
+      borderRadius: radius.badge,
+      border: checked ? 'none' : `1.5px solid ${border.strong}`,
+      backgroundColor: checked ? bg.primary : 'transparent',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      flexShrink: 0,
+      marginTop: '1px',
+      transition: transition.interactive,
+    }}
+  >
+    {checked && (
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={fg.onPrimary} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    )}
+  </button>
+);
+
+const NotificationsCard: React.FC = () => {
+  const [selected, setSelected] = useState<Record<string, boolean>>({
+    transactions: true,
+    security: true,
+    goals: true,
+    market: false,
+  });
+  const allOn = NOTIF_OPTIONS.every((o) => selected[o.key]);
+
+  const toggle = (key: string) =>
+    setSelected((p) => ({ ...p, [key]: !p[key] }));
+  const toggleAll = () => {
+    const next = !allOn;
+    setSelected(Object.fromEntries(NOTIF_OPTIONS.map((o) => [o.key, next])));
+  };
+
+  return (
+    <Card>
+      <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase }}>Notifications</div>
+      <div style={{ fontSize: '12px', color: fg.onBaseMuted, marginTop: '4px', marginBottom: space.card }}>
+        Choose what you want to be notified about.
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <PrefCheckbox checked={allOn} onChange={toggleAll} />
+        <span style={{ fontSize: '12px', fontWeight: 600, color: fg.onBase }}>Select all</span>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          marginTop: '12px',
+          paddingLeft: space.gap,
+          borderLeft: `1px solid ${border.neutral}`,
+          marginLeft: '7px',
+          paddingTop: '4px',
+          paddingBottom: '4px',
+        }}
+      >
+        {NOTIF_OPTIONS.map((opt) => (
+          <div key={opt.key} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <PrefCheckbox checked={!!selected[opt.key]} onChange={() => toggle(opt.key)} />
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: fg.onBase }}>{opt.label}</div>
+              <div style={{ fontSize: '11px', color: fg.onBaseMuted, marginTop: '2px', lineHeight: 1.4 }}>
+                {opt.description}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Button variant="primary" size="md" style={{ width: '100%', marginTop: space.card }}>
+        Save Preferences
+      </Button>
+    </Card>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Tabbed FAQ Card
+// ---------------------------------------------------------------------------
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+const FAQ_TABS: Record<string, FAQItem[]> = {
+  General: [
+    {
+      question: 'How secure is my financial data with Ledger?',
+      answer:
+        'We use bank-level AES-256 encryption, SOC 2 Type II certified infrastructure, and never store your credentials. All connections use read-only access tokens. We are a SEC registered investment advisor.',
+    },
+    { question: 'How do I connect my bank or investment accounts?', answer: 'Use the Connect button on the accounts page and follow the prompts.' },
+    { question: 'Can I export my data for tax purposes?', answer: 'Yes — CSV and PDF exports are available from the Reports tab.' },
+  ],
+  Billing: [
+    { question: 'How does billing work?', answer: 'You are billed monthly on the day you upgraded.' },
+    { question: 'Can I change plans later?', answer: 'Yes, you can change or cancel at any time from Settings → Billing.' },
+  ],
+  Goals: [
+    { question: 'How are goals tracked?', answer: 'Goals update in real time as transactions clear.' },
+  ],
+};
+
+const FAQCard: React.FC = () => {
+  const tabs = Object.keys(FAQ_TABS);
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [openIndex, setOpenIndex] = useState(0);
+  const items = FAQ_TABS[activeTab];
+
+  return (
+    <div
+      style={{
+        backgroundColor: bg.base,
+        border: `1px solid ${border.neutral}`,
+        borderRadius: radius.container,
+        padding: space.gap,
+        transition: transition.theme,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          gap: '4px',
+          backgroundColor: bg.sunken,
+          padding: '4px',
+          borderRadius: radius.field,
+          marginBottom: space.gap,
+        }}
+      >
+        {tabs.map((t) => {
+          const active = t === activeTab;
+          return (
+            <button
+              key={t}
+              onClick={() => {
+                setActiveTab(t);
+                setOpenIndex(0);
+              }}
+              style={{
+                flex: 1,
+                border: 'none',
+                background: active ? bg.raised : 'transparent',
+                boxShadow: active ? shadow.card : 'none',
+                color: active ? fg.onBase : fg.onBaseMuted,
+                fontWeight: active ? 600 : 500,
+                fontSize: '12px',
+                padding: `${space.ctrlY} ${space.ctrlX}`,
+                borderRadius: radius.field,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: transition.interactive,
+              }}
+            >
+              {t}
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {items.map((item, i) => {
+          const open = openIndex === i;
+          return (
+            <div
+              key={item.question}
+              style={{
+                backgroundColor: bg.raised,
+                border: `1px solid ${border.neutral}`,
+                borderRadius: radius.sub,
+                overflow: 'hidden',
+                transition: transition.theme,
+              }}
+            >
+              <button
+                onClick={() => setOpenIndex(open ? -1 : i)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: space.gap,
+                  width: '100%',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  padding: `10px ${space.card}`,
+                  fontFamily: 'inherit',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: fg.onBase,
+                  textAlign: 'left',
+                }}
+              >
+                <span>{item.question}</span>
+                {open ? (
+                  <ChevronUp size={14} style={{ color: fg.onBaseMuted, flexShrink: 0 }} />
+                ) : (
+                  <ChevronDown size={14} style={{ color: fg.onBaseMuted, flexShrink: 0 }} />
+                )}
+              </button>
+              {open && (
+                <div
+                  style={{
+                    padding: `0 ${space.card} ${space.card}`,
+                    fontSize: '12px',
+                    lineHeight: 1.6,
+                    color: fg.onBaseMuted,
+                  }}
+                >
+                  {item.answer}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <Button variant="outline" size="md" style={{ width: '100%', marginTop: space.gap, borderRadius: radius.field }}>
+        Contact Support
+      </Button>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Main Composed Preview
 // ---------------------------------------------------------------------------
 
@@ -383,7 +1171,7 @@ const PreviewComponents: React.FC = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1.2fr 1fr',
-            gap: space.gap,
+            gap: 32,
             padding: space.card,
             minHeight: '100%',
             alignContent: 'start',
@@ -459,27 +1247,59 @@ const PreviewComponents: React.FC = () => {
 
             {/* User Cards */}
             <UserCard name="Emily Adams" email="emily.adams@example.com" colorIndex={0} />
-            <UserCard name="Emily Adams" email="emily.adams@example.com" colorIndex={1} />
+
+            {/* Empty-state CTA */}
+            <EmptyStateCard
+              icon={Upload}
+              title="Distribute Track"
+              description="Upload your first master to start reaching listeners on Spotify, Apple Music, and more."
+              buttonLabel="Create Release"
+            />
+
+            {/* Social Links form */}
+            <SocialLinksForm />
+
+            {/* Bar Chart */}
+            <BarChartCard />
           </div>
 
-          {/* ── Column 2: Toolbar + Sign-up Form ── */}
+          {/* ── Column 2: Balance, Toolbar, Transactions, FAQ, Sign-up ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+            <BalanceCard />
             <Toolbar />
+            <TransactionList />
+            <FAQCard />
             <SignUpForm />
           </div>
 
-          {/* ── Column 3: Avatars, rich text, checklist ── */}
+          {/* ── Column 3: Stat, nav, avatars, rich text, checklist ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+            {/* Donut Stat */}
+            <DonutStatCard />
+
+            {/* Navigation */}
+            <NavList />
+
             {/* Avatar Group */}
             <Card>
               <AvatarGroup />
-              <div style={{ marginTop: space.gap }}>
-                <AvatarGroup />
-              </div>
             </Card>
 
+            {/* QR pairing */}
+            <QRConnectCard />
+
+            {/* Invite teammates CTA */}
+            <EmptyStateCard
+              icon={UserPlus}
+              title="Invite your team"
+              description="Collaborate on releases with up to five teammates on the Pro plan."
+              buttonLabel="Send invites"
+            />
+
+            {/* Notifications preferences */}
+            <NotificationsCard />
+
             {/* Rich Text */}
-            <RichTextBlock />
             <RichTextBlock />
 
             {/* Checklist */}
