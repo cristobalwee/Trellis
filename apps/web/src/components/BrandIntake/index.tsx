@@ -124,7 +124,6 @@ const BrandIntake: React.FC = () => {
 
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;
-      if (config.useSingleTypeface) brandUpdates.headingFont = updates.fontFamily;
     }
     if (updates.roundness !== undefined) brandUpdates.roundness = updates.roundness;
     if (updates.density !== undefined) brandUpdates.density = updates.density;
@@ -133,7 +132,7 @@ const BrandIntake: React.FC = () => {
     if (updates.isDarkMode !== undefined) setIsDarkMode(updates.isDarkMode);
 
     if (Object.keys(brandUpdates).length > 0) updateConfig(brandUpdates);
-  }, [config.useSingleTypeface]);
+  }, []);
 
   // Open/close handlers
   useEffect(() => {

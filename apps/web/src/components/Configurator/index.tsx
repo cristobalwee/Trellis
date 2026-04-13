@@ -3,7 +3,7 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
 import { Sun, Moon, PanelLeftClose, PanelLeftOpen, MousePointerClick } from 'lucide-react';
 
-import { $brandConfig, updateConfig, type TabId } from '../BrandIntake/store';
+import { $brandConfig, updateConfig, FONT_WEIGHT_OPTIONS, type TabId } from '../BrandIntake/store';
 import TabBar from '../BrandIntake/TabBar';
 import TabColor from '../BrandIntake/TabColor';
 import TabTypography from '../BrandIntake/TabTypography';
@@ -145,15 +145,15 @@ const Configurator: React.FC = () => {
 
   // Load Google Fonts for both body and heading typefaces
   useEffect(() => {
-    for (const family of [config.primaryFont, config.headingFont]) {
-      const id = `playground-font-${family.replace(/\s+/g, '+')}`;
-      if (!document.getElementById(id)) {
-        const link = document.createElement('link');
-        link.id = id;
-        link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
-        document.head.appendChild(link);
-      }
+    const weightsQuery = `wght@${FONT_WEIGHT_OPTIONS.join(';')}`;
+    for (const [family, role] of [[config.headingFont, 'heading'], [config.primaryFont, 'body']] as const) {
+      const id = `playground-font-${role}-${family.replace(/\s+/g, '+')}`;
+      if (document.getElementById(id)) continue;
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/\s+/g, '+')}:${weightsQuery}&display=swap`;
+      document.head.appendChild(link);
     }
   }, [config.primaryFont, config.headingFont]);
 
@@ -194,7 +194,6 @@ const Configurator: React.FC = () => {
 
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;
-      if (config.useSingleTypeface) brandUpdates.headingFont = updates.fontFamily;
     }
     if (updates.roundness !== undefined) brandUpdates.roundness = updates.roundness;
     if (updates.density !== undefined) brandUpdates.density = updates.density;
@@ -203,7 +202,7 @@ const Configurator: React.FC = () => {
     if (updates.isDarkMode !== undefined) setIsDarkMode(updates.isDarkMode);
 
     if (Object.keys(brandUpdates).length > 0) updateConfig(brandUpdates);
-  }, [config.useSingleTypeface]);
+  }, []);
 
   return (
     <div className="flex flex-col h-full" data-lenis-prevent="true">
@@ -354,7 +353,6 @@ const Configurator: React.FC = () => {
               {previewTab === 'blog' && (
                 <PreviewTypography
                   fontScale={config.fontScale}
-                  fontWeights={config.fontWeights}
                   headingFont={config.headingFont}
                   bodyFont={config.primaryFont}
                 />

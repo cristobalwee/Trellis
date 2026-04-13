@@ -1,8 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Upload } from 'lucide-react';
-import { $brandConfig, updateConfig } from './store';
+import {
+  $brandConfig,
+  updateConfig,
+  FONT_WEIGHT_OPTIONS,
+  type FontWeight,
+  type BodyFontWeights,
+} from './store';
 import { Combobox } from '../ui/Combobox';
 
 const GOOGLE_FONTS = [
@@ -16,163 +20,115 @@ const GOOGLE_FONTS = [
   'Space Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Source Code Pro',
 ];
 
-const EXPAND_TRANSITION = { duration: 0.25, ease: [0.32, 0.72, 0, 1] as const };
+const ALL_WEIGHTS_QUERY = `wght@${FONT_WEIGHT_OPTIONS.join(';')}`;
+
+interface WeightPillsProps {
+  selected: FontWeight;
+  onSelect: (w: FontWeight) => void;
+  fontFamily: string;
+}
+
+const WeightPills: React.FC<WeightPillsProps> = ({ selected, onSelect, fontFamily }) => (
+  <div className="flex flex-wrap gap-1.5">
+    {FONT_WEIGHT_OPTIONS.map((w) => {
+      const active = selected === w;
+      return (
+        <button
+          key={w}
+          onClick={() => onSelect(w)}
+          style={{ fontFamily: `'${fontFamily}', system-ui, sans-serif`, fontWeight: w }}
+          className={`px-3 py-1.5 rounded-lg text-xs transition-all border cursor-pointer ${
+            active
+              ? 'border-forest-green bg-forest-green/5 text-forest-green'
+              : 'border-charcoal/10 text-charcoal/80 hover:border-charcoal/20'
+          }`}
+        >
+          {w}
+        </button>
+      );
+    })}
+  </div>
+);
 
 const TabTypography: React.FC = () => {
   const config = useStore($brandConfig);
 
-  const bodyFont = config.primaryFont;
-  const headingFont = config.useSingleTypeface ? config.primaryFont : config.headingFont;
-
   useEffect(() => {
-    const fonts = new Set([bodyFont, headingFont]);
-    fonts.forEach((font) => {
-      const id = `tab-typo-font-${font.replace(/\s+/g, '+')}`;
-      if (!document.getElementById(id)) {
-        const link = document.createElement('link');
-        link.id = id;
-        link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/\s+/g, '+')}:wght@400;500;600;700&display=swap`;
-        document.head.appendChild(link);
-      }
-    });
-  }, [bodyFont, headingFont]);
+    const loadFont = (family: string, role: 'heading' | 'body') => {
+      const id = `tab-typo-font-${role}-${family.replace(/\s+/g, '+')}`;
+      if (document.getElementById(id)) return;
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/\s+/g, '+')}:${ALL_WEIGHTS_QUERY}&display=swap`;
+      document.head.appendChild(link);
+    };
+    loadFont(config.headingFont, 'heading');
+    loadFont(config.primaryFont, 'body');
+  }, [config.headingFont, config.primaryFont]);
 
-  const handlePrimaryFontChange = useCallback((font: string) => {
-    if (config.useSingleTypeface) {
-      updateConfig({ primaryFont: font, headingFont: font, customFontName: undefined });
-    } else {
-      updateConfig({ primaryFont: font, customBodyFontName: undefined });
-    }
-  }, [config.useSingleTypeface]);
+  const handleBodyFontChange = useCallback((font: string) => {
+    updateConfig({ primaryFont: font, customBodyFontName: undefined });
+  }, []);
 
   const handleHeadingFontChange = useCallback((font: string) => {
     updateConfig({ headingFont: font, customHeadingFontName: undefined });
   }, []);
 
-  const handleToggleSingleTypeface = useCallback(() => {
-    const next = !config.useSingleTypeface;
-    if (next) {
-      updateConfig({
-        useSingleTypeface: true,
-        headingFont: config.primaryFont,
-        customHeadingFontName: undefined,
-        customBodyFontName: undefined,
-      });
-    } else {
-      updateConfig({
-        useSingleTypeface: false,
-        customFontName: undefined,
-      });
-    }
-  }, [config.useSingleTypeface, config.primaryFont]);
+  const setBodyWeight = useCallback(
+    (slot: keyof BodyFontWeights, weight: FontWeight) => {
+      updateConfig({ bodyWeights: { ...config.bodyWeights, [slot]: weight } });
+    },
+    [config.bodyWeights],
+  );
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Font selectors */}
-      <div className="flex flex-col">
+      {/* Heading typeface + weight */}
+      <div className="flex flex-col gap-6">
         <Combobox
-          label={config.useSingleTypeface ? 'Typeface' : 'Heading Typeface'}
-          value={config.useSingleTypeface ? config.primaryFont : config.headingFont}
-          onValueChange={config.useSingleTypeface ? handlePrimaryFontChange : handleHeadingFontChange}
+          label="Heading Typeface"
+          value={config.headingFont}
+          onValueChange={handleHeadingFontChange}
           options={GOOGLE_FONTS}
           placeholder="Search Google Fonts..."
-          displayValue={config.useSingleTypeface ? config.customFontName : config.customHeadingFontName}
+          displayValue={config.customHeadingFontName}
           size="compact"
         />
-
-        <AnimatePresence initial={false}>
-          {!config.useSingleTypeface && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={EXPAND_TRANSITION}
-              className="overflow-hidden"
-            >
-              <div className="pt-4">
-                <Combobox
-                  label="Body Typeface"
-                  value={config.primaryFont}
-                  onValueChange={handlePrimaryFontChange}
-                  options={GOOGLE_FONTS}
-                  placeholder="Search Google Fonts..."
-                  displayValue={config.customBodyFontName}
-                  size="compact"
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-charcoal/80">Weight</span>
+          <WeightPills
+            selected={config.headingWeight}
+            onSelect={(w) => updateConfig({ headingWeight: w })}
+            fontFamily={config.headingFont}
+          />
+        </div>
       </div>
 
-      {/* Font weights */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-charcoal">Font Weights</label>
-        <div className="flex flex-wrap gap-1.5">
-          {[300, 400, 500, 600, 700, 800, 900].map((weight) => (
-            <button
-              key={weight}
-              onClick={() => {
-                const next = config.fontWeights.includes(weight)
-                  ? config.fontWeights.filter((w) => w !== weight)
-                  : [...config.fontWeights, weight].sort();
-                updateConfig({ fontWeights: next });
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all border cursor-pointer ${
-                config.fontWeights.includes(weight)
-                  ? 'border-forest-green bg-forest-green/5 text-forest-green font-bold'
-                  : 'border-charcoal/10 text-charcoal/40 hover:border-charcoal/20'
-              }`}
-            >
-              {weight}
-            </button>
+      {/* Body typeface + weights */}
+      <div className="flex flex-col gap-6 pt-4 border-t border-charcoal/5">
+        <Combobox
+          label="Body Typeface"
+          value={config.primaryFont}
+          onValueChange={handleBodyFontChange}
+          options={GOOGLE_FONTS}
+          placeholder="Search Google Fonts..."
+          displayValue={config.customBodyFontName}
+          size="compact"
+        />
+        <div className="flex flex-col gap-6">
+          {(['light', 'regular', 'bold'] as const).map((slot) => (
+            <div key={slot} className="flex flex-col gap-2">
+              <span className="text-xs text-charcoal/80 capitalize">Weight – {slot}</span>
+              <WeightPills
+                selected={config.bodyWeights[slot]}
+                onSelect={(w) => setBodyWeight(slot, w)}
+                fontFamily={config.primaryFont}
+              />
+            </div>
           ))}
         </div>
       </div>
-
-      {/* Separate heading typeface toggle */}
-      <div className="pt-3 border-t border-charcoal/5">
-        <label className="flex items-center justify-between cursor-pointer">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-charcoal">
-              Separate heading typeface
-            </span>
-            <span className="text-xs text-charcoal/60">
-              Use a different font for headings and body.
-            </span>
-          </div>
-          <button
-            role="switch"
-            aria-checked={!config.useSingleTypeface}
-            onClick={handleToggleSingleTypeface}
-            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors ${
-              !config.useSingleTypeface ? 'bg-forest-green' : 'bg-charcoal/20'
-            }`}
-          >
-            <span
-              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform mt-0.5 ${
-                !config.useSingleTypeface ? 'translate-x-[22px]' : 'translate-x-0.5'
-              }`}
-            />
-          </button>
-        </label>
-      </div>
-
-      {/* Custom font upload placeholder */}
-      {/* <div className="pt-3 border-t border-charcoal/10">
-        <div className="flex items-center gap-3 px-4 py-4 border border-dashed border-charcoal/15 rounded-xl bg-charcoal/2">
-          <Upload size={16} className="text-charcoal/25 shrink-0" />
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-medium text-charcoal/40">
-              Custom font uploads coming soon
-            </span>
-            <span className="text-[10px] text-charcoal/30">
-              .ttf, .otf, .woff, .woff2
-            </span>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };

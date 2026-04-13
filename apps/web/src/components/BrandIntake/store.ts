@@ -5,6 +5,19 @@ export type { ColorRamp, NeutralColorRamp };
 
 export type TabId = 'color' | 'typography' | 'style';
 
+// Typography weights — headings use a single weight; body uses light/regular/bold.
+export const FONT_WEIGHT_OPTIONS = [300, 400, 500, 600, 700, 800, 900] as const;
+export type FontWeight = (typeof FONT_WEIGHT_OPTIONS)[number];
+
+export interface BodyFontWeights {
+  light: FontWeight;
+  regular: FontWeight;
+  bold: FontWeight;
+}
+
+export const DEFAULT_HEADING_WEIGHT: FontWeight = 400;
+export const DEFAULT_BODY_WEIGHTS: BodyFontWeights = { light: 300, regular: 400, bold: 700 };
+
 export interface BrandConfig {
   // Identity
   logoUrl?: string;
@@ -46,11 +59,10 @@ export interface BrandConfig {
   // Typography
   primaryFont: string;
   headingFont: string;
-  useSingleTypeface: boolean;
-  customFontName?: string;
   customHeadingFontName?: string;
   customBodyFontName?: string;
-  fontWeights: number[];
+  headingWeight: FontWeight;
+  bodyWeights: BodyFontWeights;
   fontScale: number;
 
   // Style
@@ -79,10 +91,10 @@ export const initialConfig: BrandConfig = {
     error: '#ef4444',
     info: '#3b82f6',
   },
-  primaryFont: 'Inter',
-  headingFont: 'Inter',
-  useSingleTypeface: true,
-  fontWeights: [400, 500, 600, 700],
+  primaryFont: 'Nunito',
+  headingFont: 'Rubik',
+  headingWeight: DEFAULT_HEADING_WEIGHT,
+  bodyWeights: { ...DEFAULT_BODY_WEIGHTS },
   fontScale: 1.25,
   roundness: 'rounded',
   shadows: 'subtle',

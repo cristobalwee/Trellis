@@ -48,6 +48,12 @@ const font = {
   primary: t('font-family-primary'),
   secondary: t('font-family-secondary'),
 };
+const weight = {
+  heading: t('font-weight-heading'),
+  bodyLight: t('font-weight-body-light'),
+  bodyRegular: t('font-weight-body-regular'),
+  bodyBold: t('font-weight-body-bold'),
+};
 const gradient = t('gradient-primary');
 
 // ---------------------------------------------------------------------------
@@ -56,7 +62,6 @@ const gradient = t('gradient-primary');
 
 interface PreviewTypographyProps {
   fontScale: number;
-  fontWeights: number[];
   headingFont: string;
   bodyFont: string;
 }
@@ -160,7 +165,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           style={{
             fontFamily: font.secondary,
             fontSize: '2.25rem',
-            fontWeight: 700,
+            fontWeight: weight.heading as unknown as number,
             lineHeight: 1.15,
             color: fg.onBase,
             margin: 0,
@@ -177,7 +182,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
             fontSize: '1.125rem',
             lineHeight: 1.5,
             color: fg.onBaseMuted,
-            fontWeight: 400,
+            fontWeight: weight.bodyLight as unknown as number,
             margin: 0,
             marginTop: space.gap,
           }}
@@ -244,7 +249,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               style={{
                 fontFamily: font.secondary,
                 fontSize: '1.375rem',
-                fontWeight: 600,
+                fontWeight: weight.heading as unknown as number,
                 lineHeight: 1.3,
                 color: fg.onBase,
                 margin: 0,
@@ -274,7 +279,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
                 borderLeft: `3px solid ${border.neutral}`,
                 fontFamily: font.secondary,
                 fontSize: '1.125rem',
-                fontWeight: 500,
+                fontWeight: weight.heading as unknown as number,
                 fontStyle: 'italic',
                 lineHeight: 1.5,
                 color: fg.onBaseMuted,
@@ -303,7 +308,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               style={{
                 fontFamily: font.secondary,
                 fontSize: '1.375rem',
-                fontWeight: 600,
+                fontWeight: weight.heading as unknown as number,
                 lineHeight: 1.3,
                 color: fg.onBase,
                 margin: 0,

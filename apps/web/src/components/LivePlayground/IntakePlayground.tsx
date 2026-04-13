@@ -33,9 +33,6 @@ const IntakePlayground: React.FC = () => {
 
     if (updates.fontFamily !== undefined) {
       brandUpdates.primaryFont = updates.fontFamily;
-      if (brand.useSingleTypeface) {
-        brandUpdates.headingFont = updates.fontFamily;
-      }
     }
     if (updates.roundness !== undefined) brandUpdates.roundness = updates.roundness;
     if (updates.density !== undefined) brandUpdates.density = updates.density;

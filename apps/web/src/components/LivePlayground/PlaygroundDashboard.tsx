@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import type { EChartsOption } from 'echarts';
+import { graphic } from 'echarts';
+import ReactEChartsImport from 'echarts-for-react/lib/index.js';
 import {
   LayoutDashboard,
   Users,
@@ -37,6 +40,16 @@ const PLAYGROUND_STYLES = `
 
 const V = (token: string) => `var(--${token})`;
 const t = (token: string) => V(token);
+const ReactECharts = (ReactEChartsImport as unknown as { default?: React.ComponentType<any> }).default
+  ?? (ReactEChartsImport as unknown as React.ComponentType<any>);
+const resolveVarColor = (value: string, fallback: string) => {
+  if (typeof window === 'undefined') return fallback;
+  const tokenMatch = value.match(/^var\(--([^)]+)\)$/);
+  if (!tokenMatch) return value;
+  const token = tokenMatch[1];
+  const resolved = getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim();
+  return resolved || fallback;
+};
 
 // Shorthand accessors for commonly used token groups
 const bg = {
@@ -126,7 +139,6 @@ interface PlaygroundDashboardProps {
 const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onChange }) => {
   const [activeNav, setActiveNav] = useState('dashboard');
   void onChange;
-  void config;
 
   // --- Static data ---
 
@@ -158,8 +170,119 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
     Draft: { fg: fg.onBaseMuted, bg: bg.raisedHover },
   };
 
-  const chartPoints = '0,42 32,38 64,44 96,30 128,34 160,22 192,26 224,16 256,20 288,12';
-  const revenueBars = [36, 54, 41, 67, 48, 59, 72];
+  const revenueDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const revenueSeries = [1820, 2240, 2090, 2985, 2650, 3120, 3390];
+  const orderSeries = [38, 48, 44, 67, 59, 72, 78];
+
+  const revenueChartOption = useMemo<EChartsOption>(() => {
+    const primary = resolveVarColor(bg.primary, '#2f6d5c');
+    const primarySubtle = resolveVarColor(bg.primarySubtle, '#d4e6de');
+    const raised = resolveVarColor(bg.raised, '#ffffff');
+    const grid = resolveVarColor(t('color-chart-grid'), '#e5e7eb');
+    const textMuted = resolveVarColor(fg.onBaseMuted, '#6b7280');
+    const textFaint = resolveVarColor(fg.onBaseFaint, '#9ca3af');
+    const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    return {
+      animation: !reduceMotion,
+      animationDuration: reduceMotion ? 0 : 700,
+      animationDurationUpdate: reduceMotion ? 0 : 420,
+      animationEasing: 'cubicOut',
+      animationEasingUpdate: 'cubicOut',
+      grid: {
+        top: 16,
+        left: 10,
+        right: 10,
+        bottom: 22,
+        containLabel: true,
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: raised,
+        borderColor: grid,
+        borderWidth: 1,
+        textStyle: {
+          color: textMuted,
+          fontFamily: font.primary,
+          fontSize: 11,
+        },
+        extraCssText: `border-radius:${radius.sub}; box-shadow:${shadow.card};`,
+        axisPointer: {
+          type: 'line',
+          lineStyle: {
+            color: primary,
+            width: 1,
+            type: 'dashed',
+          },
+        },
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: true,
+        data: revenueDays,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: {
+          color: textFaint,
+          fontSize: 10,
+          margin: 10,
+        },
+      },
+      yAxis: [
+        {
+          type: 'value',
+          splitNumber: 4,
+          axisLabel: {
+            color: textFaint,
+            fontSize: 10,
+            formatter: '${value}',
+          },
+          splitLine: {
+            lineStyle: { color: grid },
+          },
+          axisTick: { show: false },
+          axisLine: { show: false },
+        },
+        {
+          type: 'value',
+          splitLine: { show: false },
+          axisLabel: { show: false },
+          axisTick: { show: false },
+          axisLine: { show: false },
+        },
+      ],
+      series: [
+        {
+          name: 'Orders',
+          type: 'bar',
+          yAxisIndex: 1,
+          data: orderSeries,
+          barMaxWidth: 16,
+          itemStyle: {
+            color: primarySubtle,
+            borderRadius: [4, 4, 0, 0],
+          },
+          emphasis: {
+            itemStyle: {
+              color: primary,
+            },
+          },
+        },
+        {
+          name: 'Revenue',
+          type: 'line',
+          smooth: 0.42,
+          showSymbol: false,
+          data: revenueSeries,
+          lineStyle: {
+            width: 2.8,
+            color: primary,
+          },
+          z: 3,
+        },
+      ],
+    };
+  }, [config]);
 
   const trafficSources = [
     { label: 'Direct', share: 45, color: bg.primary },
@@ -377,7 +500,14 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                       <m.icon size={12} />
                     </div>
                   </div>
-                  <span className="text-2xl font-bold leading-tight" style={{ color: fg.onBase }}>
+                  <span
+                    className="text-2xl leading-tight"
+                    style={{
+                      color: fg.onBase,
+                      fontFamily: font.secondary,
+                      fontWeight: 'var(--font-weight-heading)' as unknown as number,
+                    }}
+                  >
                     {m.value}
                   </span>
                   <span
@@ -425,57 +555,13 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                       Last 7 days <ChevronDown size={10} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                    <svg viewBox="0 0 288 64" className="w-full" style={{ height: '104px' }}>
-                      <defs>
-                        <linearGradient id="pgChartGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" style={{ stopColor: bg.primary, stopOpacity: 0.38 }} />
-                          <stop offset="100%" style={{ stopColor: bg.primary, stopOpacity: 0 }} />
-                        </linearGradient>
-                      </defs>
-                      {[12, 24, 36, 48].map((line) => (
-                        <line
-                          key={line}
-                          x1="0"
-                          y1={line}
-                          x2="288"
-                          y2={line}
-                          style={{ stroke: t('color-chart-grid'), strokeWidth: 1, transition: transition.chart }}
-                        />
-                      ))}
-                      <polygon
-                        points={`0,64 ${chartPoints} 288,64`}
-                        fill="url(#pgChartGrad)"
-                        style={{ transition: transition.chart }}
-                      />
-                      <polyline
-                        points={chartPoints}
-                        fill="none"
-                        style={{ stroke: bg.primary, transition: transition.chart }}
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <div className="flex items-end justify-between gap-1">
-                      {revenueBars.map((height, index) => (
-                        <div key={height + index} className="flex-1 flex flex-col items-center gap-1">
-                          <div
-                            className="w-full"
-                            style={{
-                              height: `${height}px`,
-                              backgroundColor: index === 3 ? bg.primary : bg.primarySubtle,
-                              borderRadius: radius.badge,
-                              transition: transition.theme,
-                            }}
-                          />
-                          <span className="text-[9px]" style={{ color: fg.onBaseFaint }}>
-                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <ReactECharts
+                    option={revenueChartOption}
+                    style={{ height: 210, width: '100%' }}
+                    opts={{ renderer: 'canvas' }}
+                    notMerge
+                    lazyUpdate
+                  />
                 </div>
 
                 {/* Transactions */}

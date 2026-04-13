@@ -44,6 +44,7 @@ import Checkbox from './Checkbox';
 import Avatar from './Avatar';
 import Alert from './Alert';
 import Card from './Card';
+import qrcodePng from '../../assets/qrcode.png';
 
 // ---------------------------------------------------------------------------
 // Scoped hover styles
@@ -241,7 +242,7 @@ const SignUpForm: React.FC = () => (
       style={{
         fontFamily: font.secondary,
         fontSize: '20px',
-        fontWeight: 700,
+        fontWeight: 'var(--font-weight-heading)' as unknown as number,
         color: fg.onBase,
         margin: 0,
         marginBottom: space.card,
@@ -384,7 +385,7 @@ const BalanceCard: React.FC = () => {
         style={{
           fontFamily: font.secondary,
           fontSize: '28px',
-          fontWeight: 700,
+          fontWeight: 'var(--font-weight-heading)' as unknown as number,
           color: fg.onBase,
           marginTop: '4px',
           marginBottom: space.gap,
@@ -597,7 +598,7 @@ const DonutStatCard: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '14px',
-              fontWeight: 700,
+              fontWeight: 'var(--font-weight-heading)' as unknown as number,
               color: fg.onBase,
               fontFamily: font.secondary,
             }}
@@ -613,7 +614,7 @@ const DonutStatCard: React.FC = () => {
             style={{
               fontFamily: font.secondary,
               fontSize: '22px',
-              fontWeight: 700,
+              fontWeight: 'var(--font-weight-heading)' as unknown as number,
               color: fg.onBase,
               margin: '4px 0',
               letterSpacing: '-0.02em',
@@ -731,58 +732,16 @@ const EmptyStateCard: React.FC<{
 // QR Connect Card
 // ---------------------------------------------------------------------------
 
-const QR_SIZE = 17;
-
-const buildQRMatrix = (): boolean[][] => {
-  const m: boolean[][] = Array.from({ length: QR_SIZE }, () => Array(QR_SIZE).fill(false));
-  const finder = (r0: number, c0: number) => {
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const edge = r === 0 || r === 6 || c === 0 || c === 6;
-        const inner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
-        m[r0 + r][c0 + c] = edge || inner;
-      }
-    }
-  };
-  finder(0, 0);
-  finder(0, QR_SIZE - 7);
-  finder(QR_SIZE - 7, 0);
-  // Deterministic pseudo-random fill for remaining cells
-  for (let r = 0; r < QR_SIZE; r++) {
-    for (let c = 0; c < QR_SIZE; c++) {
-      const inFinder =
-        (r < 8 && c < 8) ||
-        (r < 8 && c >= QR_SIZE - 8) ||
-        (r >= QR_SIZE - 8 && c < 8);
-      if (inFinder) continue;
-      m[r][c] = ((r * 31 + c * 17 + r * c) % 7) < 3;
-    }
-  }
-  return m;
-};
-
-const QRCodeArt: React.FC<{ size?: number }> = ({ size = 140 }) => {
-  const matrix = React.useMemo(buildQRMatrix, []);
-  const cell = size / QR_SIZE;
-  return (
-    <svg width={size} height={size} aria-hidden="true">
-      {matrix.map((row, r) =>
-        row.map((on, c) =>
-          on ? (
-            <rect
-              key={`${r}-${c}`}
-              x={c * cell}
-              y={r * cell}
-              width={cell}
-              height={cell}
-              fill={fg.onBase}
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  );
-};
+const QRCodeArt: React.FC<{ size?: number }> = ({ size = 140 }) => (
+  <img
+    src={qrcodePng.src}
+    width={size}
+    height={size}
+    alt=""
+    aria-hidden="true"
+    style={{ display: 'block' }}
+  />
+);
 
 const QRConnectCard: React.FC = () => (
   <Card style={{ textAlign: 'center' }}>
@@ -1245,6 +1204,11 @@ const PreviewComponents: React.FC = () => {
               </div>
             </Card>
 
+            {/* Avatar Group */}
+            <Card>
+              <AvatarGroup />
+            </Card>
+
             {/* User Cards */}
             <UserCard name="Emily Adams" email="emily.adams@example.com" colorIndex={0} />
 
@@ -1277,13 +1241,11 @@ const PreviewComponents: React.FC = () => {
             {/* Donut Stat */}
             <DonutStatCard />
 
+            {/* Checklist */}
+            <ChecklistBlock items={checks} onToggle={handleToggleCheck} />
+
             {/* Navigation */}
             <NavList />
-
-            {/* Avatar Group */}
-            <Card>
-              <AvatarGroup />
-            </Card>
 
             {/* QR pairing */}
             <QRConnectCard />
@@ -1298,12 +1260,6 @@ const PreviewComponents: React.FC = () => {
 
             {/* Notifications preferences */}
             <NotificationsCard />
-
-            {/* Rich Text */}
-            <RichTextBlock />
-
-            {/* Checklist */}
-            <ChecklistBlock items={checks} onToggle={handleToggleCheck} />
           </div>
         </div>
       </div>

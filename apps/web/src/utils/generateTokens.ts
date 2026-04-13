@@ -399,6 +399,10 @@ export function generateDesignTokens(
   // --- Typography tokens ---
   tokens['--font-family-primary'] = `'${config.primaryFont}', system-ui, sans-serif`;
   tokens['--font-family-secondary'] = `'${config.headingFont}', system-ui, sans-serif`;
+  tokens['--font-weight-heading'] = String(config.headingWeight);
+  tokens['--font-weight-body-light'] = String(config.bodyWeights.light);
+  tokens['--font-weight-body-regular'] = String(config.bodyWeights.regular);
+  tokens['--font-weight-body-bold'] = String(config.bodyWeights.bold);
 
   // --- Radius tokens ---
   Object.assign(tokens, RADIUS_PRESETS[config.roundness]);

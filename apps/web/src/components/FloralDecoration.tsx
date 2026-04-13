@@ -1,6 +1,14 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { motion, useSpring, useMotionValue, useScroll, useMotionValueEvent, useTransform } from 'framer-motion';
 
+type TokenKind = 'color' | 'radius' | 'spacing' | 'font';
+
+interface TokenDef {
+  name: string;
+  kind: TokenKind;
+  value: string;
+}
+
 interface Position {
   x: number;
   y: number;
@@ -8,7 +16,7 @@ interface Position {
   scale: number;
   delay: number;
   type: 'pink' | 'yellow' | 'leaf1' | 'leaf2' | 'bubble';
-  icon?: 'notion' | 'storybook' | 'react' | 'figma' | 'pnpm' | 'sass';
+  token?: TokenDef;
 }
 
 const ASSETS = {
@@ -33,7 +41,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 8, y: 95, rotation: 5, scale: 1.2, delay: 0.28, type: 'pink' },
   { x: 7, y: 82, rotation: -10, scale: 0.9, delay: 0.31, type: 'yellow' },
   { x: 9, y: 72, rotation: 20, scale: 1.15, delay: 0.34, type: 'pink' },
-  { x: 18, y: 60, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', icon: 'notion' }, // Bubble 1
+  { x: 18, y: 60, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', token: { name: '--foreground-primary', kind: 'color', value: '#1c7583' } },
   { x: 10, y: 52, rotation: -25, scale: 0.85, delay: 0.4, type: 'yellow' },
   { x: 11, y: 42, rotation: 15, scale: 0.7, delay: 0.43, type: 'pink' },
   { x: 9, y: 35, rotation: -15, scale: 0.75, delay: 0.46, type: 'pink' }, // Reduced verticality
@@ -43,7 +51,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 22, y: 80, rotation: 10, scale: 0.85, delay: 0.49, type: 'pink' },
   { x: 25, y: 96, rotation: -5, scale: 1.1, delay: 0.52, type: 'yellow' },
   { x: 20, y: 70, rotation: 25, scale: 0.9, delay: 0.55, type: 'pink' },
-  { x: 34, y: 90, rotation: 15, scale: 1, delay: 0.45, type: 'bubble', icon: 'storybook' }, // Bubble 2
+  { x: 34, y: 90, rotation: 15, scale: 1, delay: 0.45, type: 'bubble', token: { name: '--radius-container', kind: 'radius', value: '8px' } },
   { x: 24, y: 55, rotation: -10, scale: 0.8, delay: 0.61, type: 'yellow' },
   { x: 21, y: 45, rotation: 20, scale: 0.7, delay: 0.64, type: 'pink' },
   
@@ -52,7 +60,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 42, y: 85, rotation: -5, scale: 0.95, delay: 0.67, type: 'yellow' },
   { x: 48, y: 98, rotation: 15, scale: 1.05, delay: 0.7, type: 'pink' },
   { x: 55, y: 88, rotation: -10, scale: 0.8, delay: 0.73, type: 'yellow' },
-  { x: 54, y: 76, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', icon: 'react' }, // Bubble 3
+  { x: 54, y: 76, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--spacing-lg', kind: 'spacing', value: '16px' } },
   
   // Tapering
   { x: 65, y: 95, rotation: 10, scale: 1.1, delay: 0.79, type: 'pink' },
@@ -93,7 +101,7 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 92, y: 95, rotation: -5, scale: 1.2, delay: 0.28, type: 'yellow' },
   { x: 93, y: 82, rotation: 10, scale: 0.9, delay: 0.31, type: 'pink' },
   { x: 91, y: 72, rotation: -20, scale: 1.15, delay: 0.34, type: 'yellow' },
-  { x: 82, y: 62, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', icon: 'figma' }, // Bubble 1
+  { x: 82, y: 62, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', token: { name: '--foreground-accent', kind: 'color', value: '#8f5466' } },
   { x: 90, y: 52, rotation: 25, scale: 0.85, delay: 0.4, type: 'pink' },
   { x: 89, y: 42, rotation: -15, scale: 0.7, delay: 0.43, type: 'yellow' },
   { x: 91, y: 35, rotation: 15, scale: 0.75, delay: 0.46, type: 'pink' }, // Reduced verticality
@@ -103,7 +111,7 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 78, y: 80, rotation: -10, scale: 0.85, delay: 0.49, type: 'yellow' },
   { x: 75, y: 96, rotation: 5, scale: 1.1, delay: 0.52, type: 'pink' },
   { x: 80, y: 70, rotation: -25, scale: 0.9, delay: 0.55, type: 'yellow' },
-  { x: 66, y: 90, rotation: -15, scale: 1, delay: 0.45, type: 'bubble', icon: 'pnpm' }, // Bubble 2
+  { x: 66, y: 90, rotation: -15, scale: 1, delay: 0.45, type: 'bubble', token: { name: '--font-heading-md-size', kind: 'font', value: '24px' } },
   { x: 76, y: 55, rotation: 10, scale: 0.8, delay: 0.61, type: 'pink' },
   { x: 79, y: 45, rotation: -20, scale: 0.7, delay: 0.64, type: 'yellow' },
   
@@ -112,7 +120,7 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 58, y: 85, rotation: 5, scale: 0.95, delay: 0.67, type: 'pink' },
   { x: 52, y: 98, rotation: -15, scale: 1.05, delay: 0.7, type: 'yellow' },
   { x: 45, y: 88, rotation: 10, scale: 0.8, delay: 0.73, type: 'pink' },
-  { x: 48, y: 72, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', icon: 'sass' }, // Bubble 3
+  { x: 48, y: 72, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--foreground-critical', kind: 'color', value: '#e23d3f' } },
   
   // Tapering
   { x: 35, y: 95, rotation: -10, scale: 1.1, delay: 0.79, type: 'yellow' },
@@ -206,16 +214,50 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
   }, [mouseX, mouseY, translateX, translateY]);
 
   const renderContent = () => {
-    if (pos.type === 'bubble') {
+    if (pos.type === 'bubble' && pos.token) {
+      const { name, kind, value } = pos.token;
+      let visual: React.ReactNode = null;
+      if (kind === 'color') {
+        visual = (
+          <div
+            className="w-4 h-4 rounded-full border border-black/10 shrink-0"
+            style={{ backgroundColor: value }}
+          />
+        );
+      } else if (kind === 'radius') {
+        visual = (
+          <div
+            className="w-4 h-4 bg-neutral-100 border border-black/10 shrink-0"
+            style={{ borderRadius: value }}
+          />
+        );
+      } else if (kind === 'spacing') {
+        visual = (
+          <div className="w-4 h-4 flex items-center justify-center shrink-0 border border-neutral-300 rounded-sm">
+            <div
+              className="bg-neutral-100 rounded-sm max-w-full max-h-full"
+              style={{ width: value, height: value }}
+            />
+          </div>
+        );
+      } else if (kind === 'font') {
+        visual = (
+          <div className="w-4 h-4 flex items-center justify-center font-semibold text-neutral-900 leading-none shrink-0 text-[13px]">
+            Aa
+          </div>
+        );
+      }
       return (
-        <div className="p-3 bg-white rounded-full shadow-lg items-center justify-center border border-gray-100/50 backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 hidden md:flex">
-          <img src={`/src/assets/${pos.icon}.png`} alt="Bubble" className="w-12 h-12 object-contain" />
+        <div className="px-3 py-1.5 bg-white rounded-full shadow-lg flex-row items-center gap-2 border border-gray-100/50 backdrop-blur-sm transition-transform hover:scale-110 active:scale-95 hidden md:inline-flex">
+          {visual}
+          <span className="text-[13px] font-mono text-neutral-700 whitespace-nowrap">{name}</span>
         </div>
       );
     }
+    if (pos.type === 'bubble') return null;
     return (
-      <img 
-        src={ASSETS[pos.type]} 
+      <img
+        src={ASSETS[pos.type]}
         alt="" 
         className="w-full h-full object-contain drop-shadow-sm select-none" 
         draggable={false}
