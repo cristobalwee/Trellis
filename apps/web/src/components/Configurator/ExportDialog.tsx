@@ -3,7 +3,12 @@ import { Dialog } from '@base-ui/react/dialog';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Copy, Check } from 'lucide-react';
 import { Select } from '../ui/Select';
-import { exportTokens, type ExportFormat, type ColorSpace } from '../../utils/exportTokens';
+import {
+  exportTokens,
+  type ExportFormat,
+  type ColorSpace,
+  type TokenSet,
+} from '../../utils/exportTokens';
 
 // ---------------------------------------------------------------------------
 // Format tabs
@@ -17,10 +22,10 @@ const FORMAT_TABS: { id: ExportFormat; label: string }[] = [
 ];
 
 const COLOR_SPACE_OPTIONS = [
+  { value: 'oklch', label: 'oklch' },
   { value: 'hex', label: 'hex' },
   { value: 'rgb', label: 'rgb' },
   { value: 'hsl', label: 'hsl' },
-  { value: 'oklch', label: 'oklch' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -49,23 +54,219 @@ const popupVariants = {
 };
 
 // ---------------------------------------------------------------------------
+// Syntax highlighting
+// ---------------------------------------------------------------------------
+
+type Lang = 'css' | 'json' | 'js';
+
+const COLORS = {
+  comment:   'text-emerald-700/70 italic',
+  selector:  'text-rose-600',
+  property:  'text-indigo-700 font-medium',
+  value:     'text-slate-800',
+  colorVal:  'text-amber-700 font-medium',
+  number:    'text-amber-700',
+  string:    'text-emerald-700',
+  key:       'text-indigo-700 font-medium',
+  keyword:   'text-rose-600',
+  punct:     'text-slate-400',
+  plain:     'text-slate-700',
+};
+
+function isColorLiteral(v: string): boolean {
+  const t = v.trim().replace(/;$/, '');
+  return /^#[0-9a-f]{3,8}$/i.test(t)
+    || /^(rgb|rgba|hsl|hsla|oklch|lch|lab)\(/i.test(t)
+    || /^linear-gradient\(/i.test(t);
+}
+
+function renderCssLine(line: string, key: number): React.ReactNode {
+  const trimmed = line.trim();
+
+  // Blank line
+  if (trimmed === '') return <div key={key}>&nbsp;</div>;
+
+  // Comment
+  if (trimmed.startsWith('/*')) {
+    return <div key={key}><span className={COLORS.comment}>{line}</span></div>;
+  }
+
+  // Closing brace
+  if (trimmed === '}') {
+    const leading = line.match(/^\s*/)?.[0] ?? '';
+    return <div key={key}>{leading}<span className={COLORS.punct}>{'}'}</span></div>;
+  }
+
+  // Selector line (ends with {)
+  if (/\{\s*$/.test(trimmed)) {
+    const leading = line.match(/^\s*/)?.[0] ?? '';
+    const sel = trimmed.replace(/\s*\{\s*$/, '');
+    return (
+      <div key={key}>
+        {leading}
+        <span className={COLORS.selector}>{sel}</span>{' '}
+        <span className={COLORS.punct}>{'{'}</span>
+      </div>
+    );
+  }
+
+  // Property: value; line
+  const m = line.match(/^(\s*)(--[A-Za-z0-9-]+)(\s*:\s*)(.+?)(;?)\s*$/);
+  if (m) {
+    const [, lead, prop, colon, value, semi] = m;
+    const valClass = isColorLiteral(value) ? COLORS.colorVal : COLORS.value;
+    return (
+      <div key={key}>
+        {lead}
+        <span className={COLORS.property}>{prop}</span>
+        <span className={COLORS.punct}>{colon}</span>
+        <span className={valClass}>{value}</span>
+        <span className={COLORS.punct}>{semi}</span>
+      </div>
+    );
+  }
+
+  return <div key={key}><span className={COLORS.plain}>{line}</span></div>;
+}
+
+function renderJsonLine(line: string, key: number): React.ReactNode {
+  // Match: leading ws, "key": then value, trailing comma
+  const kv = line.match(/^(\s*)("(?:[^"\\]|\\.)*")(\s*:\s*)(.+?)(,?)\s*$/);
+  if (kv) {
+    const [, lead, keyStr, colon, value, comma] = kv;
+    return (
+      <div key={key}>
+        {lead}
+        <span className={COLORS.key}>{keyStr}</span>
+        <span className={COLORS.punct}>{colon}</span>
+        {renderJsonValue(value)}
+        <span className={COLORS.punct}>{comma}</span>
+      </div>
+    );
+  }
+  // Pure braces / brackets
+  const leading = line.match(/^\s*/)?.[0] ?? '';
+  const rest = line.slice(leading.length);
+  return <div key={key}>{leading}<span className={COLORS.punct}>{rest}</span></div>;
+}
+
+function renderJsonValue(value: string): React.ReactNode {
+  const v = value.trim();
+  if (v === '{' || v === '[' || v === '{}' || v === '[]') {
+    return <span className={COLORS.punct}>{value}</span>;
+  }
+  if (v.startsWith('"') && v.endsWith('"')) {
+    const inner = v.slice(1, -1);
+    if (isColorLiteral(inner)) {
+      return <span className={COLORS.colorVal}>{value}</span>;
+    }
+    return <span className={COLORS.string}>{value}</span>;
+  }
+  if (/^-?\d/.test(v)) return <span className={COLORS.number}>{value}</span>;
+  if (v === 'true' || v === 'false' || v === 'null') {
+    return <span className={COLORS.keyword}>{value}</span>;
+  }
+  return <span className={COLORS.value}>{value}</span>;
+}
+
+function renderJsLine(line: string, key: number): React.ReactNode {
+  const trimmed = line.trim();
+
+  if (trimmed.startsWith('/*') || trimmed.startsWith('//') || trimmed.startsWith('*')) {
+    return <div key={key}><span className={COLORS.comment}>{line}</span></div>;
+  }
+
+  // Key: 'value' or key: { pattern
+  const kv = line.match(/^(\s*)('[^']+'|"[^"]+"|[A-Za-z_][A-Za-z0-9_]*)(\s*:\s*)(.*)$/);
+  if (kv) {
+    const [, lead, k, colon, rest] = kv;
+    return (
+      <div key={key}>
+        {lead}
+        <span className={COLORS.key}>{k}</span>
+        <span className={COLORS.punct}>{colon}</span>
+        {renderJsRest(rest)}
+      </div>
+    );
+  }
+
+  // export default { etc
+  if (/^(export|default|import|from|const|let|var)\b/.test(trimmed)) {
+    const leading = line.match(/^\s*/)?.[0] ?? '';
+    return (
+      <div key={key}>
+        {leading}
+        <span className={COLORS.keyword}>{trimmed}</span>
+      </div>
+    );
+  }
+
+  return <div key={key}><span className={COLORS.plain}>{line}</span></div>;
+}
+
+function renderJsRest(rest: string): React.ReactNode {
+  // Handle trailing comma
+  const commaMatch = rest.match(/,\s*$/);
+  const hasComma = !!commaMatch;
+  const body = hasComma ? rest.slice(0, commaMatch!.index) : rest;
+  const trimmed = body.trim();
+
+  let content: React.ReactNode;
+  if (trimmed === '{' || trimmed === '[' || trimmed === '{}' || trimmed === '[]') {
+    content = <span className={COLORS.punct}>{body}</span>;
+  } else if (/^'(.*)'$/.test(trimmed) || /^"(.*)"$/.test(trimmed)) {
+    const inner = trimmed.slice(1, -1);
+    content = (
+      <span className={isColorLiteral(inner) ? COLORS.colorVal : COLORS.string}>{body}</span>
+    );
+  } else if (/^-?\d/.test(trimmed)) {
+    content = <span className={COLORS.number}>{body}</span>;
+  } else {
+    content = <span className={COLORS.value}>{body}</span>;
+  }
+
+  return (
+    <>
+      {content}
+      {hasComma && <span className={COLORS.punct}>,</span>}
+    </>
+  );
+}
+
+function highlight(text: string, lang: Lang): React.ReactNode {
+  const lines = text.split('\n');
+  const render =
+    lang === 'css'  ? renderCssLine  :
+    lang === 'json' ? renderJsonLine : renderJsLine;
+  return lines.map((line, i) => render(line, i));
+}
+
+function langFor(format: ExportFormat): Lang {
+  if (format === 'dtcg') return 'json';
+  if (format === 'tailwind') return 'js';
+  return 'css';
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 interface ExportDialogProps {
-  tokens: Record<string, string>;
+  tokens: TokenSet;
 }
 
 const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<ExportFormat>('css');
-  const [colorSpace, setColorSpace] = useState<ColorSpace>('hex');
+  const [colorSpace, setColorSpace] = useState<ColorSpace>('oklch');
   const [copied, setCopied] = useState(false);
 
   const output = useMemo(
     () => exportTokens(tokens, format, colorSpace),
     [tokens, format, colorSpace],
   );
+
+  const highlighted = useMemo(() => highlight(output, langFor(format)), [output, format]);
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(output);
@@ -121,7 +322,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
                 />
               }
             >
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-6 mb-1">
                   <Dialog.Title render={() => (
@@ -183,8 +384,8 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
 
                 {/* Code output */}
                 <div className="flex-1 overflow-auto min-h-0 p-6 pt-4">
-                  <pre className="text-xs leading-relaxed text-charcoal/80 font-mono whitespace-pre overflow-x-auto bg-charcoal/[0.03] rounded-xl p-4 max-h-[50vh] overflow-y-auto">
-                    {output}
+                  <pre className="text-[12px] leading-[1.65] font-mono whitespace-pre overflow-x-auto bg-gray rounded-xl p-4 max-h-[50vh] overflow-y-auto">
+                    {highlighted}
                   </pre>
                 </div>
               </div>

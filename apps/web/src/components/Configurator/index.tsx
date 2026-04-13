@@ -163,6 +163,12 @@ const Configurator: React.FC = () => {
     [config, isDarkMode]
   );
 
+  // Generate paired light + dark token sets for export (always both, regardless of preview mode)
+  const exportTokenSet = useMemo(() => ({
+    light: generateDesignTokens(config, false).tokens,
+    dark: generateDesignTokens(config, true).tokens,
+  }), [config]);
+
   // Bridge: BrandConfig → PlaygroundConfig (kept for font-loading side effect)
   const playgroundConfig: PlaygroundConfig = {
     primaryColor: config.primaryColor,
@@ -331,7 +337,7 @@ const Configurator: React.FC = () => {
                   <MousePointerClick size={13} />
                   Inspect{isInspecting && ': On'}
                 </button>
-                <ExportDialog tokens={designTokens} />
+                <ExportDialog tokens={exportTokenSet} />
               </div>
             </div>
           </div>
