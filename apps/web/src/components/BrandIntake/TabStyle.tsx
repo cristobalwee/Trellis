@@ -26,7 +26,7 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ label, description, val
   <div className="flex flex-col gap-2">
     <div className="flex flex-col gap-0.5">
       <label className="text-sm font-medium text-charcoal">{label}</label>
-      {description && <p className="text-xs text-charcoal/60">{description}</p>}
+      {description && <p className="text-xs text-charcoal/80">{description}</p>}
     </div>
     <div className="flex gap-1.5 flex-wrap">
       {options.map((opt) => (
@@ -36,7 +36,7 @@ const PresetSelector: React.FC<PresetSelectorProps> = ({ label, description, val
           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all border cursor-pointer ${
             value === opt.id
               ? 'border-forest-green bg-forest-green/5 text-forest-green font-bold'
-              : 'border-charcoal/10 text-charcoal/60 hover:border-charcoal/20 hover:text-charcoal/80'
+              : 'border-charcoal/10 text-charcoal/80 hover:border-charcoal/20 hover:text-charcoal/80'
           }`}
         >
           {opt.hint && <span className="shrink-0">{opt.hint}</span>}
@@ -152,7 +152,7 @@ const TabStyle: React.FC = () => {
         <button
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
           className={`flex items-center justify-between w-full py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg ${
-            isAdvancedOpen ? 'text-forest-green' : 'text-charcoal/70 hover:text-charcoal'
+            isAdvancedOpen ? 'text-forest-green' : 'text-charcoal/80 hover:text-charcoal'
           }`}
         >
           <span>Advanced</span>

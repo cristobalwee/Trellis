@@ -103,13 +103,16 @@ const radius = {
   sub: t('radius-subcontainer'),
 };
 const space = {
-  card: t('spacing-card'),
-  cellY: t('spacing-cell-y'),
-  cellX: t('spacing-cell-x'),
-  gap: t('spacing-gap'),
-  shell: t('spacing-shell'),
-  ctrlY: t('spacing-control-y'),
-  ctrlX: t('spacing-control-x'),
+  xs: t('spacing-xs'),
+  sm: t('spacing-sm'),
+  md: t('spacing-md'),
+  lg: t('spacing-lg'),
+  xl: t('spacing-xl'),
+  '2xl': t('spacing-2xl'),
+  '3xl': t('spacing-3xl'),
+  '4xl': t('spacing-4xl'),
+  '5xl': t('spacing-5xl'),
+  '6xl': t('spacing-6xl'),
 };
 const shadow = {
   card: t('shadow-card'),
@@ -311,8 +314,8 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
           className="hidden md:flex flex-col shrink-0"
           style={{
             width: '196px',
-            paddingTop: space.card,
-            paddingBottom: space.card,
+            paddingTop: space.lg,
+            paddingBottom: space.lg,
             transition: transition.theme,
           }}
         >
@@ -363,7 +366,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
               style={{
                 backgroundColor: bg.raised,
                 borderRadius: radius.container,
-                padding: space.card,
+                padding: space.lg,
                 transition: transition.theme,
               }}
             >
@@ -401,8 +404,8 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
           <div
             className="flex flex-wrap items-center shrink-0"
             style={{
-              gap: space.gap,
-              padding: `${space.shell} ${space.card}`,
+              gap: space.md,
+              padding: `${space.md} ${space.lg}`,
               borderBottom: `1px solid ${border.neutral}`,
               transition: transition.theme,
             }}
@@ -417,7 +420,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                   borderRadius: radius.field,
                   backgroundColor: bg.sunken,
                   border: `1px solid ${border.neutral}`,
-                  padding: `${space.ctrlY} ${space.ctrlX}`,
+                  padding: `${space.sm} ${space.lg}`,
                   transition: transition.theme,
                 }}
               >
@@ -464,19 +467,19 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
           {/* Content area */}
           <div
             className="flex-1 overflow-y-auto overflow-x-hidden"
-            style={{ padding: space.card, transition: transition.theme }}
+            style={{ paddingTop: space.xl, paddingBottom: space.xl, paddingLeft: space['2xl'], paddingRight: space['2xl'], transition: transition.theme }}
           >
             {/* Metric Cards */}
             <div
               className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 mb-4"
-              style={{ gap: space.gap, transition: transition.theme }}
+              style={{ gap: space.md, transition: transition.theme }}
             >
               {metrics.map((m) => (
                 <div
                   key={m.label}
                   className="flex flex-col"
                   style={{
-                    padding: space.card,
+                    padding: space.lg,
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
@@ -523,13 +526,13 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
 
             <div
               className="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
-              style={{ gap: space.gap, transition: transition.theme }}
+              style={{ gap: space.md, transition: transition.theme }}
             >
-              <div className="flex flex-col" style={{ gap: space.gap, transition: transition.theme }}>
+              <div className="flex flex-col" style={{ gap: space.md, transition: transition.theme }}>
                 {/* Chart Area */}
                 <div
                   style={{
-                    padding: space.card,
+                    padding: space.lg,
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
@@ -577,7 +580,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 >
                   <div
                     className="flex items-center justify-between"
-                    style={{ padding: `${space.card} ${space.card} 10px`, transition: transition.theme }}
+                    style={{ padding: `${space.lg} ${space.lg} 10px`, transition: transition.theme }}
                   >
                     <div>
                       <span className="text-xs font-semibold block" style={{ color: fg.onBase }}>Recent Transactions</span>
@@ -606,7 +609,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                               className="text-left font-medium"
                               style={{
                                 color: fg.onBaseMuted,
-                                padding: `${space.cellY} ${space.cellX}`,
+                                padding: `${space.sm} ${space.md}`,
                                 transition: transition.theme,
                               }}
                             >
@@ -624,7 +627,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                               className="pg-row"
                               style={{ borderBottom: `1px solid ${border.neutral}`, transition: transition.theme }}
                             >
-                              <td style={{ padding: `${space.cellY} ${space.cellX}` }}>
+                              <td style={{ padding: `${space.sm} ${space.md}` }}>
                                 <div className="flex items-center gap-2">
                                   <div
                                     className="w-6 h-6 flex items-center justify-center text-[9px] font-semibold"
@@ -643,7 +646,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                                   </div>
                                 </div>
                               </td>
-                              <td style={{ padding: `${space.cellY} ${space.cellX}` }}>
+                              <td style={{ padding: `${space.sm} ${space.md}` }}>
                                 <span
                                   className="inline-block px-2 py-0.5 text-[9px] font-semibold"
                                   style={{
@@ -656,8 +659,8 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                                   {row.status}
                                 </span>
                               </td>
-                              <td style={{ color: fg.onBaseMuted, padding: `${space.cellY} ${space.cellX}`, transition: transition.theme }}>{row.date}</td>
-                              <td style={{ color: fg.onBase, fontWeight: 600, padding: `${space.cellY} ${space.cellX}`, transition: transition.theme }}>{row.amount}</td>
+                              <td style={{ color: fg.onBaseMuted, padding: `${space.sm} ${space.md}`, transition: transition.theme }}>{row.date}</td>
+                              <td style={{ color: fg.onBase, fontWeight: 600, padding: `${space.sm} ${space.md}`, transition: transition.theme }}>{row.amount}</td>
                             </tr>
                           );
                         })}
@@ -667,11 +670,11 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 </div>
               </div>
 
-              <div className="flex flex-col" style={{ gap: space.gap, transition: transition.theme }}>
+              <div className="flex flex-col" style={{ gap: space.md, transition: transition.theme }}>
                 {/* Traffic Sources */}
                 <div
                   style={{
-                    padding: space.card,
+                    padding: space.lg,
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
@@ -683,7 +686,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     <span className="text-xs font-semibold" style={{ color: fg.onBase }}>Traffic Sources</span>
                     <span className="text-[10px]" style={{ color: fg.onBaseMuted }}>Where visitors come from</span>
                   </div>
-                  <div className="flex flex-col" style={{ gap: space.gap, transition: transition.theme }}>
+                  <div className="flex flex-col" style={{ gap: space.md, transition: transition.theme }}>
                     {trafficSources.map((source) => (
                       <div key={source.label}>
                         <div className="mb-1 flex items-center justify-between text-[10px]">
@@ -716,7 +719,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 {/* Preferences */}
                 <div
                   style={{
-                    padding: space.card,
+                    padding: space.lg,
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
@@ -726,7 +729,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 >
                   <span className="text-xs font-semibold block mb-1" style={{ color: fg.onBase }}>Preferences</span>
                   <span className="text-[10px] block mb-3" style={{ color: fg.onBaseMuted }}>Configure visual and functional elements.</span>
-                  <div className="flex flex-col" style={{ gap: space.gap, transition: transition.theme }}>
+                  <div className="flex flex-col" style={{ gap: space.md, transition: transition.theme }}>
                     {[
                       ['Display Name', 'Acme Design Team'],
                       ['Default Role', 'Viewer (Read-only)'],
@@ -740,7 +743,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                             border: `1px solid ${border.neutral}`,
                             backgroundColor: bg.raisedHover,
                             borderRadius: radius.field,
-                            padding: `${space.ctrlY} ${space.ctrlX}`,
+                            padding: `${space.sm} ${space.lg}`,
                             transition: transition.theme,
                           }}
                         >
@@ -782,7 +785,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 {/* CTA Card */}
                 <div
                   style={{
-                    padding: space.card,
+                    padding: space.lg,
                     background: gradient,
                     borderRadius: radius.container,
                     boxShadow: shadow.card,

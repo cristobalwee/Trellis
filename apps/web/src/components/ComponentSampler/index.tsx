@@ -61,7 +61,7 @@ const SAMPLER_STYLES = `
 // ---------------------------------------------------------------------------
 
 const Section: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
     {children}
   </div>
 );
@@ -181,7 +181,7 @@ const IconButton: React.FC<{
 // ---------------------------------------------------------------------------
 
 const Toolbar: React.FC = () => (
-  <Card style={{ padding: `${space.ctrlY} ${space.ctrlX}`, display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap' }}>
+  <Card style={{ padding: `${space.sm} ${space.lg}`, display: 'flex', alignItems: 'center', gap: '2px', flexWrap: 'wrap' }}>
     <IconButton icon={Plus} label="Add" />
     <IconButton icon={Grid3X3} label="Grid" />
     <IconButton icon={Square} label="Frame" />
@@ -223,7 +223,7 @@ const UserCard: React.FC<{
   email: string;
   colorIndex: number;
 }> = ({ name, email, colorIndex }) => (
-  <Card style={{ display: 'flex', alignItems: 'center', gap: space.gap }}>
+  <Card style={{ display: 'flex', alignItems: 'center', gap: space.md }}>
     <Avatar initials={name.split(' ').map(w => w[0]).join('')} size="lg" colorIndex={colorIndex} />
     <div>
       <div style={{ fontSize: '13px', fontWeight: 600, color: fg.onBase }}>{name}</div>
@@ -245,24 +245,24 @@ const SignUpForm: React.FC = () => (
         fontWeight: 'var(--font-weight-heading)' as unknown as number,
         color: fg.onBase,
         margin: 0,
-        marginBottom: space.card,
+        marginBottom: space.lg,
         textAlign: 'center',
       }}
     >
       Sign up
     </h3>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
       <Input label="Full name" placeholder="Enter your name" />
       <Input label="Email" type="email" placeholder="Enter your email address" />
       <Input label="Password" type="password" placeholder="Enter your password" />
-      <Button variant="primary" style={{ width: '100%', padding: `10px ${space.ctrlX}`, marginTop: '4px' }}>
+      <Button variant="primary" style={{ width: '100%', padding: `10px ${space.lg}`, marginTop: '4px' }}>
         Create account
       </Button>
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: space.gap,
+          gap: space.md,
         }}
       >
         <div style={{ flex: 1, height: '1px', backgroundColor: border.neutral }} />
@@ -271,7 +271,7 @@ const SignUpForm: React.FC = () => (
         </span>
         <div style={{ flex: 1, height: '1px', backgroundColor: border.neutral }} />
       </div>
-      <Button variant="outline" style={{ width: '100%', padding: `10px ${space.ctrlX}` }}>
+      <Button variant="outline" style={{ width: '100%', padding: `10px ${space.lg}` }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
         </svg>
@@ -294,7 +294,7 @@ const AvatarGroup: React.FC = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', gap: space.gap, flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: space.md, flexWrap: 'wrap' }}>
       {people.map((p, i) => (
         <Avatar key={i} initials={p.initials} size="lg" colorIndex={p.colorIndex} />
       ))}
@@ -388,13 +388,13 @@ const BalanceCard: React.FC = () => {
           fontWeight: 'var(--font-weight-heading)' as unknown as number,
           color: fg.onBase,
           marginTop: '4px',
-          marginBottom: space.gap,
+          marginBottom: space.md,
           letterSpacing: '-0.02em',
         }}
       >
         $9,970.62
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: `1px solid ${border.neutral}`, paddingTop: space.gap }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: `1px solid ${border.neutral}`, paddingTop: space.md }}>
         {rows.map((r) => (
           <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
             <span style={{ color: fg.onBaseMuted }}>{r.label}</span>
@@ -427,7 +427,7 @@ const TRANSACTIONS: Transaction[] = [
 
 const TransactionList: React.FC = () => (
   <Card style={{ padding: 0 }}>
-    <div style={{ padding: `${space.card} ${space.card} ${space.gap}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ padding: `${space.lg} ${space.lg} ${space.md}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <div style={{ fontSize: '13px', fontWeight: 600, color: fg.onBase }}>Recent Transactions</div>
       <span className="cs-link" style={{ fontSize: '11px', color: fg.primary, fontWeight: 600, cursor: 'pointer' }}>
         View all
@@ -444,7 +444,7 @@ const TransactionList: React.FC = () => (
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              padding: `10px ${space.card}`,
+              padding: `10px ${space.lg}`,
               borderTop: `1px solid ${border.neutral}`,
             }}
           >
@@ -511,7 +511,7 @@ const NAV_ITEMS: NavItem[] = [
 const NavList: React.FC = () => {
   const [active, setActive] = useState('Dashboard');
   return (
-    <Card style={{ padding: `${space.ctrlY} 0` }}>
+    <Card style={{ padding: `${space.sm} 0` }}>
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
         const isActive = active === item.label;
@@ -528,7 +528,7 @@ const NavList: React.FC = () => {
               border: 'none',
               background: isActive ? bg.primarySubtle : 'none',
               cursor: 'pointer',
-              padding: `8px ${space.card}`,
+              padding: `8px ${space.lg}`,
               fontSize: '12px',
               fontWeight: isActive ? 600 : 500,
               color: isActive ? fg.primary : fg.onBase,
@@ -572,7 +572,7 @@ const DonutStatCard: React.FC = () => {
   const c = 2 * Math.PI * r;
   return (
     <Card>
-      <div style={{ display: 'flex', alignItems: 'center', gap: space.gap }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: space.md }}>
         <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
           <svg width={size} height={size}>
             <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={border.neutral} strokeWidth={stroke} />
@@ -645,7 +645,7 @@ const BarChartCard: React.FC = () => {
   const max = Math.max(...data.map((d) => d.value));
   return (
     <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: space.gap }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: space.md }}>
         <div style={{ fontSize: '13px', fontWeight: 600, color: fg.onBase }}>Q2 Income</div>
         <div style={{ fontSize: '11px', color: fg.onBaseMuted }}>By client</div>
       </div>
@@ -684,7 +684,7 @@ const EmptyStateCard: React.FC<{
   buttonLabel: string;
   variant?: 'primary' | 'critical';
 }> = ({ icon: Icon, title, description, buttonLabel, variant = 'primary' }) => (
-  <Card style={{ textAlign: 'center', padding: `${space.card} ${space.card}` }}>
+  <Card style={{ textAlign: 'center', padding: `${space.lg} ${space.lg}` }}>
     <div
       style={{
         width: '40px',
@@ -705,7 +705,7 @@ const EmptyStateCard: React.FC<{
         fontSize: '14px',
         fontWeight: 600,
         color: fg.onBase,
-        marginTop: space.gap,
+        marginTop: space.md,
       }}
     >
       {title}
@@ -723,7 +723,7 @@ const EmptyStateCard: React.FC<{
     >
       {description}
     </div>
-    <Button variant={variant === 'primary' ? 'primary' : 'critical'} size="md" style={{ marginTop: space.gap }}>
+    <Button variant={variant === 'primary' ? 'primary' : 'critical'} size="md" style={{ marginTop: space.md }}>
       {buttonLabel}
     </Button>
   </Card>
@@ -749,7 +749,7 @@ const QRConnectCard: React.FC = () => (
     <div
       style={{
         display: 'inline-block',
-        padding: space.gap,
+        padding: space.md,
         border: `1px solid ${border.neutral}`,
         borderRadius: radius.sub,
         backgroundColor: bg.base,
@@ -757,7 +757,7 @@ const QRConnectCard: React.FC = () => (
     >
       <QRCodeArt size={140} />
     </div>
-    <div style={{ fontSize: '14px', fontWeight: 600, color: fg.onBase, marginTop: space.gap }}>
+    <div style={{ fontSize: '14px', fontWeight: 600, color: fg.onBase, marginTop: space.md }}>
       Scan to pair this device
     </div>
     <div
@@ -773,7 +773,7 @@ const QRConnectCard: React.FC = () => (
     >
       Open the mobile app and scan this code to link your account.
     </div>
-    <Button variant="outline" size="md" style={{ marginTop: space.gap, width: '100%' }}>
+    <Button variant="outline" size="md" style={{ marginTop: space.md, width: '100%' }}>
       Got it
     </Button>
   </Card>
@@ -798,7 +798,7 @@ const IconInput: React.FC<{
         gap: '8px',
         border: `1px solid ${border.neutral}`,
         borderRadius: radius.field,
-        padding: `${space.ctrlY} ${space.ctrlX}`,
+        padding: `${space.sm} ${space.lg}`,
         transition: transition.interactive,
       }}
     >
@@ -823,16 +823,16 @@ const IconInput: React.FC<{
 
 const SocialLinksForm: React.FC = () => (
   <Card>
-    <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase, marginBottom: space.gap }}>
+    <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase, marginBottom: space.md }}>
       Social Links
     </div>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
       <IconInput icon={Music2} label="Spotify Artist URL" placeholder="spotify.com/artist/…" defaultValue="spotify.com/artist/3j…2k" />
       <IconInput icon={AtSign} label="Instagram Handle" placeholder="@handle" defaultValue="@julianduryea_music" />
       <IconInput icon={Cloud} label="SoundCloud URL" placeholder="soundcloud.com/username" />
       <IconInput icon={Globe} label="Website" placeholder="https://yoursite.com" />
     </div>
-    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: space.card }}>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: space.lg }}>
       <Button variant="outline" size="md">Discard</Button>
       <Button variant="primary" size="md">Save Changes</Button>
     </div>
@@ -904,7 +904,7 @@ const NotificationsCard: React.FC = () => {
   return (
     <Card>
       <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase }}>Notifications</div>
-      <div style={{ fontSize: '12px', color: fg.onBaseMuted, marginTop: '4px', marginBottom: space.card }}>
+      <div style={{ fontSize: '12px', color: fg.onBaseMuted, marginTop: '4px', marginBottom: space.lg }}>
         Choose what you want to be notified about.
       </div>
 
@@ -919,7 +919,7 @@ const NotificationsCard: React.FC = () => {
           flexDirection: 'column',
           gap: '12px',
           marginTop: '12px',
-          paddingLeft: space.gap,
+          paddingLeft: space.md,
           borderLeft: `1px solid ${border.neutral}`,
           marginLeft: '7px',
           paddingTop: '4px',
@@ -939,7 +939,7 @@ const NotificationsCard: React.FC = () => {
         ))}
       </div>
 
-      <Button variant="primary" size="md" style={{ width: '100%', marginTop: space.card }}>
+      <Button variant="primary" size="md" style={{ width: '100%', marginTop: space.lg }}>
         Save Preferences
       </Button>
     </Card>
@@ -986,7 +986,7 @@ const FAQCard: React.FC = () => {
         backgroundColor: bg.base,
         border: `1px solid ${border.neutral}`,
         borderRadius: radius.container,
-        padding: space.gap,
+        padding: space.md,
         transition: transition.theme,
       }}
     >
@@ -997,7 +997,7 @@ const FAQCard: React.FC = () => {
           backgroundColor: bg.sunken,
           padding: '4px',
           borderRadius: radius.field,
-          marginBottom: space.gap,
+          marginBottom: space.md,
         }}
       >
         {tabs.map((t) => {
@@ -1017,7 +1017,7 @@ const FAQCard: React.FC = () => {
                 color: active ? fg.onBase : fg.onBaseMuted,
                 fontWeight: active ? 600 : 500,
                 fontSize: '12px',
-                padding: `${space.ctrlY} ${space.ctrlX}`,
+                padding: `${space.sm} ${space.lg}`,
                 borderRadius: radius.field,
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -1050,12 +1050,12 @@ const FAQCard: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  gap: space.gap,
+                  gap: space.md,
                   width: '100%',
                   border: 'none',
                   background: 'none',
                   cursor: 'pointer',
-                  padding: `10px ${space.card}`,
+                  padding: `10px ${space.lg}`,
                   fontFamily: 'inherit',
                   fontSize: '12px',
                   fontWeight: 600,
@@ -1073,7 +1073,7 @@ const FAQCard: React.FC = () => {
               {open && (
                 <div
                   style={{
-                    padding: `0 ${space.card} ${space.card}`,
+                    padding: `0 ${space.lg} ${space.lg}`,
                     fontSize: '12px',
                     lineHeight: 1.6,
                     color: fg.onBaseMuted,
@@ -1087,7 +1087,7 @@ const FAQCard: React.FC = () => {
         })}
       </div>
 
-      <Button variant="outline" size="md" style={{ width: '100%', marginTop: space.gap, borderRadius: radius.field }}>
+      <Button variant="outline" size="md" style={{ width: '100%', marginTop: space.md, borderRadius: radius.field }}>
         Contact Support
       </Button>
     </div>
@@ -1131,16 +1131,16 @@ const PreviewComponents: React.FC = () => {
             display: 'grid',
             gridTemplateColumns: '1fr 1.2fr 1fr',
             gap: 32,
-            padding: space.card,
+            padding: space.lg,
             minHeight: '100%',
             alignContent: 'start',
           }}
         >
           {/* ── Column 1: Inputs, tree, badges, toggles, user cards ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
             {/* Search + Button */}
             <Section>
-              <div style={{ display: 'flex', gap: space.gap, alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: space.md, alignItems: 'flex-end' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
                   <div
                     style={{
@@ -1149,7 +1149,7 @@ const PreviewComponents: React.FC = () => {
                       gap: '6px',
                       border: `1px solid ${border.neutral}`,
                       borderRadius: radius.field,
-                      padding: `${space.ctrlY} ${space.ctrlX}`,
+                      padding: `${space.sm} ${space.lg}`,
                       backgroundColor: bg.base,
                       transition: transition.theme,
                     }}
@@ -1178,14 +1178,14 @@ const PreviewComponents: React.FC = () => {
             <Alert variant="info">Please upgrade to the new version.</Alert>
 
             {/* Tree View */}
-            <Card style={{ padding: `${space.ctrlY} 0` }}>
+            <Card style={{ padding: `${space.sm} 0` }}>
               {TREE_DATA.map((node, i) => (
                 <TreeRow key={i} node={node} />
               ))}
             </Card>
 
             {/* Badges */}
-            <div style={{ display: 'flex', gap: space.gap, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: space.md, flexWrap: 'wrap' }}>
               <Badge variant="primary">Fully-featured</Badge>
               <Badge variant="default">Built with Trellis</Badge>
               <Badge variant="success">Open source</Badge>
@@ -1194,7 +1194,7 @@ const PreviewComponents: React.FC = () => {
             </div>
 
             {/* Icon Buttons + Toggles */}
-            <Card style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', padding: `${space.ctrlY} ${space.ctrlX}` }}>
+            <Card style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', padding: `${space.sm} ${space.lg}` }}>
               <IconButton icon={() => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>} label="Star" active />
               <IconButton icon={() => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>} label="Bookmark" />
               <IconButton icon={() => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>} label="Settings" />
@@ -1231,7 +1231,7 @@ const PreviewComponents: React.FC = () => {
           </div>
 
           {/* ── Column 2: Balance, Toolbar, Transactions, FAQ, Sign-up ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
             <BalanceCard />
             <Toolbar />
             <TransactionList />
@@ -1240,7 +1240,7 @@ const PreviewComponents: React.FC = () => {
           </div>
 
           {/* ── Column 3: Stat, nav, avatars, rich text, checklist ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: space.gap }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
             {/* Donut Stat */}
             <DonutStatCard />
 

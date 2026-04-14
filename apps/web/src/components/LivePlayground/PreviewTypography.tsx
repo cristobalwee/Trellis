@@ -34,11 +34,16 @@ const radius = {
   badge: t('radius-badge'),
 };
 const space = {
-  card: t('spacing-card'),
-  gap: t('spacing-gap'),
-  shell: t('spacing-shell'),
-  ctrlY: t('spacing-control-y'),
-  ctrlX: t('spacing-control-x'),
+  xs: t('spacing-xs'),
+  sm: t('spacing-sm'),
+  md: t('spacing-md'),
+  lg: t('spacing-lg'),
+  xl: t('spacing-xl'),
+  '2xl': t('spacing-2xl'),
+  '3xl': t('spacing-3xl'),
+  '4xl': t('spacing-4xl'),
+  '5xl': t('spacing-5xl'),
+  '6xl': t('spacing-6xl'),
 };
 const transition = {
   theme: t('transition-theme'),
@@ -85,7 +90,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
         className="sticky top-0 z-10 flex items-center justify-between"
         style={{
           backgroundColor: bg.base,
-          padding: `${space.shell} ${space.card}`,
+          padding: `${space.md} ${space.lg}`,
           transition: transition.theme,
         }}
       >
@@ -108,7 +113,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
             Acme
           </span>
         </div>
-        <div className="flex items-center" style={{ gap: space.gap }}>
+        <div className="flex items-center" style={{ gap: space.md }}>
           {['Design', 'Technology', 'Culture'].map((item) => (
             <span
               key={item}
@@ -124,7 +129,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               backgroundColor: bg.primary,
               color: fg.onPrimary,
               borderRadius: radius.action,
-              padding: `${space.ctrlY} ${space.ctrlX}`,
+              padding: `${space.sm} ${space.lg}`,
               transition: transition.interactive,
             }}
           >
@@ -136,17 +141,17 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
       {/* ── Article ── */}
       <article
         className="max-w-3xl mx-auto"
-        style={{ padding: space.card, marginTop: `calc(${space.card} + 24px)` }}
+        style={{ padding: space.lg, marginTop: `calc(${space.lg} + 24px)` }}
       >
         {/* Tags / Eyebrow */}
-        <div className="flex items-center" style={{ gap: space.gap, marginBottom: space.card }}>
+        <div className="flex items-center" style={{ gap: space.md, marginBottom: space.lg }}>
           <span
             className="text-[11px] font-semibold"
             style={{
               backgroundColor: bg.primarySubtle,
               color: fg.primary,
               borderRadius: radius.badge,
-              padding: `${space.ctrlY} ${space.ctrlX}`,
+              padding: `${space.sm} ${space.lg}`,
               transition: transition.theme,
             }}
           >
@@ -184,7 +189,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
             color: fg.onBaseMuted,
             fontWeight: weight.bodyLight as unknown as number,
             margin: 0,
-            marginTop: space.gap,
+            marginTop: space.md,
           }}
         >
           How thoughtful type choices shape perception, guide attention, and build trust — often without anyone noticing.
@@ -195,9 +200,9 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           className="flex items-center"
           style={{
             borderTop: `1px solid ${border.neutral}`,
-            gap: space.gap,
-            marginTop: space.card,
-            paddingTop: space.card,
+            gap: space.md,
+            marginTop: space.lg,
+            paddingTop: space.lg,
             transition: transition.theme,
           }}
         >
@@ -229,8 +234,8 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
         </div>
 
         {/* ── Body ── */}
-        <div style={{ marginTop: space.card }}>
-          <div className="flex flex-col" style={{ gap: space.card }}>
+        <div style={{ marginTop: space.lg }}>
+          <div className="flex flex-col" style={{ gap: space.lg }}>
             <p
               style={{
                 fontFamily: font.primary,
@@ -284,7 +289,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
                 lineHeight: 1.5,
                 color: fg.onBaseMuted,
                 margin: 0,
-                padding: `${space.ctrlY} ${space.card}`,
+                padding: `${space.sm} ${space.lg}`,
               }}
             >
               "Typography is the craft of endowing human language with a durable visual form."
@@ -338,8 +343,8 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               style={{
                 backgroundColor: bg.primarySubtle,
                 borderRadius: radius.container,
-                padding: space.card,
-                gap: space.gap,
+                padding: space.lg,
+                gap: space.md,
                 transition: transition.theme,
               }}
             >
@@ -349,7 +354,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
               <div>
                 <span
                   className="text-sm font-semibold block"
-                  style={{ fontFamily: font.secondary, color: fg.primary, marginBottom: space.gap }}
+                  style={{ fontFamily: font.secondary, color: fg.primary, marginBottom: space.md }}
                 >
                   Quick Tip
                 </span>
@@ -384,9 +389,9 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
           className="flex flex-wrap items-center"
           style={{
             borderTop: `1px solid ${border.neutral}`,
-            gap: space.gap,
-            marginTop: space.card,
-            paddingTop: space.card,
+            gap: space.md,
+            marginTop: space.lg,
+            paddingTop: space.lg,
             transition: transition.theme,
           }}
         >
@@ -398,7 +403,7 @@ const PreviewTypography: React.FC<PreviewTypographyProps> = ({
                 backgroundColor: bg.sunken,
                 color: fg.onBaseMuted,
                 borderRadius: radius.badge,
-                padding: `${space.ctrlY} ${space.ctrlX}`,
+                padding: `${space.sm} ${space.lg}`,
                 transition: transition.theme,
               }}
             >

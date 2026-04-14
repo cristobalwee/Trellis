@@ -20,8 +20,8 @@ const Alert: React.FC<AlertProps> = ({ variant = 'info', children }) => {
       style={{
         display: 'flex',
         alignItems: 'flex-start',
-        gap: space.gap,
-        padding: space.card,
+        gap: space.md,
+        padding: space.lg,
         borderRadius: radius.container,
         backgroundColor: bg.primarySubtle,
         color: fg.onBase,

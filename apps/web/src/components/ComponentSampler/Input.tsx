@@ -33,7 +33,7 @@ const Input: React.FC<InputProps> = ({ label, id, style, ...rest }) => {
           backgroundColor: bg.base,
           border: `1px solid ${border.neutral}`,
           borderRadius: radius.field,
-          padding: `${space.ctrlY} ${space.ctrlX}`,
+          padding: `${space.sm} ${space.lg}`,
           outline: 'none',
           transition: transition.interactive,
           width: '100%',

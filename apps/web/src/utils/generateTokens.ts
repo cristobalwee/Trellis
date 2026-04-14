@@ -71,35 +71,41 @@ const RADIUS_PRESETS: Record<BrandConfig['roundness'], Record<string, string>> =
   },
 };
 
-const SPACING_PRESETS: Record<BrandConfig['density'], Record<string, string>> = {
-  compact: {
-    '--spacing-card': '12px',
-    '--spacing-cell-y': '6px',
-    '--spacing-cell-x': '10px',
-    '--spacing-gap': '8px',
-    '--spacing-shell': '10px',
-    '--spacing-control-y': '6px',
-    '--spacing-control-x': '8px',
-  },
-  default: {
-    '--spacing-card': '16px',
-    '--spacing-cell-y': '10px',
-    '--spacing-cell-x': '14px',
-    '--spacing-gap': '12px',
-    '--spacing-shell': '14px',
-    '--spacing-control-y': '8px',
-    '--spacing-control-x': '10px',
-  },
-  comfortable: {
-    '--spacing-card': '24px',
-    '--spacing-cell-y': '14px',
-    '--spacing-cell-x': '18px',
-    '--spacing-gap': '16px',
-    '--spacing-shell': '20px',
-    '--spacing-control-y': '10px',
-    '--spacing-control-x': '12px',
-  },
+// Core primitive (dimension-100) per density — everything else scales from this.
+const DIMENSION_BASE_PX: Record<BrandConfig['density'], number> = {
+  compact: 6,
+  default: 8,
+  comfortable: 10,
 };
+
+// Derived ramp: each step is core × (step / 100).
+const DIMENSION_STEPS = [0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500, 600, 800, 1000] as const;
+
+// Semantic t-shirt scale → dimension step.
+const SPACING_SCALE: Record<string, number> = {
+  xs: 50,
+  sm: 100,
+  md: 150,
+  lg: 200,
+  xl: 300,
+  '2xl': 400,
+  '3xl': 500,
+  '4xl': 600,
+  '5xl': 800,
+  '6xl': 1000,
+};
+
+function spacingTokens(density: BrandConfig['density']): Record<string, string> {
+  const base = DIMENSION_BASE_PX[density];
+  const out: Record<string, string> = {};
+  for (const step of DIMENSION_STEPS) {
+    out[`--dimension-${step}`] = `${(base * step) / 100}px`;
+  }
+  for (const [name, step] of Object.entries(SPACING_SCALE)) {
+    out[`--spacing-${name}`] = `var(--dimension-${step})`;
+  }
+  return out;
+}
 
 function shadowTokens(
   level: BrandConfig['shadows'],
@@ -410,7 +416,7 @@ export function generateDesignTokens(
   Object.assign(tokens, RADIUS_PRESETS[config.roundness]);
 
   // --- Spacing tokens ---
-  Object.assign(tokens, SPACING_PRESETS[config.density]);
+  Object.assign(tokens, spacingTokens(config.density));
 
   // --- Shadow tokens ---
   Object.assign(tokens, shadowTokens(config.shadows, isDark));

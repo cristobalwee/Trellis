@@ -78,13 +78,16 @@ export const radius = {
 } as const;
 
 export const space = {
-  card: t('spacing-card'),
-  cellY: t('spacing-cell-y'),
-  cellX: t('spacing-cell-x'),
-  gap: t('spacing-gap'),
-  shell: t('spacing-shell'),
-  ctrlY: t('spacing-control-y'),
-  ctrlX: t('spacing-control-x'),
+  xs: t('spacing-xs'),
+  sm: t('spacing-sm'),
+  md: t('spacing-md'),
+  lg: t('spacing-lg'),
+  xl: t('spacing-xl'),
+  '2xl': t('spacing-2xl'),
+  '3xl': t('spacing-3xl'),
+  '4xl': t('spacing-4xl'),
+  '5xl': t('spacing-5xl'),
+  '6xl': t('spacing-6xl'),
 } as const;
 
 export const shadow = {

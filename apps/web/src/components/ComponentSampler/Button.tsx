@@ -39,8 +39,8 @@ const VARIANT_STYLES: Record<ButtonVariant, React.CSSProperties> = {
 };
 
 const SIZE_STYLES: Record<ButtonSize, React.CSSProperties> = {
-  sm: { fontSize: '11px', padding: `${space.ctrlY} ${space.ctrlX}` },
-  md: { fontSize: '12px', padding: `${space.ctrlY} ${space.ctrlX}` },
+  sm: { fontSize: '11px', padding: `${space.sm} ${space.lg}` },
+  md: { fontSize: '12px', padding: `${space.sm} ${space.lg}` },
 };
 
 const Button: React.FC<ButtonProps> = ({

@@ -25,7 +25,7 @@ const Badge: React.FC<BadgeProps> = ({ variant = 'default', children }) => (
       fontWeight: 600,
       fontFamily: 'inherit',
       borderRadius: radius.badge,
-      padding: `3px ${space.ctrlX}`,
+      padding: `3px ${space.lg}`,
       transition: transition.theme,
       ...VARIANT_STYLES[variant],
     }}
