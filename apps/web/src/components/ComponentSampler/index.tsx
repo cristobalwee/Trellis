@@ -656,12 +656,12 @@ const BarChartCard: React.FC = () => {
               <span style={{ color: fg.onBaseMuted }}>{d.label}</span>
               <span style={{ color: fg.onBase, fontWeight: 600 }}>${d.value.toLocaleString()}</span>
             </div>
-            <div style={{ height: '6px', borderRadius: radius.badge, backgroundColor: bg.raisedHover, overflow: 'hidden' }}>
+            <div style={{ height: '6px', borderRadius: radius.badge, backgroundColor: bg.sunkenStrong, overflow: 'hidden' }}>
               <div
                 style={{
                   width: `${(d.value / max) * 100}%`,
                   height: '100%',
-                  background: gradient,
+                  background: bg.primary,
                   transition: transition.chart,
                 }}
               />
@@ -682,18 +682,19 @@ const EmptyStateCard: React.FC<{
   title: string;
   description: string;
   buttonLabel: string;
-}> = ({ icon: Icon, title, description, buttonLabel }) => (
+  variant?: 'primary' | 'critical';
+}> = ({ icon: Icon, title, description, buttonLabel, variant = 'primary' }) => (
   <Card style={{ textAlign: 'center', padding: `${space.card} ${space.card}` }}>
     <div
       style={{
         width: '40px',
         height: '40px',
         borderRadius: '999px',
-        backgroundColor: bg.raisedHover,
+        backgroundColor: variant === 'primary' ? bg.sunken : bg.criticalSubtle,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        color: fg.onBaseMuted,
+        justifyContent: 'center', 
+        color: variant === 'primary' ? fg.onSunken : fg.onCriticalSubtle,
         margin: '0 auto',
       }}
     >
@@ -722,7 +723,7 @@ const EmptyStateCard: React.FC<{
     >
       {description}
     </div>
-    <Button variant="primary" size="md" style={{ marginTop: space.gap }}>
+    <Button variant={variant === 'primary' ? 'primary' : 'critical'} size="md" style={{ marginTop: space.gap }}>
       {buttonLabel}
     </Button>
   </Card>
@@ -797,7 +798,6 @@ const IconInput: React.FC<{
         gap: '8px',
         border: `1px solid ${border.neutral}`,
         borderRadius: radius.field,
-        backgroundColor: bg.sunken,
         padding: `${space.ctrlY} ${space.ctrlX}`,
         transition: transition.interactive,
       }}
@@ -1187,8 +1187,10 @@ const PreviewComponents: React.FC = () => {
             {/* Badges */}
             <div style={{ display: 'flex', gap: space.gap, flexWrap: 'wrap' }}>
               <Badge variant="primary">Fully-featured</Badge>
-              <Badge variant="default">Built with Radix</Badge>
+              <Badge variant="default">Built with Trellis</Badge>
               <Badge variant="success">Open source</Badge>
+              <Badge variant="warning">Beta</Badge>
+              <Badge variant="critical">Critical</Badge>
             </div>
 
             {/* Icon Buttons + Toggles */}
@@ -1218,6 +1220,7 @@ const PreviewComponents: React.FC = () => {
               title="Distribute Track"
               description="Upload your first master to start reaching listeners on Spotify, Apple Music, and more."
               buttonLabel="Create Release"
+              variant="critical"
             />
 
             {/* Social Links form */}

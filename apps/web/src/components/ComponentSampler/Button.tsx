@@ -1,7 +1,7 @@
 import React from 'react';
 import { bg, fg, border, radius, space, transition } from './tokens';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'critical';
 export type ButtonSize = 'sm' | 'md';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -30,6 +30,11 @@ const VARIANT_STYLES: Record<ButtonVariant, React.CSSProperties> = {
     color: fg.onBase,
     backgroundColor: 'transparent',
     border: `1px solid ${border.neutral}`,
+  },
+  critical: {
+    color: fg.onCritical,
+    backgroundColor: bg.critical,
+    border: 'none',
   },
 };
 

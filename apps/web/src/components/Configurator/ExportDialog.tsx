@@ -338,7 +338,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
                 {/* Toolbar: tabs + color space + copy */}
                 <div className="flex flex-wrap items-center gap-3 px-6 justify-between">
                   {/* Format tabs */}
-                  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 flex-1 min-w-0 max-w-fit">
+                  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 flex-1 min-w-fit max-w-fit">
                     {FORMAT_TABS.map((tab) => (
                       <button
                         key={tab.id}

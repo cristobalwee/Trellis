@@ -26,7 +26,7 @@ const Toggle: React.FC<ToggleProps> = ({ checked, onChange, label, id }) => {
           borderRadius: '999px',
           border: 'none',
           cursor: 'pointer',
-          backgroundColor: checked ? bg.primary : bg.sunken,
+          backgroundColor: checked ? bg.primary : bg.sunkenStrong,
           transition: transition.interactive,
           padding: 0,
           flexShrink: 0,
