@@ -259,11 +259,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<ExportFormat>('css');
   const [colorSpace, setColorSpace] = useState<ColorSpace>('oklch');
+  const [includeSemantic, setIncludeSemantic] = useState(true);
   const [copied, setCopied] = useState(false);
 
   const output = useMemo(
-    () => exportTokens(tokens, format, colorSpace),
-    [tokens, format, colorSpace],
+    () => exportTokens(tokens, format, colorSpace, { includeSemantic }),
+    [tokens, format, colorSpace, includeSemantic],
   );
 
   const highlighted = useMemo(() => highlight(output, langFor(format)), [output, format]);
@@ -356,6 +357,29 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
 
                   {/* Color space selector + copy */}
                   <div className="flex items-center gap-2 shrink-0">
+                    {/* {format === 'css' && (
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={includeSemantic}
+                        onClick={() => setIncludeSemantic((v) => !v)}
+                        className="flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-charcoal bg-charcoal/5 hover:bg-charcoal/10 rounded-lg transition-colors cursor-pointer"
+                        title="Include semantic tokens in the CSS export"
+                      >
+                        <span
+                          className={`relative inline-block w-7 h-4 rounded-full transition-colors ${
+                            includeSemantic ? 'bg-charcoal' : 'bg-charcoal/20'
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${
+                              includeSemantic ? 'translate-x-3' : 'translate-x-0'
+                            }`}
+                          />
+                        </span>
+                        Semantic tokens
+                      </button>
+                    )} */}
                     <Select
                       value={colorSpace}
                       onValueChange={(v) => setColorSpace(v as ColorSpace)}

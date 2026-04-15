@@ -80,41 +80,114 @@ function nonColorEntries(tokens: Record<string, string>) {
 // CSS export
 // ---------------------------------------------------------------------------
 
-function cssBlock(selector: string, entries: [string, string][], space: ColorSpace): string {
-  const lines = [`${selector} {`];
-  for (const [prop, raw] of entries) {
-    const value = prop.startsWith('--color-') ? convertValue(raw, space) : raw;
-    lines.push(`  ${prop}: ${value};`);
-  }
-  lines.push('}');
-  return lines.join('\n');
+type Category =
+  | 'primitive'
+  | 'semantic-color'
+  | 'gradient'
+  | 'typography'
+  | 'spacing'
+  | 'radius'
+  | 'shadow'
+  | 'motion'
+  | 'other';
+
+const CATEGORY_ORDER: Category[] = [
+  'primitive',
+  'semantic-color',
+  'gradient',
+  'typography',
+  'spacing',
+  'radius',
+  'shadow',
+  'motion',
+  'other',
+];
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  'primitive':      'Primitive color ramps',
+  'semantic-color': 'Semantic colors',
+  'gradient':       'Gradients',
+  'typography':     'Typography',
+  'spacing':        'Spacing',
+  'radius':         'Radii',
+  'shadow':         'Shadows',
+  'motion':         'Motion',
+  'other':          'Other',
+};
+
+function categorize(prop: string): Category {
+  if (isPrimitiveColorToken(prop)) return 'primitive';
+  if (prop.startsWith('--color-')) return 'semantic-color';
+  if (prop.startsWith('--gradient-')) return 'gradient';
+  if (/^--(font|text|tracking|leading|letter|line-height)/.test(prop)) return 'typography';
+  if (/^--(spacing|space|dimension|size)-/.test(prop)) return 'spacing';
+  if (prop.startsWith('--radius-')) return 'radius';
+  if (/^--(shadow|elevation)-/.test(prop)) return 'shadow';
+  if (/^--(transition|duration|ease|motion)-/.test(prop)) return 'motion';
+  return 'other';
 }
 
-function exportCSS(set: TokenSet, space: ColorSpace): string {
-  const sections: string[] = [];
+function groupByCategory(tokens: Record<string, string>): Record<Category, [string, string][]> {
+  const groups = Object.fromEntries(
+    CATEGORY_ORDER.map((c) => [c, [] as [string, string][]]),
+  ) as Record<Category, [string, string][]>;
+  for (const entry of Object.entries(tokens)) {
+    groups[categorize(entry[0])].push(entry);
+  }
+  return groups;
+}
 
-  sections.push('/* ----------------------------------------------------------- */');
-  sections.push('/* Primitive tokens                                            */');
-  sections.push('/* ----------------------------------------------------------- */');
-  sections.push(cssBlock(':root', primitiveEntries(set.light), space));
-  sections.push(cssBlock(':root.dark, .dark', primitiveEntries(set.dark), space));
+function categoryBlockLines(
+  tokens: Record<string, string>,
+  space: ColorSpace,
+  includeSemantic: boolean,
+): string[] {
+  const groups = groupByCategory(tokens);
+  const lines: string[] = [];
+  let firstSection = true;
 
-  sections.push('');
-  sections.push('/* ----------------------------------------------------------- */');
-  sections.push('/* Semantic tokens                                             */');
-  sections.push('/* ----------------------------------------------------------- */');
-  const lightSemanticAndRest = [
-    ...semanticColorEntries(set.light),
-    ...nonColorEntries(set.light),
-  ];
-  const darkSemanticAndRest = [
-    ...semanticColorEntries(set.dark),
-    ...nonColorEntries(set.dark),
-  ];
-  sections.push(cssBlock(':root', lightSemanticAndRest, space));
-  sections.push(cssBlock(':root.dark, .dark', darkSemanticAndRest, space));
+  for (const category of CATEGORY_ORDER) {
+    if (category !== 'primitive' && !includeSemantic) continue;
+    const entries = groups[category];
+    if (entries.length === 0) continue;
 
-  return sections.join('\n');
+    if (!firstSection) lines.push('');
+    firstSection = false;
+    lines.push(`  /* ${CATEGORY_LABELS[category]} */`);
+    for (const [prop, raw] of entries) {
+      const value = prop.startsWith('--color-') ? convertValue(raw, space) : raw;
+      lines.push(`  ${prop}: ${value};`);
+    }
+  }
+  return lines;
+}
+
+function cssCategoryBlock(
+  selector: string,
+  tokens: Record<string, string>,
+  space: ColorSpace,
+  includeSemantic: boolean,
+): string {
+  const body = categoryBlockLines(tokens, space, includeSemantic);
+  return [`${selector} {`, ...body, '}'].join('\n');
+}
+
+function diffFromLight(
+  light: Record<string, string>,
+  dark: Record<string, string>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [prop, raw] of Object.entries(dark)) {
+    if (light[prop] !== raw) out[prop] = raw;
+  }
+  return out;
+}
+
+function exportCSS(set: TokenSet, space: ColorSpace, includeSemantic: boolean): string {
+  const light = cssCategoryBlock(':root', set.light, space, includeSemantic);
+  const darkOverrides = diffFromLight(set.light, set.dark);
+  const dark = cssCategoryBlock(':root[data-theme="dark"]', darkOverrides, space, includeSemantic);
+  return `${light}\n\n${dark}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -351,13 +424,19 @@ function exportShadcn(set: TokenSet, space: ColorSpace): string {
 // Public API
 // ---------------------------------------------------------------------------
 
+export interface ExportOptions {
+  includeSemantic?: boolean;
+}
+
 export function exportTokens(
   set: TokenSet,
   format: ExportFormat,
   space: ColorSpace,
+  options: ExportOptions = {},
 ): string {
+  const includeSemantic = options.includeSemantic ?? true;
   switch (format) {
-    case 'css':      return exportCSS(set, space);
+    case 'css':      return exportCSS(set, space, includeSemantic);
     case 'dtcg':     return exportDTCG(set, space);
     case 'tailwind': return exportTailwind(set, space);
     case 'shadcn':   return exportShadcn(set, space);
