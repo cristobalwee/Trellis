@@ -127,6 +127,10 @@ const font = {
   primary: t('font-family-primary'),
   secondary: t('font-family-secondary'),
 };
+const weight = {
+  heading: t('font-weight-heading'),
+  bodyRegular: t('font-weight-body-regular'),
+};
 
 const gradient = t('gradient-primary');
 
@@ -296,6 +300,10 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
 
   const avatarColors = [bg.primarySubtle, bg.accentSubtle, bg.successSubtle, bg.warningSubtle];
   const initials = ['A', 'GM', 'S', 'V'];
+  const todayLabel = useMemo(
+    () => new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date()),
+    [],
+  );
 
   return (
     <>
@@ -410,17 +418,12 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
               transition: transition.theme,
             }}
           >
-            <div className="flex items-center gap-2 min-w-[170px]">
-              <span className="text-sm font-semibold" style={{ color: fg.onBase }}>Dashboard Preview</span>
-            </div>
-            <div className="flex-1 min-w-[180px] sm:min-w-[240px]">
+            <div className="flex-1 min-w-[180px]">
               <div
                 className="flex items-center gap-2"
                 style={{
                   borderRadius: radius.field,
-                  backgroundColor: bg.sunken,
-                  border: `1px solid ${border.neutral}`,
-                  padding: `${space.sm} ${space.lg}`,
+                  padding: `${space.sm}`,
                   transition: transition.theme,
                 }}
               >
@@ -469,6 +472,37 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             className="flex-1 overflow-y-auto overflow-x-hidden"
             style={{ paddingTop: space.xl, paddingBottom: space.xl, paddingLeft: space['2xl'], paddingRight: space['2xl'], transition: transition.theme }}
           >
+            <div className="mb-4" style={{ transition: transition.theme, marginBottom: space.xl }}>
+              <span
+                className="block text-[11px]"
+                style={{
+                  color: fg.onBaseMuted,
+                  fontFamily: font.primary,
+                  fontWeight: weight.bodyRegular as unknown as number,
+                  letterSpacing: '0.01em',
+                  marginBottom: space.xs,
+                  transition: transition.theme,
+                }}
+              >
+                {todayLabel}
+              </span>
+              <h2
+                className="leading-tight"
+                style={{
+                  color: fg.onBase,
+                  fontFamily: font.secondary,
+                  fontSize: '1.5rem',
+                  fontWeight: weight.heading as unknown as number,
+                  lineHeight: 1.15,
+                  letterSpacing: '-0.02em',
+                  margin: 0,
+                  transition: transition.theme,
+                }}
+              >
+                Good morning, Dave
+              </h2>
+            </div>
+
             {/* Metric Cards */}
             <div
               className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 mb-4"

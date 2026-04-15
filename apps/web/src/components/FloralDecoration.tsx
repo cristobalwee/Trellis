@@ -120,7 +120,7 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 58, y: 85, rotation: 5, scale: 0.95, delay: 0.67, type: 'pink' },
   { x: 52, y: 98, rotation: -15, scale: 1.05, delay: 0.7, type: 'yellow' },
   { x: 45, y: 88, rotation: 10, scale: 0.8, delay: 0.73, type: 'pink' },
-  { x: 48, y: 72, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--foreground-critical', kind: 'color', value: '#e23d3f' } },
+  { x: 48, y: 72, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--background-critical', kind: 'color', value: '#e23d3f' } },
   
   // Tapering
   { x: 35, y: 95, rotation: -10, scale: 1.1, delay: 0.79, type: 'yellow' },
