@@ -12,7 +12,7 @@ export interface ShowcaseConfig {
   roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
-  shadows: 'none' | 'subtle' | 'elevated';
+  shadows: 'none' | 'subtle' | 'dramatic';
 
   // Panel 2: Component Showcase
   isDarkMode: boolean;

@@ -211,7 +211,7 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
           options={[
             { id: 'none', label: 'None' },
             { id: 'subtle', label: 'Subtle' },
-            { id: 'elevated', label: 'Elevated' },
+            { id: 'dramatic', label: 'Dramatic' },
           ]}
           onChange={(id) => onChange({ shadows: id as PlaygroundConfig['shadows'] })}
         />

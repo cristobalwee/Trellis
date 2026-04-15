@@ -1013,7 +1013,7 @@ const FAQCard: React.FC = () => {
                 flex: 1,
                 border: 'none',
                 background: active ? bg.raised : 'transparent',
-                boxShadow: active ? shadow.card : 'none',
+                boxShadow: active ? shadow.raised : 'none',
                 color: active ? fg.onBase : fg.onBaseMuted,
                 fontWeight: active ? 600 : 500,
                 fontSize: '12px',

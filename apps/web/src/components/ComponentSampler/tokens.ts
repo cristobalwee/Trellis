@@ -91,8 +91,8 @@ export const space = {
 } as const;
 
 export const shadow = {
-  card: t('shadow-card'),
-  elevated: t('shadow-elevated'),
+  raised: t('shadow-raised'),
+  overlay: t('shadow-overlay'),
 } as const;
 
 export const transition = {

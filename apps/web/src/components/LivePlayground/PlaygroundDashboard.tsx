@@ -115,8 +115,8 @@ const space = {
   '6xl': t('spacing-6xl'),
 };
 const shadow = {
-  card: t('shadow-card'),
-  elevated: t('shadow-elevated'),
+  raised: t('shadow-raised'),
+  overlay: t('shadow-overlay'),
 };
 const transition = {
   theme: t('transition-theme'),
@@ -213,7 +213,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
           fontFamily: font.primary,
           fontSize: 11,
         },
-        extraCssText: `border-radius:${radius.sub}; box-shadow:${shadow.card};`,
+        extraCssText: `border-radius:${radius.sub}; box-shadow:${shadow.overlay};`,
         axisPointer: {
           type: 'line',
           lineStyle: {
@@ -404,7 +404,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
           style={{
             backgroundColor: bg.base,
             borderRadius: radius.container,
-            boxShadow: shadow.elevated,
+            boxShadow: shadow.raised,
             transition: transition.theme,
           }}
         >
@@ -517,7 +517,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >
@@ -570,7 +570,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >
@@ -608,7 +608,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
                     overflow: 'hidden',
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >
@@ -712,7 +712,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >
@@ -757,7 +757,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     backgroundColor: bg.raised,
                     border: `1px solid ${border.neutral}`,
                     borderRadius: radius.container,
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >
@@ -822,7 +822,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     padding: space.lg,
                     background: gradient,
                     borderRadius: radius.container,
-                    boxShadow: shadow.card,
+                    boxShadow: shadow.raised,
                     transition: transition.theme,
                   }}
                 >

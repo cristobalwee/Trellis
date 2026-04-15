@@ -67,7 +67,7 @@ export interface BrandConfig {
 
   // Style
   roundness: 'sharp' | 'subtle' | 'rounded' | 'pill';
-  shadows: 'none' | 'subtle' | 'elevated';
+  shadows: 'none' | 'subtle' | 'dramatic';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
 }

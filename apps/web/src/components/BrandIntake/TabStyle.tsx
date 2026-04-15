@@ -61,7 +61,7 @@ const ROUNDNESS_OPTIONS: PresetOption[] = [
 const SHADOW_OPTIONS: PresetOption[] = [
   { id: 'none', label: 'None' },
   { id: 'subtle', label: 'Subtle' },
-  { id: 'elevated', label: 'Elevated' },
+  { id: 'dramatic', label: 'Dramatic' },
 ];
 
 const DENSITY_OPTIONS: PresetOption[] = [

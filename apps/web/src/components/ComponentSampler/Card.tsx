@@ -13,7 +13,7 @@ const Card: React.FC<CardProps> = ({ children, style }) => (
       border: `1px solid ${border.neutral}`,
       borderRadius: radius.container,
       padding: space.lg,
-      boxShadow: shadow.card,
+      boxShadow: shadow.raised,
       transition: transition.theme,
       ...style,
     }}

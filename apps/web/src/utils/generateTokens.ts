@@ -107,34 +107,46 @@ function spacingTokens(density: BrandConfig['density']): Record<string, string> 
   return out;
 }
 
+// Elevation system
+// ----------------
+// Four conceptual elevation tiers exist regardless of the configured level:
+//   sunken  — recessed gutter surfaces (never casts a shadow)
+//   base    — the default page surface (never casts a shadow)
+//   raised  — cards, panels, inset surfaces lifted above base
+//   overlay — modals, popovers, menus floating above the page
+// Only `raised` and `overlay` emit visible shadow tokens. The `shadows` config
+// tunes how pronounced these two are; it does not remove a tier.
 function shadowTokens(
   level: BrandConfig['shadows'],
   isDark: boolean
 ): Record<string, string> {
-  const base = isDark ? '2,6,23' : '15,23,42';
+  const base = isDark ? '0,0,0' : '15,23,42';
   switch (level) {
     case 'none':
+      // raised flattens into base; overlay retains just enough lift to read as floating.
       return {
-        '--shadow-card': 'none',
-        '--shadow-elevated': 'none',
+        '--shadow-raised': 'none',
+        '--shadow-overlay': isDark
+          ? `0 2px 6px rgba(${base},0.25), 0 1px 2px rgba(${base},0.18)`
+          : `0 2px 6px rgba(${base},0.05), 0 1px 2px rgba(${base},0.03)`,
       };
-    case 'subtle':
+    case 'dramatic':
       return {
-        '--shadow-card': isDark
-          ? `0 1px 4px rgba(${base},0.06)`
-          : `0 1px 4px rgba(${base},0.06)`,
-        '--shadow-elevated': isDark
-          ? `0 1px 4px rgba(${base},0.06)`
-          : `0 1px 4px rgba(${base},0.06)`,
+        '--shadow-raised': isDark
+          ? `0 2px 6px rgba(${base},0.08)`
+          : `0 2px 6px rgba(${base},0.06)`,
+        '--shadow-overlay': isDark
+          ? `0 20px 40px rgba(${base},0.55), 0 8px 16px rgba(${base},0.35)`
+          : `0 20px 40px rgba(${base},0.18), 0 8px 16px rgba(${base},0.1)`,
       };
-    default: // elevated
+    default: // subtle (default)
       return {
-        '--shadow-card': isDark
-          ? `0 2px 8px rgba(${base},0.1)`
-          : `0 2px 8px rgba(${base},0.1)`,
-        '--shadow-elevated': isDark
-          ? `0 2px 8px rgba(${base},0.1)`
-          : `0 2px 8px rgba(${base},0.1)`,
+        '--shadow-raised': isDark
+          ? `0 1px 3px rgba(${base},0.1)`
+          : `0 1px 3px rgba(${base},0.06)`,
+        '--shadow-overlay': isDark
+          ? `0 10px 25px rgba(${base},0.45), 0 4px 10px rgba(${base},0.25)`
+          : `0 10px 25px rgba(${base},0.1), 0 4px 10px rgba(${base},0.06)`,
       };
   }
 }
@@ -234,6 +246,31 @@ export function generateDesignTokens(
     }
   }
 
+  // --- Decorative (non-semantic) color ramps ---
+  // Fixed hue seeds for decorative-only tokens — distinct from configurable
+  // primary/secondary/status roles. Use these for charts, illustrations, tags,
+  // and anywhere you need variety without semantic meaning.
+  const DECORATIVE_SEEDS: Record<string, string> = {
+    amber: '#f59e0b',
+    teal: '#14b8a6',
+    indigo: '#6366f1',
+    rose: '#f43f5e',
+    violet: '#8b5cf6',
+    lime: '#84cc16',
+  };
+  const decorativeRampCache: Record<string, ColorRamp> = {};
+  for (const [name, hex] of Object.entries(DECORATIVE_SEEDS)) {
+    const decorativeOklch = toOklch(hex);
+    const ramp = generateOklchRamp(
+      decorativeOklch?.h || 0, decorativeOklch?.c ?? 0, decorativeOklch?.l ?? 0.5, 0.8,
+      { mode },
+    );
+    decorativeRampCache[name] = ramp;
+    for (const [step, color] of Object.entries(ramp)) {
+      tokens[`--color-decorative-${name}-${step}`] = color as string;
+    }
+  }
+
   const isDark = isDarkMode;
   const semanticMap: Record<string, PrimitiveMapping> = {};
 
@@ -329,6 +366,14 @@ export function generateDesignTokens(
     assignPicked(`background-${name}Subtle`, name, ramp, LIGHTNESS_TARGETS.subtle);
   }
 
+  // Decorative backgrounds + borders
+  for (const [name, ramp] of Object.entries(decorativeRampCache)) {
+    const rampName = `decorative-${name}`;
+    assignPicked(`background-decorative-${name}`, rampName, ramp, LIGHTNESS_TARGETS.strong);
+    assignPicked(`background-decorative-${name}Subtle`, rampName, ramp, LIGHTNESS_TARGETS.subtle);
+    assignPicked(`border-decorative-${name}`, rampName, ramp, LIGHTNESS_TARGETS.strong);
+  }
+
   // --- Neutral foreground hierarchy (fixed ramp steps) ---
   assignFixed('foreground-onBase', neutralRamp[900], neutralRamp[50],
     { ramp: 'neutral', lightStep: 900, darkStep: 50 });
@@ -347,6 +392,9 @@ export function generateDesignTokens(
   for (const [name, ramp] of Object.entries(statusRampCache)) {
     assignPicked(`foreground-${name}`, name, ramp, LIGHTNESS_TARGETS.fgColored);
   }
+  for (const [name, ramp] of Object.entries(decorativeRampCache)) {
+    assignPicked(`foreground-decorative-${name}`, `decorative-${name}`, ramp, LIGHTNESS_TARGETS.fgColored);
+  }
 
   // =========================================================================
   // Phase B — Contrast-dependent foregrounds (require resolved backgrounds)
@@ -359,6 +407,21 @@ export function generateDesignTokens(
     const cap = name.charAt(0).toUpperCase() + name.slice(1);
     assignContrastFg(`foreground-on${cap}`, `background-${name}`, name, ramp);
     assignContrastFg(`foreground-on${cap}Subtle`, `background-${name}Subtle`, name, ramp);
+  }
+
+  for (const [name, ramp] of Object.entries(decorativeRampCache)) {
+    const cap = name.charAt(0).toUpperCase() + name.slice(1);
+    const rampName = `decorative-${name}`;
+    assignContrastFg(
+      `foreground-decorative-on${cap}`,
+      `background-decorative-${name}`,
+      rampName, ramp,
+    );
+    assignContrastFg(
+      `foreground-decorative-on${cap}Subtle`,
+      `background-decorative-${name}Subtle`,
+      rampName, ramp,
+    );
   }
 
   // CTA / gradient surface (hardcoded — always on gradient backgrounds)
