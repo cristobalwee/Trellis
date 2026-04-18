@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HexColorPicker } from 'react-colorful';
+import { HexColorPicker, HexColorInput } from 'react-colorful';
 
 export interface ColorPickerPopoverProps {
   color: string;
@@ -10,8 +10,8 @@ export interface ColorPickerPopoverProps {
   label?: string;
   /** aria-label for the swatch button (defaults to label or "Pick color") */
   ariaLabel?: string;
-  /** Show hex value and Done button inside the popover */
-  showFooter?: boolean;
+  /** Show hex input inside the popover */
+  showHexInput?: boolean;
   /** CSS class for the swatch button (defaults to a sensible size) */
   swatchClassName?: string;
   /** Fixed width for the HexColorPicker (e.g. '200px') */
@@ -26,7 +26,7 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
   onChange,
   label,
   ariaLabel,
-  showFooter = false,
+  showHexInput = false,
   swatchClassName = DEFAULT_SWATCH_CLASS,
   pickerWidth,
 }) => {
@@ -114,17 +114,15 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
                   onChange={onChange}
                   {...(pickerWidth ? { style: { width: pickerWidth } } : {})}
                 />
-                {showFooter && (
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs font-mono text-charcoal/60">
-                      {color.toUpperCase()}
-                    </span>
-                    <button
-                      onClick={() => setIsOpen(false)}
-                      className="text-xs font-bold text-forest-green hover:underline"
-                    >
-                      Done
-                    </button>
+                {showHexInput && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-xs font-mono text-charcoal/40">#</span>
+                    <HexColorInput
+                      color={color}
+                      onChange={onChange}
+                      prefixed={false}
+                      className="flex-1 text-xs font-mono text-charcoal/80 bg-charcoal/5 rounded-md px-2 py-1.5 border border-charcoal/10 outline-none focus:border-forest-green/40 uppercase"
+                    />
                   </div>
                 )}
               </motion.div>

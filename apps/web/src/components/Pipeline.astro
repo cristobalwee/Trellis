@@ -4,19 +4,19 @@ const steps = [
     number: "01",
     title: "Generate your tokens",
     description:
-      "Walk through the brand intake, preview your system, and download a complete token package: DTCG source files, CSS custom properties, Tailwind config, and Figma variables.",
+      "Select your brand colors, define your typography, and set your system's style – all while previewing your tokens in real-time.",
   },
   {
     number: "02",
     title: "Drop them in your project",
     description:
-      "Import one CSS file or extend your Tailwind config. Tokens cascade through your app instantly — every surface, color, and spacing value updates in one step.",
+      "Generate CSS custom properties, export tokens as DTCG compliant JSON, wire up your Tailwind config, or even create a shadcn/ui theme.",
   },
   {
     number: "03",
     title: "Start building",
     description:
-      "Your design decisions are embedded in the tokens. Build components and layouts on a foundation that's consistent by default and fully overridable when you need it.",
+      "Your design decisions are embedded in the tokens, so your layouts are built on a foundation that's consistent by default and fully overridable when you need it.",
   },
 ];
 ---
@@ -61,14 +61,19 @@ const steps = [
 
       <!-- Card 2: Drop them in your project -->
       <div class="pipeline-card flex flex-col">
-        <div class="anim-container aspect-[4/3] rounded-3xl bg-white mb-6">
-          <div class="anim2">
-            <div class="anim2-bar anim2-bar-1"></div>
-            <div class="anim2-bar anim2-bar-2"></div>
-            <div class="anim2-token"></div>
-            <div class="anim2-bar anim2-bar-3"></div>
-            <div class="anim2-bar anim2-bar-4"></div>
-            <div class="anim2-bar anim2-bar-5"></div>
+        <div class="anim-container anim-container-ide aspect-[4/3] rounded-3xl bg-white mb-6">
+          <div class="anim2" data-anim="ide-typing">
+            <div class="anim2-editor">
+              <div class="anim2-editor-inner">
+                <div class="anim2-code">
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <div class="anim2-line">
+                      <span class="anim2-gutter">{n}</span><span class="anim2-line-content"></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <span class="text-sm font-mono text-charcoal/40 mb-2 block">02</span>
@@ -153,9 +158,9 @@ const steps = [
   }
 
   .anim1-swatch {
-    width: 24%;
+    width: 18%;
     aspect-ratio: 1;
-    border-radius: 18%;
+    border-radius: 24%;
     box-shadow: 0 3px 14px oklch(24.3% 0 0 / 0.10), 0 1px 3px oklch(24.3% 0 0 / 0.06);
     transition: background-color 0.35s var(--ease-anim), transform 0.15s var(--ease-anim);
     flex-shrink: 0;
@@ -198,7 +203,7 @@ const steps = [
   .anim1-row {
     display: flex;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: 8px;
   }
 
   .anim1-cell {
@@ -243,89 +248,94 @@ const steps = [
 
 
   /* ============================================
-     ANIMATION 2 — Token insertion + color cascade
-     Total loop: ~7s
+     ANIMATION 2 — IDE token typing
+     Total loop: ~6.5s (JS-driven)
      ============================================ */
+
+  /* The IDE window extends past the card's bottom edge; the card's
+     rounded `overflow: hidden` clips the extension into its bottom curve.
+     Container queries let the inner font size scale with the card width. */
+  .anim-container-ide {
+    overflow: hidden;
+    container-type: inline-size;
+  }
+
   .anim2 {
     position: absolute;
     inset: 0;
+  }
+
+  .anim2-editor {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 16%;
+    bottom: 16%;
+    background: oklch(22% 0.01 240);
+    border: 1px solid oklch(100% 0 0 / 0.9);
+    border-radius: 12px;
+    box-shadow: 0 3px 6px oklch(0% 0 0 / 0.12),
+    overflow: hidden;
+  }
+
+  .anim2-editor-inner {
+    position: absolute;
+    inset: 0;
+    padding: clamp(8px, 5%, 18px) clamp(6px, 4%, 14px);
+    overflow: hidden;
+  }
+
+  .anim2-code {
+    font-family: IBM Plex Mono, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(8px, 2.6cqi, 13px);
+    line-height: 1.75;
+    letter-spacing: -0.01em;
+    color: oklch(80% 0.005 240);
+    transform: translateY(0);
+    will-change: transform;
+  }
+
+  .anim2-code.is-scrolling {
+    transition: transform 650ms cubic-bezier(0.65, 0, 0.35, 1);
+    transform: translateY(-120%);
+  }
+
+  .anim2-line {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12% 14%;
-    gap: 8%;
+    gap: 1.25em;
+    white-space: nowrap;
   }
 
-  .anim2-bar {
-    width: 80%;
-    height: 8%;
-    border-radius: 6px;
-    background: oklch(24.3% 0 0 / 0.06);
-    transition: none;
-    animation: a2-bar-reset 7s var(--ease-anim) infinite;
+  .anim2-gutter {
+    color: oklch(55% 0 0 / 0.55);
+    user-select: none;
+    min-width: 1ch;
+    text-align: right;
+    flex-shrink: 0;
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      opacity 350ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .anim2-bar-1 { animation-name: a2-bar-outer; }
-  .anim2-bar-2 { animation-name: a2-bar-mid; }
-  .anim2-bar-3 { animation-name: a2-bar-center; }
-  .anim2-bar-4 { animation-name: a2-bar-mid; }
-  .anim2-bar-5 { animation-name: a2-bar-outer; }
-
-  .anim2-token {
-    width: 40%;
-    height: 8%;
-    border-radius: 6px;
-    background: oklch(51.88% 0.109 151.87);
-    transform: translateX(-250%);
+  .anim2-gutter.is-hidden {
     opacity: 0;
-    animation: a2-token 7s var(--ease-anim) infinite;
+    transform: translateX(-6px);
   }
 
-  /* 7s loop:
-     0.0s-0.8s  token slides in
-     0.8s-1.0s  bar 3 colors
-     1.0s-1.2s  bars 2,4 color
-     1.2s-1.4s  bars 1,5 color
-     1.4s-4.4s  hold colored
-     4.4s-5.0s  bars fade back (reverse stagger)
-     5.0s-5.6s  token slides out
-     5.6s-7.0s  pause */
-
-  @keyframes a2-token {
-    0%       { transform: translateX(-250%); opacity: 0; }
-    4%       { opacity: 1; transform: translateX(-250%); }
-    12%      { transform: translateX(0); opacity: 1; }
-    63%      { transform: translateX(0); opacity: 1; }
-    72%      { transform: translateX(0); opacity: 1; }
-    80%      { transform: translateX(-250%); opacity: 1; }
-    82%      { opacity: 0; }
-    100%     { transform: translateX(-250%); opacity: 0; }
+  /* Disables gutter transitions so we can instantly reset state between
+     cycles without any visible fade-out. */
+  .anim2-code.is-resetting .anim2-gutter {
+    transition: none;
   }
 
-  @keyframes a2-bar-center {
-    0%, 11%  { background: oklch(24.3% 0 0 / 0.06); }
-    17%      { background: oklch(51.88% 0.109 151.87 / 0.25); }
-    63%      { background: oklch(51.88% 0.109 151.87 / 0.25); }
-    72%      { background: oklch(24.3% 0 0 / 0.06); }
-    100%     { background: oklch(24.3% 0 0 / 0.06); }
+  .anim2-line-content {
+    position: relative;
+    display: inline-block;
   }
 
-  @keyframes a2-bar-mid {
-    0%, 14%  { background: oklch(24.3% 0 0 / 0.06); }
-    20%      { background: oklch(63% 0.14 130 / 0.2); }
-    63%      { background: oklch(63% 0.14 130 / 0.2); }
-    70%      { background: oklch(24.3% 0 0 / 0.06); }
-    100%     { background: oklch(24.3% 0 0 / 0.06); }
-  }
-
-  @keyframes a2-bar-outer {
-    0%, 17%  { background: oklch(24.3% 0 0 / 0.06); }
-    23%      { background: oklch(78.10% 0.101 154.59 / 0.2); }
-    63%      { background: oklch(78.10% 0.101 154.59 / 0.2); }
-    68%      { background: oklch(24.3% 0 0 / 0.06); }
-    100%     { background: oklch(24.3% 0 0 / 0.06); }
-  }
+  /* Token colors are applied inline in JS to keep styles scoped. */
 
 
   /* ============================================
@@ -446,8 +456,7 @@ const steps = [
     .anim1-cell,
     .anim1-hex-val,
     .anim1-ptr,
-    .anim2-bar,
-    .anim2-token,
+    .anim2-code,
     .anim3-nav,
     .anim3-sidebar,
     .anim3-block,
@@ -460,9 +469,6 @@ const steps = [
 
     .anim1-ptr { display: none; }
 
-    .anim2-bar-1, .anim2-bar-5 { background: oklch(78.10% 0.101 154.59 / 0.2) !important; }
-    .anim2-bar-2, .anim2-bar-4 { background: oklch(63% 0.14 130 / 0.2) !important; }
-    .anim2-bar-3 { background: oklch(51.88% 0.109 151.87 / 0.25) !important; }
   }
 </style>
 
@@ -483,7 +489,7 @@ const steps = [
       { hue: 152, chroma: 0.11, swatchL: 0.55, hex: '2B8B6A', rows: [{ h: 152, c: 0.11 }, { h: 185, c: 0.09 }, { h: 120, c: 0.085 }] },
       { hue: 255, chroma: 0.15, swatchL: 0.52, hex: '2A5FC2', rows: [{ h: 255, c: 0.15 }, { h: 290, c: 0.11 }, { h: 225, c: 0.10 }] },
       { hue: 25,  chroma: 0.18, swatchL: 0.63, hex: 'CC5C3A', rows: [{ h: 25,  c: 0.18 }, { h: 55,  c: 0.14 }, { h: 355, c: 0.13 }] },
-      { hue: 305, chroma: 0.14, swatchL: 0.54, hex: '9A3FA7', rows: [{ h: 305, c: 0.14 }, { h: 340, c: 0.11 }, { h: 275, c: 0.11 }] },
+      { hue: 152, chroma: 0.11, swatchL: 0.55, hex: '2B8B6A', rows: [{ h: 152, c: 0.11 }, { h: 185, c: 0.09 }, { h: 120, c: 0.085 }] },
     ];
 
     // 8 lightness steps (light → dark) with chroma multipliers (bell curve)
@@ -546,12 +552,253 @@ const steps = [
       schedule(() => cursor.classList.add('is-visible'), 500);   // cursor enters
       schedule(() => doClick(1), 2000);                          // click → blue
       schedule(() => doClick(2), 4200);                          // click → coral
-      schedule(() => doClick(3), 6400);                          // click → purple
-      schedule(() => doClick(0), 8600);                          // click → back to teal
-      schedule(() => cursor.classList.remove('is-visible'), 10300); // cursor exits
-      schedule(runCycle, 12500);                                 // loop
+      schedule(() => doClick(3), 6400);
+      schedule(() => cursor.classList.remove('is-visible'), 8600); // cursor exits
+      schedule(runCycle, 10300);                                 // loop
     }
 
     runCycle();
+  })();
+
+  (function initIdeTypingAnim() {
+    const container = document.querySelector('[data-anim="ide-typing"]');
+    if (!container) return;
+
+    const codeEl = container.querySelector('.anim2-code') as HTMLElement;
+    const lines = Array.from(container.querySelectorAll('.anim2-line')) as HTMLElement[];
+    const lineContents = lines.map(
+      (l) => l.querySelector('.anim2-line-content') as HTMLElement,
+    );
+
+    type Tok = { text: string; cls: string };
+    const TOKEN_STYLES: Record<string, { color?: string; whiteSpace?: 'pre' }> = {
+      prop: { color: 'oklch(76% 0.10 200)' },  // custom property names — teal
+      var: { color: 'oklch(79% 0.09 215)' },   // var(--...) references — light cyan
+      fn: { color: 'oklch(70% 0.16 25)' },     // function names (oklch, var) — coral red
+      num: { color: 'oklch(82% 0.11 75)' },    // numbers — warm amber
+      punct: { color: 'oklch(62% 0 0)' },      // punctuation — muted gray
+      ws: { whiteSpace: 'pre' },               // preserve typed spacing
+    };
+
+    function applyTokenStyle(el: HTMLSpanElement, cls: string) {
+      const style = TOKEN_STYLES[cls];
+      if (!style) return;
+      if (style.color) el.style.color = style.color;
+      if (style.whiteSpace) el.style.whiteSpace = style.whiteSpace;
+    }
+
+    const LINES: Tok[][] = [
+      [
+        { text: '--color-primary-50', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'oklch', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '0.9749', cls: 'num' },
+        { text: ' ', cls: 'ws' },
+        { text: '0.0117', cls: 'num' },
+        { text: ' ', cls: 'ws' },
+        { text: '239.9027', cls: 'num' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+      [
+        { text: '--color-border-neutral', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'var', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '--color-neutral-50', cls: 'var' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+      [
+        { text: '--spacing-sm', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'var', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '--dimension-100', cls: 'var' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+      [
+        { text: '--shape-radius-badge', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'var', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '--dimension-75', cls: 'var' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+      [
+        { text: '--color-background-primary', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'var', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '--color-cyan-700', cls: 'var' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+      [
+        { text: '--font-body-md-size', cls: 'prop' },
+        { text: ':', cls: 'punct' },
+        { text: ' ', cls: 'ws' },
+        { text: 'var', cls: 'fn' },
+        { text: '(', cls: 'punct' },
+        { text: '--font-size-200', cls: 'var' },
+        { text: ')', cls: 'punct' },
+        { text: ';', cls: 'punct' },
+      ],
+    ];
+
+    const INITIAL_PAUSE = 1200;      // empty-editor pause on first cycle
+    const TYPE_SPEED = 14;          // ms per character
+    const LINE_GAP = 140;           // pause between lines
+    const END_PAUSE = 1200;          // pause after last line, before scroll
+    const SCROLL_DUR = 650;         // scroll-up duration (matches CSS transition)
+    const GUTTER_STAGGER = 75;      // delay between each gutter's animate-in
+    const GUTTER_DURATION = 350;    // matches CSS gutter transition duration
+
+    function renderStatic() {
+      LINES.forEach((tokens, idx) => {
+        const target = lineContents[idx];
+        if (!target) return;
+        target.innerHTML = '';
+        tokens.forEach((tok) => {
+          const span = document.createElement('span');
+          applyTokenStyle(span, tok.cls);
+          span.textContent = tok.text;
+          target.appendChild(span);
+        });
+      });
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      renderStatic();
+      return;
+    }
+
+    let timeouts: ReturnType<typeof setTimeout>[] = [];
+
+    function schedule(fn: () => void, ms: number) {
+      timeouts.push(setTimeout(fn, ms));
+    }
+
+    function clearAll() {
+      timeouts.forEach(clearTimeout);
+      timeouts = [];
+    }
+
+    function resetLines() {
+      lineContents.forEach((lc) => {
+        lc.innerHTML = '';
+      });
+      lines.forEach((l) => l.classList.remove('is-typing'));
+    }
+
+    const gutters = lines
+      .map((l) => l.querySelector('.anim2-gutter') as HTMLElement)
+      .filter(Boolean);
+
+    /** Hide gutters instantly (no transition) so they can animate back in. */
+    function hideGuttersInstantly() {
+      codeEl.classList.add('is-resetting');
+      gutters.forEach((g) => g.classList.add('is-hidden'));
+      // Force a reflow so the "hidden" state is committed before we
+      // re-enable transitions.
+      void codeEl.offsetWidth;
+      codeEl.classList.remove('is-resetting');
+    }
+
+    /** Stagger-fade the gutters back in and call `done` once finished. */
+    function animateGuttersIn(done: () => void) {
+      gutters.forEach((g, i) => {
+        schedule(() => g.classList.remove('is-hidden'), i * GUTTER_STAGGER);
+      });
+      const total = (gutters.length - 1) * GUTTER_STAGGER + GUTTER_DURATION;
+      schedule(done, total);
+    }
+
+    function typeLine(idx: number, onComplete: () => void) {
+      const target = lineContents[idx];
+      const tokens = LINES[idx];
+      lines[idx].classList.add('is-typing');
+
+      const flat: { ch: string; cls: string }[] = [];
+      for (const tok of tokens) {
+        for (const ch of tok.text) flat.push({ ch, cls: tok.cls });
+      }
+
+      let i = 0;
+
+      function appendFadingChar(ch: string, cls: string) {
+        const span = document.createElement('span');
+        applyTokenStyle(span, cls);
+        span.textContent = ch;
+        span.style.opacity = '0';
+        span.style.transition = 'opacity 180ms var(--ease-anim)';
+        target.appendChild(span);
+        requestAnimationFrame(() => {
+          span.style.opacity = '1';
+        });
+      }
+
+      function tick() {
+        if (i >= flat.length) {
+          lines[idx].classList.remove('is-typing');
+          onComplete();
+          return;
+        }
+        const { ch, cls } = flat[i];
+        appendFadingChar(ch, cls);
+        i++;
+        schedule(tick, TYPE_SPEED);
+      }
+
+      tick();
+    }
+
+    function startTyping() {
+      function typeNext(idx: number) {
+        if (idx >= LINES.length) {
+          schedule(() => {
+            codeEl.classList.add('is-scrolling');
+            schedule(() => {
+              // Scroll finished: reset content + gutters off-screen, then
+              // animate the next iteration's gutters in as the tail of
+              // this iteration before looping.
+              codeEl.classList.remove('is-scrolling');
+              resetLines();
+              hideGuttersInstantly();
+              animateGuttersIn(() => runCycle(false));
+            }, SCROLL_DUR);
+          }, END_PAUSE);
+          return;
+        }
+        typeLine(idx, () => {
+          schedule(() => typeNext(idx + 1), LINE_GAP);
+        });
+      }
+
+      typeNext(0);
+    }
+
+    function runCycle(isFirst: boolean) {
+      clearAll();
+      if (isFirst) {
+        // On the first run the gutters are already visible from the markup;
+        // just wait, then start typing.
+        schedule(startTyping, INITIAL_PAUSE);
+      } else {
+        // Gutters have already animated in from the previous iteration's
+        // tail, so begin typing immediately.
+        startTyping();
+      }
+    }
+
+    runCycle(true);
   })();
 </script>

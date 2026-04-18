@@ -141,7 +141,7 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
               label="Primary"
               color={config.primaryColor}
               onChange={(color) => onChange({ primaryColor: color })}
-              showFooter
+              showHexInput
               swatchClassName={SWATCH_CLASS}
               pickerWidth="180px"
             />
@@ -152,7 +152,7 @@ const PlaygroundControls: React.FC<PlaygroundControlsProps> = ({ config, onChang
               label="Secondary"
               color={config.secondaryColor}
               onChange={(color) => onChange({ secondaryColor: color })}
-              showFooter
+              showHexInput
               swatchClassName={SWATCH_CLASS}
               pickerWidth="180px"
             />

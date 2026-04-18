@@ -41,7 +41,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 8, y: 95, rotation: 5, scale: 1.2, delay: 0.28, type: 'pink' },
   { x: 7, y: 82, rotation: -10, scale: 0.9, delay: 0.31, type: 'yellow' },
   { x: 9, y: 72, rotation: 20, scale: 1.15, delay: 0.34, type: 'pink' },
-  { x: 18, y: 60, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', token: { name: '--foreground-primary', kind: 'color', value: '#1c7583' } },
+  { x: 20, y: 60, rotation: 0, scale: 1, delay: 0.3, type: 'bubble', token: { name: '--foreground-primary', kind: 'color', value: '#1c7583' } },
   { x: 10, y: 52, rotation: -25, scale: 0.85, delay: 0.4, type: 'yellow' },
   { x: 11, y: 42, rotation: 15, scale: 0.7, delay: 0.43, type: 'pink' },
   { x: 9, y: 35, rotation: -15, scale: 0.75, delay: 0.46, type: 'pink' }, // Reduced verticality

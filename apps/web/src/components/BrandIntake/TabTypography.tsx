@@ -9,7 +9,7 @@ import {
 } from './store';
 import { Combobox } from '../ui/Combobox';
 
-const GOOGLE_FONTS = [
+export const GOOGLE_FONTS = [
   'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
   'Playfair Display', 'Merriweather', 'Lora', 'IBM Plex Sans', 'Space Grotesk',
   'Poppins', 'Raleway', 'Nunito', 'Source Sans 3', 'Ubuntu',

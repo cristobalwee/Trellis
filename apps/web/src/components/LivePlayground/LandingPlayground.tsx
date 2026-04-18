@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 
-import { $brandConfig, FONT_WEIGHT_OPTIONS, type TabId } from '../BrandIntake/store';
-import TabBar from '../BrandIntake/TabBar';
-import TabColor from '../BrandIntake/TabColor';
-import TabTypography from '../BrandIntake/TabTypography';
-import TabStyle from '../BrandIntake/TabStyle';
+import { $brandConfig, updateConfig, FONT_WEIGHT_OPTIONS } from '../BrandIntake/store';
+import { useColorRamps } from '../BrandIntake/useColorRamps';
+import { GOOGLE_FONTS } from '../BrandIntake/TabTypography';
+import { ColorPickerPopover } from '../ui/ColorPickerPopover';
+import { ColorRampView } from '../Showcase/ColorRampView';
+import { Combobox } from '../ui/Combobox';
 import PreviewComponents from '../ComponentSampler';
 import { generateDesignTokens } from '../../utils/generateTokens';
 
@@ -30,12 +30,91 @@ const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ i
   </button>
 );
 
+// ---------------------------------------------------------------------------
+// Preset selector (compressed, shared style from TabStyle)
+// ---------------------------------------------------------------------------
+
+interface PresetOption { id: string; label: string; hint?: React.ReactNode }
+
+const PresetSelector: React.FC<{
+  label: string;
+  value: string;
+  options: PresetOption[];
+  onChange: (id: string) => void;
+}> = ({ label, value, options, onChange }) => (
+  <div className="flex flex-col gap-2">
+    <label className="text-xs font-medium text-charcoal/80">{label}</label>
+    <div className="flex gap-1.5 flex-wrap">
+      {options.map((opt) => (
+        <button
+          key={opt.id}
+          onClick={() => onChange(opt.id)}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all border cursor-pointer ${
+            value === opt.id
+              ? 'border-forest-green bg-forest-green/5 text-forest-green font-bold'
+              : 'border-charcoal/10 text-charcoal/80 hover:border-charcoal/20'
+          }`}
+        >
+          {opt.hint && <span className="shrink-0">{opt.hint}</span>}
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const ROUNDNESS_OPTIONS: PresetOption[] = [
+  { id: 'sharp', label: 'Sharp', hint: <div className="w-2.5 h-2.5 border border-current" /> },
+  { id: 'subtle', label: 'Soft', hint: <div className="w-2.5 h-2.5 border border-current rounded-[2px]" /> },
+  { id: 'rounded', label: 'Rounded', hint: <div className="w-2.5 h-2.5 border border-current rounded-md" /> },
+  { id: 'pill', label: 'Pill', hint: <div className="w-3.5 h-2.5 border border-current rounded-full" /> },
+];
+
+const SHADOW_OPTIONS: PresetOption[] = [
+  { id: 'none', label: 'None' },
+  { id: 'subtle', label: 'Subtle' },
+  { id: 'dramatic', label: 'Dramatic' },
+];
+
+const DENSITY_OPTIONS: PresetOption[] = [
+  { id: 'compact', label: 'Compact' },
+  { id: 'default', label: 'Comfortable' },
+  { id: 'comfortable', label: 'Spacious' },
+];
+
+// ---------------------------------------------------------------------------
+// Compressed color slot: swatch + mini ramp underneath
+// ---------------------------------------------------------------------------
+
+const ColorSlot: React.FC<{
+  label: string;
+  color: string;
+  onChange: (c: string) => void;
+  ramp: Record<number, string> | Parameters<typeof ColorRampView>[0]['ramp'];
+}> = ({ label, color, onChange, ramp }) => (
+  <div className="flex flex-col gap-2 min-w-0">
+    <label className="text-xs font-medium text-charcoal/80">{label}</label>
+    <ColorPickerPopover
+      color={color}
+      onChange={onChange}
+      ariaLabel={`${label} color`}
+      showHexInput
+      swatchClassName="w-12 aspect-[1/1] rounded-xl shadow-sm border-2 border-white cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+    />
+    <ColorRampView ramp={ramp as never} className="h-4 rounded-md" />
+  </div>
+);
+
+// ---------------------------------------------------------------------------
+// LandingPlayground — compressed Configurator controls + ComponentSampler
+// ---------------------------------------------------------------------------
+
 const LandingPlayground: React.FC = () => {
   const config = useStore($brandConfig);
+  const derived = useColorRamps(config);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabId>('color');
 
-  // Load Google Fonts for both body and heading typefaces
+  // Load Google Fonts for both heading and body typefaces
   useEffect(() => {
     const weightsQuery = `wght@${FONT_WEIGHT_OPTIONS.join(';')}`;
     for (const [family, role] of [[config.headingFont, 'heading'], [config.primaryFont, 'body']] as const) {
@@ -65,7 +144,7 @@ const LandingPlayground: React.FC = () => {
       {/* Main Container */}
       <div
         className="w-full bg-gray rounded-4xl overflow-hidden flex flex-col lg:flex-row p-3 md:p-4 gap-3 md:gap-4 relative z-10"
-        style={{ height: 'min(820px, 85vh)', minHeight: '560px' }}
+        style={{ height: 'min(720px, 85vh)' }}
       >
         {/* Component Sampler */}
         <div
@@ -75,25 +154,74 @@ const LandingPlayground: React.FC = () => {
           <PreviewComponents />
         </div>
 
-        {/* Configuration Panel — compressed Configurator tabs */}
-        <div className="shrink-0 bg-white rounded-3xl overflow-hidden order-first lg:order-last w-full lg:w-[340px] flex flex-col min-h-0">
-          <LayoutGroup id="landing-playground-tabs">
-            <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-          </LayoutGroup>
-          <div className="flex-1 overflow-y-auto px-5 py-4 min-h-0">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
-              >
-                {activeTab === 'color' && <TabColor />}
-                {activeTab === 'typography' && <TabTypography />}
-                {activeTab === 'style' && <TabStyle />}
-              </motion.div>
-            </AnimatePresence>
+        {/* Compressed controls */}
+        <div className="shrink-0 bg-white rounded-3xl overflow-y-auto order-first lg:order-last w-full lg:w-[320px] flex flex-col">
+          <div className="flex flex-col gap-6 p-5">
+            {/* Color */}
+            <section className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <ColorSlot
+                  label="Primary"
+                  color={config.primaryColor}
+                  onChange={(c) => updateConfig({ primaryColor: c, rampOverrides: {} })}
+                  ramp={derived.primaryRamp}
+                />
+                <ColorSlot
+                  label="Secondary"
+                  color={derived.secondaryColor}
+                  onChange={(c) => updateConfig({ useCustomSecondary: true, secondaryColor: c })}
+                  ramp={derived.secondaryRamp}
+                />
+              </div>
+            </section>
+
+            {/* Typography */}
+            <section className="flex flex-col gap-3 pt-5 border-t border-charcoal/10">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-charcoal/80">Heading</label>
+                <Combobox
+                  value={config.headingFont}
+                  onValueChange={(f) => updateConfig({ headingFont: f, customHeadingFontName: undefined })}
+                  options={GOOGLE_FONTS}
+                  placeholder="Search Google Fonts..."
+                  displayValue={config.customHeadingFontName}
+                  size="compact"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-charcoal/80">Body</label>
+                <Combobox
+                  value={config.primaryFont}
+                  onValueChange={(f) => updateConfig({ primaryFont: f, customBodyFontName: undefined })}
+                  options={GOOGLE_FONTS}
+                  placeholder="Search Google Fonts..."
+                  displayValue={config.customBodyFontName}
+                  size="compact"
+                />
+              </div>
+            </section>
+
+            {/* Style */}
+            <section className="flex flex-col gap-4 pt-5 border-t border-charcoal/10">
+              <PresetSelector
+                label="Rounding"
+                value={config.roundness}
+                options={ROUNDNESS_OPTIONS}
+                onChange={(val) => updateConfig({ roundness: val as typeof config.roundness })}
+              />
+              <PresetSelector
+                label="Shadows"
+                value={config.shadows}
+                options={SHADOW_OPTIONS}
+                onChange={(val) => updateConfig({ shadows: val as typeof config.shadows })}
+              />
+              <PresetSelector
+                label="Spacing"
+                value={config.density}
+                options={DENSITY_OPTIONS}
+                onChange={(val) => updateConfig({ density: val as typeof config.density })}
+              />
+            </section>
           </div>
         </div>
       </div>

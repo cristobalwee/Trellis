@@ -93,7 +93,7 @@ const ShowcaseConfigurator: React.FC = () => {
                 label="Primary"
                 color={config.primaryColor}
                 onChange={(color) => updateShowcase({ primaryColor: color })}
-                showFooter
+                showHexInput
                 swatchClassName={SHOWCASE_SWATCH_CLASS}
                 pickerWidth="200px"
               />
@@ -104,7 +104,7 @@ const ShowcaseConfigurator: React.FC = () => {
                 label="Secondary"
                 color={config.secondaryColor}
                 onChange={(color) => updateShowcase({ secondaryColor: color })}
-                showFooter
+                showHexInput
                 swatchClassName={SHOWCASE_SWATCH_CLASS}
                 pickerWidth="200px"
               />
