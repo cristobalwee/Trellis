@@ -8,24 +8,41 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: 'What do I get with the free tier?',
+    question: 'What is Trellis?',
     answer:
-      'A complete token system exported as DTCG JSON, a CSS stylesheet, Tailwind config, shadcn-compatible config, and Figma variables — generated from your brand colors and typography choices. No account required.',
+      "Trellis is a design system generator that produces production-ready token architecture from your brand inputs. Rather than replacing your component library, it acts as the intelligence layer beneath it — generating OKLCH-native color systems, semantic token structures, and type scales that work with whatever stack you're already using.",
   },
   {
-    question: "How is this different from customizing shadcn's theme?",
+    question: 'What do I get for free?',
     answer:
-      'shadcn gives you HSL sliders and leaves the design decisions to you. Trellis uses OKLCH perceptual color science to generate semantically layered tokens — background surfaces, interactive state scrims, accessible foreground pairings — that would take a design systems engineer weeks to architect manually.',
+      "Everything you need to start building on a principled foundation: a full token configuration package including DTCG JSON, CSS custom properties, a Tailwind config, shadcn-compatible CSS variables, and a README documenting your system's architecture. No sign-up required, no email gate — just configure and download.",
   },
   {
-    question: 'Does this work with my existing component library?',
+    question:
+      'What makes Trellis different from a theming tool like tweakcn or Shadcraft?',
     answer:
-      'Yes. Trellis generates the design system layer, not the components. The output tokens and styles can power shadcn, Radix, Chakra, HeroUI, or any component library that consumes CSS custom properties or Tailwind config.',
+      "Theming tools let you adjust surface-level styles on an existing component set. Trellis generates the underlying architecture — semantic token layering, surface-dependent state logic, perceptually uniform color ramps — that a theming tool never touches. It's the difference between picking colors and building a color system.",
+  },
+  {
+    question: 'How does the color system work?',
+    answer:
+      "Trellis generates all colors in OKLCH, a perceptually uniform color space that produces more consistent and accessible palettes than HSL or hex. From your primary brand color, it builds a full 10-hue palette using a greedy algorithm that maximizes angular distance while guaranteeing coverage of red, green, blue, and yellow. Each hue gets a multi-step ramp with saturation scaling relative to each shade's natural chroma ceiling.",
+  },
+  {
+    question:
+      'Can I use Trellis with shadcn/ui, Chakra, HeroUI, or other component libraries?',
+    answer:
+      'Yes! Trellis outputs are designed to slot into your existing tools. The free tier includes a shadcn-compatible CSS variables file out of the box, so you can drop a Trellis-generated system directly into a shadcn project. Think of it as "shadcn with a real design system underneath" rather than "shadcn or Trellis."',
+  },
+  {
+    question: 'Is Trellis open source?',
+    answer:
+      'The token architecture and color science are fully open. The free tier gives you the complete token package with no restrictions on how you use it — in personal projects, client work, or commercial products. The generated output is yours.',
   },
   {
     question: "What's coming in the paid tier?",
     answer:
-      'A production-ready React component library on Base UI, Figma component library, Storybook documentation, and governance files — all wired to your generated token system. Join the waitlist to get early access.',
+      'The paid tier will add a full React component library built on Base UI, Figma Variables with a plugin importer so you can apply your generated system to a canonical Figma file, Storybook documentation, governance docs, and agentic guidance files for AI-assisted development. Pricing will be around $99. You can join the waitlist now — the MVP focuses on nailing the free tier first.',
   },
 ];
 

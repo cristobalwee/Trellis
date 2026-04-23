@@ -76,6 +76,8 @@ const fg = {
   onBase: t('color-foreground-onBase'),
   onBaseMuted: t('color-foreground-onBaseMuted'),
   onBaseFaint: t('color-foreground-onBaseFaint'),
+  onSunken: t('color-foreground-onSunken'),
+  onSunkenMuted: t('color-foreground-onSunkenMuted'),
   primary: t('color-foreground-primary'),
   onPrimary: t('color-foreground-onPrimary'),
   accent: t('color-foreground-accent'),
@@ -96,23 +98,23 @@ const border = {
   primary: t('color-border-primary'),
 };
 const radius = {
-  container: t('radius-container'),
-  action: t('radius-action'),
-  field: t('radius-field'),
-  badge: t('radius-badge'),
-  sub: t('radius-subcontainer'),
+  container: t('shape-radius-container'),
+  action: t('shape-radius-action'),
+  field: t('shape-radius-field'),
+  badge: t('shape-radius-badge'),
+  sub: t('shape-radius-subcontainer'),
 };
 const space = {
-  xs: t('spacing-xs'),
-  sm: t('spacing-sm'),
-  md: t('spacing-md'),
-  lg: t('spacing-lg'),
-  xl: t('spacing-xl'),
-  '2xl': t('spacing-2xl'),
-  '3xl': t('spacing-3xl'),
-  '4xl': t('spacing-4xl'),
-  '5xl': t('spacing-5xl'),
-  '6xl': t('spacing-6xl'),
+  xs: t('space-xs'),
+  sm: t('space-sm'),
+  md: t('space-md'),
+  lg: t('space-lg'),
+  xl: t('space-xl'),
+  '2xl': t('space-2xl'),
+  '3xl': t('space-3xl'),
+  '4xl': t('space-4xl'),
+  '5xl': t('space-5xl'),
+  '6xl': t('space-6xl'),
 };
 const shadow = {
   raised: t('shadow-raised'),
@@ -124,12 +126,12 @@ const transition = {
   chart: t('transition-chart'),
 };
 const font = {
-  primary: t('font-family-primary'),
-  secondary: t('font-family-secondary'),
+  primary: t('font-body-family'),
+  secondary: t('font-heading-family'),
 };
 const weight = {
-  heading: t('font-weight-heading'),
-  bodyRegular: t('font-weight-body-regular'),
+  heading: t('font-heading-weight'),
+  bodyRegular: t('font-body-weight-regular'),
 };
 
 const gradient = t('gradient-primary');
@@ -174,7 +176,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
     Paid: { fg: fg.onSuccessSubtle, bg: bg.successSubtle },
     Pending: { fg: fg.onWarningSubtle, bg: bg.warningSubtle },
     Failed: { fg: fg.onCriticalSubtle, bg: bg.criticalSubtle },
-    Draft: { fg: fg.onBaseMuted, bg: bg.raisedHover },
+    Draft: { fg: fg.onSunkenMuted, bg: bg.sunken },
   };
 
   const revenueDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -529,8 +531,8 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                       className="w-6 h-6 flex items-center justify-center"
                       style={{
                         borderRadius: radius.badge,
-                        backgroundColor: bg.raisedHover,
-                        color: fg.onBaseMuted,
+                        backgroundColor: bg.sunken,
+                        color: fg.onSunken,
                         transition: transition.theme,
                       }}
                     >
@@ -542,7 +544,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     style={{
                       color: fg.onBase,
                       fontFamily: font.secondary,
-                      fontWeight: 'var(--font-weight-heading)' as unknown as number,
+                      fontWeight: 'var(--font-heading-weight)' as unknown as number,
                     }}
                   >
                     {m.value}

@@ -4,6 +4,8 @@
 // Every preview component references CSS custom properties set on an ancestor
 // element via `generateDesignTokens()`.  These helpers give a single, typed
 // source-of-truth so individual component files stay DRY.
+//
+// Names follow the primitive/semantic layering of `apps/web/src/utils/tokens.css`.
 // ---------------------------------------------------------------------------
 
 const t = (token: string) => `var(--${token})`;
@@ -70,24 +72,24 @@ export const border = {
 } as const;
 
 export const radius = {
-  container: t('radius-container'),
-  action: t('radius-action'),
-  field: t('radius-field'),
-  sub: t('radius-subcontainer'),
-  badge: t('radius-badge'),
+  container: t('shape-radius-container'),
+  action: t('shape-radius-action'),
+  field: t('shape-radius-field'),
+  sub: t('shape-radius-subcontainer'),
+  badge: t('shape-radius-badge'),
 } as const;
 
 export const space = {
-  xs: t('spacing-xs'),
-  sm: t('spacing-sm'),
-  md: t('spacing-md'),
-  lg: t('spacing-lg'),
-  xl: t('spacing-xl'),
-  '2xl': t('spacing-2xl'),
-  '3xl': t('spacing-3xl'),
-  '4xl': t('spacing-4xl'),
-  '5xl': t('spacing-5xl'),
-  '6xl': t('spacing-6xl'),
+  xs: t('space-xs'),
+  sm: t('space-sm'),
+  md: t('space-md'),
+  lg: t('space-lg'),
+  xl: t('space-xl'),
+  '2xl': t('space-2xl'),
+  '3xl': t('space-3xl'),
+  '4xl': t('space-4xl'),
+  '5xl': t('space-5xl'),
+  '6xl': t('space-6xl'),
 } as const;
 
 export const shadow = {
@@ -102,8 +104,41 @@ export const transition = {
 } as const;
 
 export const font = {
-  primary: t('font-family-primary'),
-  secondary: t('font-family-secondary'),
+  primary: t('font-body-family'),
+  secondary: t('font-heading-family'),
+  action: t('font-action-family'),
+  field: t('font-field-family'),
 } as const;
+
+export const weight = {
+  heading: t('font-heading-weight'),
+  bodyRegular: t('font-body-weight-regular'),
+  bodyBold: t('font-body-weight-bold'),
+  action: t('font-action-weight'),
+  field: t('font-field-weight'),
+} as const;
+
+// Control-typography ramps. Each t-shirt size gives you a font-size and a
+// line-height that's pre-tuned to match an icon-only button/input at the
+// same size, so text and icon variants share outer heights:
+//   xs → 12px text + 14px icon
+//   sm → 14px text + 16px icon
+//   md → 16px text + 20px icon
+//   lg → 18px text + 24px icon
+export type ControlSize = 'xs' | 'sm' | 'md' | 'lg';
+
+export const action: Record<ControlSize, { size: string; lineHeight: string }> = {
+  xs: { size: t('font-action-xs-size'), lineHeight: t('font-action-xs-lineheight') },
+  sm: { size: t('font-action-sm-size'), lineHeight: t('font-action-sm-lineheight') },
+  md: { size: t('font-action-md-size'), lineHeight: t('font-action-md-lineheight') },
+  lg: { size: t('font-action-lg-size'), lineHeight: t('font-action-lg-lineheight') },
+};
+
+export const field: Record<ControlSize, { size: string; lineHeight: string }> = {
+  xs: { size: t('font-field-xs-size'), lineHeight: t('font-field-xs-lineheight') },
+  sm: { size: t('font-field-sm-size'), lineHeight: t('font-field-sm-lineheight') },
+  md: { size: t('font-field-md-size'), lineHeight: t('font-field-md-lineheight') },
+  lg: { size: t('font-field-lg-size'), lineHeight: t('font-field-lg-lineheight') },
+};
 
 export const gradient = t('gradient-primary');

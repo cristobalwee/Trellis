@@ -336,7 +336,7 @@ const Configurator: React.FC = () => {
                   <MousePointerClick size={13} />
                   Inspect{isInspecting && ': On'}
                 </button>
-                <ExportDialog tokens={exportTokenSet} />
+                <ExportDialog tokens={exportTokenSet} config={config} />
               </div>
             </div>
           </div>

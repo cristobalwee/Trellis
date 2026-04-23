@@ -108,35 +108,26 @@ export function findStyledAncestor(
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the ramp key and step for a given semantic color token, or null
- * if the token is not editable (hardcoded value, non-color, or unknown).
+ * Returns the ramp key and step for a given semantic or primitive color
+ * token, or null if the token is not editable (hardcoded value, non-color,
+ * or unknown).
  *
- * Also handles primitive tokens like `color-primary-500` directly.
+ * `rampKey` is the override bucket used by `updateRampStep` (role names like
+ * "primary"/"secondary"/"neutral" for role-backed ramps, hue names for
+ * decoratives). `displayRamp` is the hue name displayed to the user (e.g.
+ * "blue", "teal") — they diverge whenever a role happens to pick a hue.
  */
 export function getTokenEditInfo(
   tokenName: string,
   isDarkMode: boolean,
   semanticMap: Record<string, PrimitiveMapping>,
-): { rampKey: string; step: number } | null {
-  // 1. Check dynamic semantic map
+): { rampKey: string; displayRamp: string; step: number } | null {
   const mapping = semanticMap[tokenName];
-  if (mapping) {
-    const step = isDarkMode ? mapping.darkStep : mapping.lightStep;
-    if (mapping.ramp && step != null) {
-      return { rampKey: mapping.ramp, step };
-    }
-    return null; // hardcoded value
-  }
-
-  // 2. Check if it's a primitive ramp token like "color-primary-500"
-  const primitiveMatch = tokenName.match(
-    /^color-(primary|secondary|neutral|success|warning|critical|info)-(\d+)$/,
-  );
-  if (primitiveMatch) {
-    return { rampKey: primitiveMatch[1], step: Number(primitiveMatch[2]) };
-  }
-
-  return null;
+  if (!mapping) return null;
+  const step = isDarkMode ? mapping.darkStep : mapping.lightStep;
+  if (!mapping.ramp || step == null) return null;
+  const rampKey = mapping.role ?? mapping.ramp;
+  return { rampKey, displayRamp: mapping.ramp, step };
 }
 
 /**
@@ -158,7 +149,7 @@ export function getEditLabel(
 ): string | null {
   const info = getTokenEditInfo(tokenName, isDarkMode, semanticMap);
   if (!info) return null;
-  return `${info.rampKey} \u00b7 ${info.step}`;
+  return `${info.displayRamp} \u00b7 ${info.step}`;
 }
 
 /** Category display name */

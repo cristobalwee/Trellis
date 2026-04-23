@@ -1,11 +1,23 @@
 import React from 'react';
-import { bg, fg, border, radius, space, transition } from './tokens';
+import {
+  bg, fg, border, radius, space, transition,
+  font, weight, field,
+  type ControlSize,
+} from './tokens';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  size?: ControlSize;
 }
 
-const Input: React.FC<InputProps> = ({ label, id, style, ...rest }) => {
+const SIZE_STYLES: Record<ControlSize, React.CSSProperties> = {
+  xs: { fontSize: field.xs.size, lineHeight: field.xs.lineHeight, padding: `${space.xs} ${space.sm}` },
+  sm: { fontSize: field.sm.size, lineHeight: field.sm.lineHeight, padding: `${space.xs} ${space.md}` },
+  md: { fontSize: field.md.size, lineHeight: field.md.lineHeight, padding: `${space.sm} ${space.lg}` },
+  lg: { fontSize: field.lg.size, lineHeight: field.lg.lineHeight, padding: `${space.sm} ${space.xl}` },
+};
+
+const Input: React.FC<InputProps> = ({ label, id, size = 'md', style, ...rest }) => {
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
   return (
@@ -27,17 +39,17 @@ const Input: React.FC<InputProps> = ({ label, id, style, ...rest }) => {
         id={inputId}
         {...rest}
         style={{
-          fontFamily: 'inherit',
-          fontSize: '12px',
+          fontFamily: font.field,
+          fontWeight: weight.field,
           color: fg.onBase,
           backgroundColor: bg.base,
           border: `1px solid ${border.neutral}`,
           borderRadius: radius.field,
-          padding: `${space.sm} ${space.lg}`,
           outline: 'none',
           transition: transition.interactive,
           width: '100%',
           boxSizing: 'border-box',
+          ...SIZE_STYLES[size],
           ...style,
         }}
       />

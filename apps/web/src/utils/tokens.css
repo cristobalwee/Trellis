@@ -236,13 +236,17 @@
 
   /* Font tokens */
   --font-action-family: var(--typography-font-family-primary);
-  --font-action-lg-size: var(--typography-size-200);
-  --font-action-md-size: var(--typography-size-175);
-  --font-action-sm-size: var(--typography-size-150);
+  --font-action-xs-size: var(--typography-size-150);
+  --font-action-sm-size: var(--typography-size-175);
+  --font-action-md-size: var(--typography-size-200);
+  --font-action-lg-size: var(--typography-size-225);
   --font-action-weight: var(--typography-weight-500);
-  --font-action-lg-lineheight: 125%;
-  --font-action-md-lineheight: calc(160% / 140%);
-  --font-action-sm-lineheight: calc(140% / 120%);
+  /* Line-heights match icon-only buttons at the same size:
+     xs→14px icon, sm→16px, md→20px, lg→24px. */
+  --font-action-xs-lineheight: calc(140% / 120%);
+  --font-action-sm-lineheight: calc(160% / 140%);
+  --font-action-md-lineheight: 125%;
+  --font-action-lg-lineheight: calc(240% / 180%);
 
   --font-body-2xs-size: var(--typography-size-125);
   --font-body-family: var(--typography-font-family-primary);
@@ -256,13 +260,16 @@
   --font-body-lineheight: 150%;
 
   --font-field-family: var(--typography-font-family-primary);
-  --font-field-lg-size: var(--typography-size-200);
-  --font-field-md-size: var(--typography-size-175);
-  --font-field-sm-size: var(--typography-size-150);
+  --font-field-xs-size: var(--typography-size-150);
+  --font-field-sm-size: var(--typography-size-175);
+  --font-field-md-size: var(--typography-size-200);
+  --font-field-lg-size: var(--typography-size-225);
   --font-field-weight: var(--typography-weight-400);
-  --font-field-lg-lineheight: 125%;
-  --font-field-md-lineheight: calc(160% / 140%);
-  --font-field-sm-lineheight: calc(140% / 120%);
+  /* Mirrors action so inputs and buttons line up at every size. */
+  --font-field-xs-lineheight: calc(140% / 120%);
+  --font-field-sm-lineheight: calc(160% / 140%);
+  --font-field-md-lineheight: 125%;
+  --font-field-lg-lineheight: calc(240% / 180%);
 
   --font-heading-2xl-size: var(--typography-size-500);
   --font-heading-3xl-size: var(--typography-size-600);

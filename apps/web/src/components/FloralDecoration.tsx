@@ -51,7 +51,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 22, y: 80, rotation: 10, scale: 0.85, delay: 0.49, type: 'pink' },
   { x: 25, y: 96, rotation: -5, scale: 1.1, delay: 0.52, type: 'yellow' },
   { x: 20, y: 70, rotation: 25, scale: 0.9, delay: 0.55, type: 'pink' },
-  { x: 34, y: 90, rotation: 15, scale: 1, delay: 0.45, type: 'bubble', token: { name: '--radius-container', kind: 'radius', value: '8px' } },
+  { x: 34, y: 90, rotation: 15, scale: 1, delay: 0.45, type: 'bubble', token: { name: '--shape-radius-container', kind: 'radius', value: '8px' } },
   { x: 24, y: 55, rotation: -10, scale: 0.8, delay: 0.61, type: 'yellow' },
   { x: 21, y: 45, rotation: 20, scale: 0.7, delay: 0.64, type: 'pink' },
   
@@ -60,7 +60,7 @@ const LEFT_CLUSTER: Position[] = [
   { x: 42, y: 85, rotation: -5, scale: 0.95, delay: 0.67, type: 'yellow' },
   { x: 48, y: 98, rotation: 15, scale: 1.05, delay: 0.7, type: 'pink' },
   { x: 55, y: 88, rotation: -10, scale: 0.8, delay: 0.73, type: 'yellow' },
-  { x: 54, y: 76, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--spacing-lg', kind: 'spacing', value: '16px' } },
+  { x: 54, y: 76, rotation: 0, scale: 1, delay: 0.6, type: 'bubble', token: { name: '--space-lg', kind: 'spacing', value: '16px' } },
   
   // Tapering
   { x: 65, y: 95, rotation: 10, scale: 1.1, delay: 0.79, type: 'pink' },

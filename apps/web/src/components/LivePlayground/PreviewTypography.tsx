@@ -29,35 +29,35 @@ const border = {
   primary: t('color-border-primary'),
 };
 const radius = {
-  container: t('radius-container'),
-  action: t('radius-action'),
-  badge: t('radius-badge'),
+  container: t('shape-radius-container'),
+  action: t('shape-radius-action'),
+  badge: t('shape-radius-badge'),
 };
 const space = {
-  xs: t('spacing-xs'),
-  sm: t('spacing-sm'),
-  md: t('spacing-md'),
-  lg: t('spacing-lg'),
-  xl: t('spacing-xl'),
-  '2xl': t('spacing-2xl'),
-  '3xl': t('spacing-3xl'),
-  '4xl': t('spacing-4xl'),
-  '5xl': t('spacing-5xl'),
-  '6xl': t('spacing-6xl'),
+  xs: t('space-xs'),
+  sm: t('space-sm'),
+  md: t('space-md'),
+  lg: t('space-lg'),
+  xl: t('space-xl'),
+  '2xl': t('space-2xl'),
+  '3xl': t('space-3xl'),
+  '4xl': t('space-4xl'),
+  '5xl': t('space-5xl'),
+  '6xl': t('space-6xl'),
 };
 const transition = {
   theme: t('transition-theme'),
   interactive: t('transition-interactive'),
 };
 const font = {
-  primary: t('font-family-primary'),
-  secondary: t('font-family-secondary'),
+  primary: t('font-body-family'),
+  secondary: t('font-heading-family'),
 };
 const weight = {
-  heading: t('font-weight-heading'),
-  bodyLight: t('font-weight-body-light'),
-  bodyRegular: t('font-weight-body-regular'),
-  bodyBold: t('font-weight-body-bold'),
+  heading: t('font-heading-weight'),
+  bodyLight: t('font-body-weight-light'),
+  bodyRegular: t('font-body-weight-regular'),
+  bodyBold: t('font-body-weight-bold'),
 };
 const gradient = t('gradient-primary');
 

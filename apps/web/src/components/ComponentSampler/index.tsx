@@ -242,7 +242,7 @@ const SignUpForm: React.FC = () => (
       style={{
         fontFamily: font.secondary,
         fontSize: '20px',
-        fontWeight: 'var(--font-weight-heading)' as unknown as number,
+        fontWeight: 'var(--font-heading-weight)' as unknown as number,
         color: fg.onBase,
         margin: 0,
         marginBottom: space.lg,
@@ -252,10 +252,10 @@ const SignUpForm: React.FC = () => (
       Sign up
     </h3>
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
-      <Input label="Full name" placeholder="Enter your name" />
-      <Input label="Email" type="email" placeholder="Enter your email address" />
-      <Input label="Password" type="password" placeholder="Enter your password" />
-      <Button variant="primary" style={{ width: '100%', padding: `10px ${space.lg}`, marginTop: '4px' }}>
+      <Input label="Full name" placeholder="Enter your name" size="sm" />
+      <Input label="Email" type="email" placeholder="Enter your email address" size="sm" />
+      <Input label="Password" type="password" placeholder="Enter your password" size="sm" />
+      <Button variant="primary" size="sm" style={{ width: '100%', marginTop: '4px' }}>
         Create account
       </Button>
       <div
@@ -271,7 +271,7 @@ const SignUpForm: React.FC = () => (
         </span>
         <div style={{ flex: 1, height: '1px', backgroundColor: border.neutral }} />
       </div>
-      <Button variant="outline" style={{ width: '100%', padding: `10px ${space.lg}` }}>
+      <Button variant="outline" size="sm" style={{ width: '100%' }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
         </svg>
@@ -385,7 +385,7 @@ const BalanceCard: React.FC = () => {
         style={{
           fontFamily: font.secondary,
           fontSize: '28px',
-          fontWeight: 'var(--font-weight-heading)' as unknown as number,
+          fontWeight: 'var(--font-heading-weight)' as unknown as number,
           color: fg.onBase,
           marginTop: '4px',
           marginBottom: space.md,
@@ -598,7 +598,7 @@ const DonutStatCard: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '14px',
-              fontWeight: 'var(--font-weight-heading)' as unknown as number,
+              fontWeight: 'var(--font-heading-weight)' as unknown as number,
               color: fg.onBase,
               fontFamily: font.secondary,
             }}
@@ -614,7 +614,7 @@ const DonutStatCard: React.FC = () => {
             style={{
               fontFamily: font.secondary,
               fontSize: '22px',
-              fontWeight: 'var(--font-weight-heading)' as unknown as number,
+              fontWeight: 'var(--font-heading-weight)' as unknown as number,
               color: fg.onBase,
               margin: '4px 0',
               letterSpacing: '-0.02em',
@@ -723,7 +723,7 @@ const EmptyStateCard: React.FC<{
     >
       {description}
     </div>
-    <Button variant={variant === 'primary' ? 'primary' : 'critical'} size="md" style={{ marginTop: space.md }}>
+    <Button variant={variant === 'primary' ? 'primary' : 'critical'} size="sm" style={{ marginTop: space.md }}>
       {buttonLabel}
     </Button>
   </Card>
@@ -773,7 +773,7 @@ const QRConnectCard: React.FC = () => (
     >
       Open the mobile app and scan this code to link your account.
     </div>
-    <Button variant="outline" size="md" style={{ marginTop: space.md, width: '100%' }}>
+    <Button variant="outline" size="sm" style={{ marginTop: space.md, width: '100%' }}>
       Got it
     </Button>
   </Card>
@@ -833,8 +833,8 @@ const SocialLinksForm: React.FC = () => (
       <IconInput icon={Globe} label="Website" placeholder="https://yoursite.com" />
     </div>
     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: space.lg }}>
-      <Button variant="outline" size="md">Discard</Button>
-      <Button variant="primary" size="md">Save Changes</Button>
+      <Button variant="outline" size="sm">Discard</Button>
+      <Button variant="primary" size="sm">Save Changes</Button>
     </div>
   </Card>
 );
@@ -939,7 +939,7 @@ const NotificationsCard: React.FC = () => {
         ))}
       </div>
 
-      <Button variant="primary" size="md" style={{ width: '100%', marginTop: space.lg }}>
+      <Button variant="primary" size="sm" style={{ width: '100%', marginTop: space.lg }}>
         Save Preferences
       </Button>
     </Card>
@@ -1087,7 +1087,7 @@ const FAQCard: React.FC = () => {
         })}
       </div>
 
-      <Button variant="outline" size="md" style={{ width: '100%', marginTop: space.md, borderRadius: radius.field }}>
+      <Button variant="outline" size="sm" style={{ width: '100%', marginTop: space.md, borderRadius: radius.field }}>
         Contact Support
       </Button>
     </div>
@@ -1170,7 +1170,7 @@ const PreviewComponents: React.FC = () => {
                     />
                   </div>
                 </div>
-                <Button variant="primary" size="md">Submit</Button>
+                <Button variant="primary" size="sm">Submit</Button>
               </div>
             </Section>
 

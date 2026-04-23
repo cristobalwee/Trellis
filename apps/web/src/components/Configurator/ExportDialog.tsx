@@ -5,20 +5,30 @@ import { X, Copy, Check } from 'lucide-react';
 import { Select } from '../ui/Select';
 import {
   exportTokens,
+  generateGuide,
   type ExportFormat,
   type ColorSpace,
   type TokenSet,
 } from '../../utils/exportTokens';
+import type { BrandConfig } from '../BrandIntake/store';
 
 // ---------------------------------------------------------------------------
 // Format tabs
 // ---------------------------------------------------------------------------
 
-const FORMAT_TABS: { id: ExportFormat; label: string }[] = [
+/**
+ * `guide` isn't an export format — it's a dedicated markdown tab rendered
+ * inside the same code area. Kept in the tab list so the UI treats it
+ * uniformly; switch logic branches on `activeTab === 'guide'`.
+ */
+type TabKey = ExportFormat | 'guide';
+
+const FORMAT_TABS: { id: TabKey; label: string }[] = [
   { id: 'css', label: 'CSS' },
   { id: 'dtcg', label: 'DTCG JSON' },
   { id: 'tailwind', label: 'Tailwind' },
   { id: 'shadcn', label: 'shadcn' },
+  { id: 'guide', label: 'Guide' },
 ];
 
 const COLOR_SPACE_OPTIONS = [
@@ -57,7 +67,78 @@ const popupVariants = {
 // Syntax highlighting
 // ---------------------------------------------------------------------------
 
-type Lang = 'css' | 'json' | 'js';
+type Lang = 'css' | 'json' | 'js' | 'md';
+
+const MD_COLORS = {
+  heading:  'text-slate-900 font-semibold',
+  bullet:   'text-slate-400',
+  code:     'text-indigo-700',
+  fence:    'text-slate-400',
+  link:     'text-forest-green underline decoration-forest-green/40',
+  plain:    'text-slate-700',
+};
+
+function fenceLangFor(lang: string): Lang {
+  const l = lang.toLowerCase();
+  if (l === 'json') return 'json';
+  if (l === 'js' || l === 'javascript' || l === 'ts' || l === 'typescript') return 'js';
+  return 'css';
+}
+
+/** Render a single markdown line. Inline `code` runs are backtick-wrapped. */
+function renderMdPlain(line: string, key: number): React.ReactNode {
+  const trimmed = line.trimStart();
+
+  if (trimmed === '') return <div key={key}>&nbsp;</div>;
+
+  // Headings (# … ######)
+  if (/^#{1,6}\s/.test(trimmed)) {
+    return <div key={key}><span className={MD_COLORS.heading}>{line}</span></div>;
+  }
+
+  // Unordered list item
+  const bulletMatch = line.match(/^(\s*)([-*])\s+(.*)$/);
+  if (bulletMatch) {
+    const [, lead, marker, rest] = bulletMatch;
+    return (
+      <div key={key}>
+        {lead}
+        <span className={MD_COLORS.bullet}>{marker}</span>
+        {' '}
+        {renderMdInline(rest)}
+      </div>
+    );
+  }
+
+  return <div key={key}>{renderMdInline(line)}</div>;
+}
+
+/** Colour `code`, [link](url) and plain text inside a markdown line. */
+function renderMdInline(text: string): React.ReactNode {
+  const parts: React.ReactNode[] = [];
+  let i = 0;
+  let idx = 0;
+  // Matches either a backtick-quoted inline code span or a [label](url) link.
+  const re = /`([^`]+)`|\[([^\]]+)\]\(([^)]+)\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > i) {
+      parts.push(<span key={`p${idx++}`} className={MD_COLORS.plain}>{text.slice(i, m.index)}</span>);
+    }
+    if (m[1] !== undefined) {
+      parts.push(<span key={`c${idx++}`} className={MD_COLORS.code}>{`\`${m[1]}\``}</span>);
+    } else {
+      parts.push(
+        <span key={`l${idx++}`} className={MD_COLORS.link}>{`[${m[2]}](${m[3]})`}</span>,
+      );
+    }
+    i = m.index + m[0].length;
+  }
+  if (i < text.length) {
+    parts.push(<span key={`p${idx++}`} className={MD_COLORS.plain}>{text.slice(i)}</span>);
+  }
+  return <>{parts}</>;
+}
 
 const COLORS = {
   comment:   'text-emerald-700/70 italic',
@@ -233,17 +314,60 @@ function renderJsRest(rest: string): React.ReactNode {
   );
 }
 
-function highlight(text: string, lang: Lang): React.ReactNode {
-  const lines = text.split('\n');
-  const render =
-    lang === 'css'  ? renderCssLine  :
-    lang === 'json' ? renderJsonLine : renderJsLine;
-  return lines.map((line, i) => render(line, i));
+function renderByLang(line: string, key: number, lang: Lang): React.ReactNode {
+  switch (lang) {
+    case 'json': return renderJsonLine(line, key);
+    case 'js':   return renderJsLine(line, key);
+    case 'md':   return renderMdPlain(line, key);
+    default:     return renderCssLine(line, key);
+  }
 }
 
-function langFor(format: ExportFormat): Lang {
-  if (format === 'dtcg') return 'json';
-  if (format === 'tailwind') return 'js';
+/**
+ * Markdown highlighter — applies code-block highlighting inside ``` fences
+ * (using whatever language is declared on the fence line) and lightweight
+ * styling to headings / bullets / inline code outside of fences. The raw
+ * text is preserved line-for-line so "copy" yields valid markdown.
+ */
+function highlightMarkdown(text: string): React.ReactNode {
+  const lines = text.split('\n');
+  const out: React.ReactNode[] = [];
+  let inFence = false;
+  let fenceLang: Lang = 'css';
+
+  lines.forEach((line, i) => {
+    const fence = line.match(/^(\s*)```(\S*)\s*$/);
+    if (fence) {
+      if (!inFence) {
+        inFence = true;
+        fenceLang = fenceLangFor(fence[2]);
+      } else {
+        inFence = false;
+      }
+      out.push(<div key={i}><span className={MD_COLORS.fence}>{line}</span></div>);
+      return;
+    }
+    if (inFence) {
+      out.push(
+        <React.Fragment key={i}>{renderByLang(line, i, fenceLang)}</React.Fragment>,
+      );
+      return;
+    }
+    out.push(<React.Fragment key={i}>{renderMdPlain(line, i)}</React.Fragment>);
+  });
+  return out;
+}
+
+function highlight(text: string, lang: Lang): React.ReactNode {
+  if (lang === 'md') return highlightMarkdown(text);
+  const lines = text.split('\n');
+  return lines.map((line, i) => renderByLang(line, i, lang));
+}
+
+function langFor(tab: TabKey): Lang {
+  if (tab === 'guide')    return 'md';
+  if (tab === 'dtcg')     return 'json';
+  if (tab === 'tailwind') return 'js';
   return 'css';
 }
 
@@ -253,21 +377,37 @@ function langFor(format: ExportFormat): Lang {
 
 interface ExportDialogProps {
   tokens: TokenSet;
+  config: BrandConfig;
 }
 
-const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
+const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
   const [open, setOpen] = useState(false);
-  const [format, setFormat] = useState<ExportFormat>('css');
+  const [activeTab, setActiveTab] = useState<TabKey>('css');
+  // Tracks which export format the user most recently viewed. Used by the
+  // guide overview copy; starts `null` so the guide falls back to its
+  // generic "available in CSS, DTCG JSON, …" phrasing until the user has
+  // actually landed on a format tab.
+  const [lastExportFormat, setLastExportFormat] = useState<ExportFormat | null>(null);
   const [colorSpace, setColorSpace] = useState<ColorSpace>('oklch');
   const [includeSemantic, setIncludeSemantic] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  const output = useMemo(
-    () => exportTokens(tokens, format, colorSpace, { includeSemantic }),
-    [tokens, format, colorSpace, includeSemantic],
-  );
+  const isGuide = activeTab === 'guide';
 
-  const highlighted = useMemo(() => highlight(output, langFor(format)), [output, format]);
+  const handleTabChange = useCallback((tab: TabKey) => {
+    if (tab !== 'guide') setLastExportFormat(tab);
+    setActiveTab(tab);
+  }, []);
+
+  const output = useMemo(() => {
+    if (isGuide) return generateGuide(config, tokens, lastExportFormat);
+    return exportTokens(tokens, activeTab, colorSpace, { includeSemantic });
+  }, [isGuide, config, tokens, lastExportFormat, activeTab, colorSpace, includeSemantic]);
+
+  const highlighted = useMemo(
+    () => highlight(output, langFor(activeTab)),
+    [output, activeTab],
+  );
 
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(output);
@@ -343,9 +483,9 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
                     {FORMAT_TABS.map((tab) => (
                       <button
                         key={tab.id}
-                        onClick={() => setFormat(tab.id)}
+                        onClick={() => handleTabChange(tab.id)}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
-                          format === tab.id
+                          activeTab === tab.id
                             ? 'bg-white text-charcoal shadow-sm'
                             : 'text-charcoal/60 hover:text-charcoal'
                         }`}
@@ -380,13 +520,15 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens }) => {
                         Semantic tokens
                       </button>
                     )} */}
-                    <Select
-                      value={colorSpace}
-                      onValueChange={(v) => setColorSpace(v as ColorSpace)}
-                      options={COLOR_SPACE_OPTIONS}
-                      size="compact"
-                      triggerClassName="!w-28 !py-1.5 !px-2.5 !text-xs !rounded-lg"
-                    />
+                    {!isGuide && (
+                      <Select
+                        value={colorSpace}
+                        onValueChange={(v) => setColorSpace(v as ColorSpace)}
+                        options={COLOR_SPACE_OPTIONS}
+                        size="compact"
+                        triggerClassName="!w-28 !py-1.5 !px-2.5 !text-xs !rounded-lg"
+                      />
+                    )}
                     <button
                       onClick={handleCopy}
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"

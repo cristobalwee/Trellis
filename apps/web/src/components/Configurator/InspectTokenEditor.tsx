@@ -113,7 +113,7 @@ export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
       {/* Label */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-mono text-charcoal/60">
-          {info.rampKey} &middot; {info.step}
+          {info.displayRamp} &middot; {info.step}
         </span>
       </div>
 
