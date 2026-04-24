@@ -783,54 +783,16 @@ const QRConnectCard: React.FC = () => (
 // Social Links Form
 // ---------------------------------------------------------------------------
 
-const IconInput: React.FC<{
-  icon: React.FC<{ size?: number }>;
-  placeholder: string;
-  defaultValue?: string;
-  label: string;
-}> = ({ icon: Icon, placeholder, defaultValue, label }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-    <label style={{ fontSize: '11px', fontWeight: 500, color: fg.onBase }}>{label}</label>
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        border: `1px solid ${border.neutral}`,
-        borderRadius: radius.field,
-        padding: `${space.sm} ${space.lg}`,
-        transition: transition.interactive,
-      }}
-    >
-      <Icon size={13} />
-      <input
-        aria-label={label}
-        placeholder={placeholder}
-        defaultValue={defaultValue}
-        style={{
-          border: 'none',
-          background: 'none',
-          outline: 'none',
-          fontSize: '12px',
-          color: fg.onBase,
-          fontFamily: 'inherit',
-          width: '100%',
-        }}
-      />
-    </div>
-  </div>
-);
-
 const SocialLinksForm: React.FC = () => (
   <Card>
     <div style={{ fontSize: '14px', fontWeight: 700, color: fg.onBase, marginBottom: space.md }}>
       Social Links
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.md }}>
-      <IconInput icon={Music2} label="Spotify Artist URL" placeholder="spotify.com/artist/…" defaultValue="spotify.com/artist/3j…2k" />
-      <IconInput icon={AtSign} label="Instagram Handle" placeholder="@handle" defaultValue="@julianduryea_music" />
-      <IconInput icon={Cloud} label="SoundCloud URL" placeholder="soundcloud.com/username" />
-      <IconInput icon={Globe} label="Website" placeholder="https://yoursite.com" />
+      <Input icon={Music2} size="sm" label="Spotify Artist URL" placeholder="spotify.com/artist/…" defaultValue="spotify.com/artist/3j…2k" />
+      <Input icon={AtSign} size="sm" label="Instagram Handle" placeholder="@handle" defaultValue="@julianduryea_music" />
+      <Input icon={Cloud} size="sm" label="SoundCloud URL" placeholder="soundcloud.com/username" />
+      <Input icon={Globe} size="sm" label="Website" placeholder="https://yoursite.com" />
     </div>
     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: space.lg }}>
       <Button variant="outline" size="sm">Discard</Button>
@@ -1141,34 +1103,8 @@ const PreviewComponents: React.FC = () => {
             {/* Search + Button */}
             <Section>
               <div style={{ display: 'flex', gap: space.md, alignItems: 'flex-end' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      border: `1px solid ${border.neutral}`,
-                      borderRadius: radius.field,
-                      padding: `${space.sm} ${space.lg}`,
-                      backgroundColor: bg.base,
-                      transition: transition.theme,
-                    }}
-                  >
-                    <Search size={13} style={{ color: fg.onBaseFaint, flexShrink: 0 }} />
-                    <input
-                      aria-label="Search"
-                      placeholder="Search"
-                      style={{
-                        border: 'none',
-                        background: 'none',
-                        outline: 'none',
-                        fontSize: '12px',
-                        color: fg.onBase,
-                        fontFamily: 'inherit',
-                        width: '100%',
-                      }}
-                    />
-                  </div>
+                <div style={{ flex: 1 }}>
+                  <Input icon={Search} size="sm" aria-label="Search" placeholder="Search" />
                 </div>
                 <Button variant="primary" size="sm">Submit</Button>
               </div>
