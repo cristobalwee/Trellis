@@ -4,6 +4,7 @@ import { useStore } from '@nanostores/react';
 import { Sun, Moon, Download } from 'lucide-react';
 
 import { $brandConfig, updateConfig, resetConfig, type TabId } from './store';
+import { siteImages } from '../../lib/siteImages';
 import { generateDesignTokens } from '../../utils/generateTokens';
 import BrandHeader from './BrandHeader';
 import TabBar from './TabBar';
@@ -181,7 +182,7 @@ const BrandIntake: React.FC = () => {
           {/* Header */}
           <header className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-charcoal/5 shrink-0">
             <div className="flex items-center gap-3">
-              <img src="/src/assets/logo_icon.svg" alt="Trellis" className="w-7 h-7" />
+              <img src={siteImages.logoIcon} alt="Trellis" className="w-7 h-7" />
               {isDev && (
                 <button
                   onClick={() => { if (confirm('Reset all config?')) resetConfig(); }}

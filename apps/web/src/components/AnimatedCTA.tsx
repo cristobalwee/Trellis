@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
+import { siteImages } from '../lib/siteImages';
 
 interface AnimatedCTAProps {
   children: React.ReactNode;
@@ -13,9 +14,9 @@ interface AnimatedCTAProps {
 }
 
 const ASSETS = {
-  pink: '/src/assets/flower-pink.png',
-  yellow: '/src/assets/flower-yellow.png',
-  leaf2: '/src/assets/leaf-2.png',
+  pink: siteImages.flowerPink,
+  yellow: siteImages.flowerYellow,
+  leaf2: siteImages.leaf2,
 };
 
 export const AnimatedCTA: React.FC<AnimatedCTAProps> = ({

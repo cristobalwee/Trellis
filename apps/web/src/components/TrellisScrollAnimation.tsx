@@ -1,5 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { siteImages } from '../lib/siteImages';
 
 interface FlowerProps {
   type: 'pink' | 'yellow' | 'leaf1' | 'leaf2';
@@ -11,10 +12,10 @@ interface FlowerProps {
 }
 
 const ASSETS = {
-  pink: '/src/assets/flower-pink.png',
-  yellow: '/src/assets/flower-yellow.png',
-  leaf1: '/src/assets/leaf-1.png',
-  leaf2: '/src/assets/leaf-2.png',
+  pink: siteImages.flowerPink,
+  yellow: siteImages.flowerYellow,
+  leaf1: siteImages.leaf1,
+  leaf2: siteImages.leaf2,
 };
 
 const Flower = ({ type, top, left, rotate, scale, index, scrollYProgress }: FlowerProps & { scrollYProgress: any }) => {

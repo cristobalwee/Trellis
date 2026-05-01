@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
+import { siteImages } from '../lib/siteImages';
 
 // Scroll distance (px) before flowers begin to disappear. Kept small so it feels scroll-driven.
 const HIDE_THRESHOLD = 140;
@@ -26,10 +27,10 @@ interface Position {
 }
 
 const ASSETS = {
-  pink: '/src/assets/flower-pink.png',
-  yellow: '/src/assets/flower-yellow.png',
-  leaf1: '/src/assets/leaf-1.png',
-  leaf2: '/src/assets/leaf-2.png',
+  pink: siteImages.flowerPink,
+  yellow: siteImages.flowerYellow,
+  leaf1: siteImages.leaf1,
+  leaf2: siteImages.leaf2,
 };
 
 const LEFT_CLUSTER: Position[] = [

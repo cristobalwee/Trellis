@@ -3,6 +3,7 @@
  * Configurator header — used only on /generate.
  * Simpler, tool-focused header without marketing nav links.
  */
+import { siteImages } from '../lib/siteImages';
 ---
 
 <header
@@ -11,7 +12,7 @@
 >
   <!-- Logo — navigates back to landing (triggers Mode A loader transition) -->
   <a href="/" class="flex items-center gap-3 group" data-header-anim="0">
-    <img src="/src/assets/logo.svg" alt="Trellis" class="w-full h-full" />
+    <img src={siteImages.logo} alt="Trellis" class="w-full h-full" />
   </a>
 
   <!-- Right-side actions -->

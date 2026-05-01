@@ -16,7 +16,7 @@ import { generateDesignTokens } from '../../utils/generateTokens';
 import { Tooltip } from '../ui/Tooltip';
 import InspectOverlay from './InspectOverlay';
 import ExportDialog from './ExportDialog';
-import logoIcon from '../../assets/logo_icon.svg';
+import { siteImages } from '../../lib/siteImages';
 
 // ---------------------------------------------------------------------------
 // Preview tab bar (Dashboard / Components)
@@ -229,7 +229,7 @@ const Configurator: React.FC = () => {
                 >
                   <Tooltip label="Back to home page" side="right">
                     <a href="/" className="hover:opacity-70 transition-opacity">
-                      <img src={logoIcon.src} alt="Trellis" className="w-5 h-5" />
+                      <img src={siteImages.logoIcon} alt="Trellis" className="w-5 h-5" />
                     </a>
                   </Tooltip>
 
@@ -273,7 +273,7 @@ const Configurator: React.FC = () => {
                   <div className="flex items-center justify-between shrink-0 p-6">
                     <Tooltip label="Back to home page" side="bottom">
                       <a href="/" className="hover:opacity-70 transition-opacity">
-                        <img src={logoIcon.src} alt="Trellis" className="w-7 h-7" />
+                        <img src={siteImages.logoIcon} alt="Trellis" className="w-7 h-7" />
                       </a>
                     </Tooltip>
                     <button

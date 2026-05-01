@@ -1,5 +1,6 @@
 ---
 import { AnimatedCTA } from './AnimatedCTA';
+import { siteImages } from '../lib/siteImages';
 ---
 
 <header
@@ -14,8 +15,8 @@ import { AnimatedCTA } from './AnimatedCTA';
     >
       <!-- Logo -->
       <a href="/" class="flex items-center gap-3 group" data-header-anim="0">
-        <img src="/src/assets/logo.svg" alt="Trellis Logo" class="w-full h-full pr-[148px] hidden md:block" />
-        <img src="/src/assets/logo_icon.svg" alt="Trellis Logo" class="w-[30px] h-full md:hidden" />
+        <img src={siteImages.logo} alt="Trellis Logo" class="w-full h-full pr-[148px] hidden md:block" />
+        <img src={siteImages.logoIcon} alt="Trellis Logo" class="w-[30px] h-full md:hidden" />
       </a>
 
       <!-- Desktop Navigation -->
