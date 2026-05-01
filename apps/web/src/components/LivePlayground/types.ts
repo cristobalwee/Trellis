@@ -1,3 +1,5 @@
+export { GOOGLE_FONTS } from '../../data/googleFonts';
+
 export interface PlaygroundConfig {
   primaryColor: string;
   secondaryColor: string;
@@ -33,20 +35,3 @@ export const DEFAULT_PLAYGROUND_CONFIG: PlaygroundConfig = {
   isDarkMode: false,
 };
 
-export const GOOGLE_FONTS = [
-  'Inter',
-  'Roboto',
-  'Open Sans',
-  'Lato',
-  'Montserrat',
-  'Poppins',
-  'Raleway',
-  'Nunito Sans',
-  'Source Sans 3',
-  'Work Sans',
-  'DM Sans',
-  'Plus Jakarta Sans',
-  'Manrope',
-  'Space Grotesk',
-  'IBM Plex Sans',
-] as const;

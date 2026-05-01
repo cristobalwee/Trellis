@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { Sun, Moon } from 'lucide-react';
 
-import { $brandConfig, updateConfig, FONT_WEIGHT_OPTIONS } from '../BrandIntake/store';
+import { $brandConfig, updateConfig } from '../BrandIntake/store';
 import { useColorRamps } from '../BrandIntake/useColorRamps';
 import { GOOGLE_FONTS } from '../BrandIntake/TabTypography';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
@@ -10,6 +10,7 @@ import { ColorRampView } from '../Showcase/ColorRampView';
 import { Combobox } from '../ui/Combobox';
 import PreviewComponents from '../ComponentSampler';
 import { generateDesignTokens } from '../../utils/generateTokens';
+import { appendGoogleFontStylesheet } from '../../data/googleFonts';
 
 const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ isDark, onToggle }) => (
   <button
@@ -28,6 +29,29 @@ const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ i
       {isDark ? <Moon size={12} className="text-gray-600" /> : <Sun size={12} className="text-amber-500" />}
     </div>
   </button>
+);
+
+type PlaygroundPanel = 'configure' | 'preview';
+
+const PlaygroundSegmentedControl: React.FC<{
+  active: PlaygroundPanel;
+  onChange: (panel: PlaygroundPanel) => void;
+}> = ({ active, onChange }) => (
+  <div className="mb-3 flex w-full gap-1 rounded-lg bg-charcoal/5 p-0.5 lg:hidden">
+    {(['configure', 'preview'] as const).map((panel) => (
+      <button
+        key={panel}
+        onClick={() => onChange(panel)}
+        className={`flex-1 rounded-md px-3 py-2 text-sm font-medium capitalize transition-all cursor-pointer ${
+          active === panel
+            ? 'bg-white text-charcoal shadow-sm'
+            : 'text-charcoal/50 hover:text-charcoal/80'
+        }`}
+      >
+        {panel}
+      </button>
+    ))}
+  </div>
 );
 
 // ---------------------------------------------------------------------------
@@ -113,18 +137,13 @@ const LandingPlayground: React.FC = () => {
   const config = useStore($brandConfig);
   const derived = useColorRamps(config);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [activePanel, setActivePanel] = useState<PlaygroundPanel>('configure');
 
   // Load Google Fonts for both heading and body typefaces
   useEffect(() => {
-    const weightsQuery = `wght@${FONT_WEIGHT_OPTIONS.join(';')}`;
     for (const [family, role] of [[config.headingFont, 'heading'], [config.primaryFont, 'body']] as const) {
       const id = `playground-font-${role}-${family.replace(/\s+/g, '+')}`;
-      if (document.getElementById(id)) continue;
-      const link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/\s+/g, '+')}:${weightsQuery}&display=swap`;
-      document.head.appendChild(link);
+      appendGoogleFontStylesheet(family, id);
     }
   }, [config.primaryFont, config.headingFont]);
 
@@ -141,21 +160,26 @@ const LandingPlayground: React.FC = () => {
         <DarkModeToggle isDark={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
       </div>
 
+      <PlaygroundSegmentedControl active={activePanel} onChange={setActivePanel} />
+
       {/* Main Container */}
       <div
-        className="w-full bg-gray rounded-4xl overflow-hidden flex flex-col lg:flex-row p-3 md:p-4 gap-3 md:gap-4 relative z-10"
-        style={{ height: 'min(720px, 85vh)' }}
+        className="relative z-10 flex h-[620px] w-full flex-col gap-3 overflow-hidden rounded-4xl bg-gray p-3 sm:h-[660px] md:h-[680px] md:gap-4 md:p-4 lg:h-[min(720px,85vh)] lg:flex-row"
       >
         {/* Component Sampler */}
         <div
-          className="flex-1 min-w-0 rounded-3xl border-2 border-white shadow-sm overflow-hidden relative"
+          className={`relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-3xl border-2 border-white shadow-sm lg:block ${
+            activePanel === 'configure' ? 'hidden' : 'block'
+          }`}
           style={designTokens as React.CSSProperties}
         >
           <PreviewComponents />
         </div>
 
         {/* Compressed controls */}
-        <div className="shrink-0 bg-white rounded-3xl overflow-y-auto order-first lg:order-last w-full lg:w-[320px] flex flex-col">
+        <div className={`order-first min-h-0 w-full flex-1 flex-col overflow-y-auto rounded-3xl bg-white lg:order-last lg:flex lg:w-[320px] lg:flex-none ${
+          activePanel === 'preview' ? 'hidden' : 'flex'
+        }`}>
           <div className="flex flex-col gap-6 p-5">
             {/* Color */}
             <section className="flex flex-col gap-3">

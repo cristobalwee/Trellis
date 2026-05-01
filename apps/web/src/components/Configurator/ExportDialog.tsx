@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X, Copy, Check } from 'lucide-react';
 import { Select } from '../ui/Select';
 import {
@@ -47,20 +47,30 @@ const backdropVariants = {
   visible: { opacity: 1 },
 };
 
-const popupVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 16 },
-  visible: {
+const cardVariants = {
+  hidden: (reducedMotion: boolean) => ({
+    opacity: 0,
+    scale: reducedMotion ? 1 : 0.96,
+    y: reducedMotion ? 0 : 18,
+  }),
+  visible: (reducedMotion: boolean) => ({
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { type: 'spring' as const, damping: 28, stiffness: 400, mass: 0.8 },
-  },
-  exit: {
+    transition: {
+      duration: reducedMotion ? 0.12 : 0.28,
+      ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
+    },
+  }),
+  exit: (reducedMotion: boolean) => ({
     opacity: 0,
-    scale: 0.97,
-    y: 8,
-    transition: { duration: 0.15, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
-  },
+    scale: reducedMotion ? 1 : 0.97,
+    y: reducedMotion ? 0 : 10,
+    transition: {
+      duration: reducedMotion ? 0.1 : 0.22,
+      ease: [0.4, 0, 0.2, 1] as [number, number, number, number],
+    },
+  }),
 };
 
 // ---------------------------------------------------------------------------
@@ -381,7 +391,9 @@ interface ExportDialogProps {
 }
 
 const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
-  const [open, setOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('css');
   // Tracks which export format the user most recently viewed. Used by the
   // guide overview copy; starts `null` so the guide falls back to its
@@ -409,6 +421,39 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
     [output, activeTab],
   );
 
+  const unlockPageScroll = useCallback(() => {
+    document.body.classList.remove('modal-open');
+    (window as { lenis?: { start?: () => void } }).lenis?.start?.();
+  }, []);
+
+  const showDialog = useCallback(() => {
+    setMounted(true);
+    setVisible(true);
+    document.body.classList.add('modal-open');
+    (window as { lenis?: { stop?: () => void } }).lenis?.stop?.();
+  }, []);
+
+  const hideDialog = useCallback(() => {
+    setVisible(false);
+  }, []);
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        showDialog();
+        return;
+      }
+      hideDialog();
+    },
+    [hideDialog, showDialog],
+  );
+
+  const handleExitComplete = useCallback(() => {
+    if (visible) return;
+    setMounted(false);
+    unlockPageScroll();
+  }, [unlockPageScroll, visible]);
+
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(output);
     setCopied(true);
@@ -416,7 +461,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
   }, [output]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root open={mounted} onOpenChange={handleOpenChange}>
       <Dialog.Trigger className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -436,36 +481,37 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
         Export
       </Dialog.Trigger>
 
-      <AnimatePresence>
-        {open && (
+      <AnimatePresence initial={false} onExitComplete={handleExitComplete}>
+        {visible && (
           <Dialog.Portal keepMounted>
             <Dialog.Backdrop
-              className="fixed inset-0 z-50"
+              className="fixed inset-0 z-50 bg-black/40"
               render={
                 <motion.div
                   variants={backdropVariants}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: shouldReduceMotion ? 0.1 : 0.2 }}
                 />
               }
-              style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
             />
             <Dialog.Popup
-              className="fixed z-50 top-0 left-0 w-screen h-screen flex items-center justify-center p-4"
-              render={
-                <motion.div
-                  variants={popupVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                />
-              }
+              className="fixed left-0 top-0 z-50 flex h-screen w-screen items-center justify-center p-3 sm:p-4"
+              onClick={(event) => {
+                if (event.target === event.currentTarget) hideDialog();
+              }}
             >
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col">
+              <motion.div
+                variants={cardVariants}
+                custom={shouldReduceMotion}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="flex max-h-[90dvh] w-full max-w-4xl flex-col rounded-2xl bg-white shadow-2xl will-change-[transform,opacity] sm:max-h-[80vh]"
+              >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-6 mb-1">
+                <div className="mb-1 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-6">
                   <Dialog.Title render={() => (
                     <h4 className="text-xl text-charcoal">
                       Export theme
@@ -477,18 +523,18 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                 </div>
 
                 {/* Toolbar: tabs + color space + copy */}
-                <div className="flex flex-wrap items-center gap-3 px-6 justify-between">
+                <div className="flex flex-col items-stretch justify-between gap-3 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6">
                   {/* Format tabs */}
-                  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 flex-1 min-w-fit max-w-fit">
+                  <div className="flex min-w-0 flex-1 gap-1 rounded-lg bg-charcoal/5 p-0.5 sm:max-w-fit">
                     {FORMAT_TABS.map((tab) => (
                       <button
                         key={tab.id}
                         onClick={() => handleTabChange(tab.id)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer whitespace-nowrap ${
+                        className={`flex-1 whitespace-nowrap rounded-md px-2 py-1.5 text-xs font-medium transition-all cursor-pointer sm:flex-none sm:px-3 ${
                           activeTab === tab.id
                             ? 'bg-white text-charcoal shadow-sm'
                             : 'text-charcoal/60 hover:text-charcoal'
-                        }`}
+                        } ${tab.id === 'guide' ? 'hidden sm:block' : ''}`}
                       >
                         {tab.label}
                       </button>
@@ -496,7 +542,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                   </div>
 
                   {/* Color space selector + copy */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center justify-between gap-2 sm:justify-start">
                     {/* {format === 'css' && (
                       <button
                         type="button"
@@ -549,12 +595,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                 </div>
 
                 {/* Code output */}
-                <div className="flex-1 overflow-auto min-h-0 p-6 pt-4">
+                <div className="min-h-0 flex-1 overflow-auto p-4 pt-4 sm:p-6 sm:pt-4">
                   <pre className="text-[12px] leading-[1.65] font-mono whitespace-pre overflow-x-auto bg-gray rounded-xl p-4 max-h-[50vh] overflow-y-auto">
                     {highlighted}
                   </pre>
                 </div>
-              </div>
+              </motion.div>
             </Dialog.Popup>
           </Dialog.Portal>
         )}

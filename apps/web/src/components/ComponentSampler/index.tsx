@@ -1091,7 +1091,7 @@ const PreviewComponents: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1.2fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(260px, 100%), 1fr))',
             gap: 32,
             padding: space.lg,
             minHeight: '100%',

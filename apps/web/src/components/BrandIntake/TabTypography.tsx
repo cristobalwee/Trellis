@@ -8,19 +8,9 @@ import {
   type BodyFontWeights,
 } from './store';
 import { Combobox } from '../ui/Combobox';
+import { appendGoogleFontStylesheet, GOOGLE_FONTS } from '../../data/googleFonts';
 
-export const GOOGLE_FONTS = [
-  'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
-  'Playfair Display', 'Merriweather', 'Lora', 'IBM Plex Sans', 'Space Grotesk',
-  'Poppins', 'Raleway', 'Nunito', 'Source Sans 3', 'Ubuntu',
-  'Oswald', 'Noto Sans', 'Rubik', 'Work Sans', 'DM Sans',
-  'Manrope', 'Outfit', 'Plus Jakarta Sans', 'Lexend', 'Sora',
-  'Figtree', 'Geist', 'Onest', 'Instrument Sans', 'General Sans',
-  'Fraunces', 'Crimson Pro', 'Libre Baskerville', 'Cormorant Garamond', 'EB Garamond',
-  'Space Mono', 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Source Code Pro',
-];
-
-const ALL_WEIGHTS_QUERY = `wght@${FONT_WEIGHT_OPTIONS.join(';')}`;
+export { GOOGLE_FONTS };
 
 interface WeightPillsProps {
   selected: FontWeight;
@@ -56,12 +46,7 @@ const TabTypography: React.FC = () => {
   useEffect(() => {
     const loadFont = (family: string, role: 'heading' | 'body') => {
       const id = `tab-typo-font-${role}-${family.replace(/\s+/g, '+')}`;
-      if (document.getElementById(id)) return;
-      const link = document.createElement('link');
-      link.id = id;
-      link.rel = 'stylesheet';
-      link.href = `https://fonts.googleapis.com/css2?family=${family.replace(/\s+/g, '+')}:${ALL_WEIGHTS_QUERY}&display=swap`;
-      document.head.appendChild(link);
+      appendGoogleFontStylesheet(family, id);
     };
     loadFont(config.headingFont, 'heading');
     loadFont(config.primaryFont, 'body');

@@ -39,11 +39,6 @@ const faqs: FAQItem[] = [
     answer:
       'The token architecture and color science are fully open. The free tier gives you the complete token package with no restrictions on how you use it — in personal projects, client work, or commercial products. The generated output is yours.',
   },
-  {
-    question: "What's coming in the paid tier?",
-    answer:
-      'The paid tier will add a full React component library built on Base UI, Figma Variables with a plugin importer so you can apply your generated system to a canonical Figma file, Storybook documentation, governance docs, and agentic guidance files for AI-assisted development. Pricing will be around $99. You can join the waitlist now — the MVP focuses on nailing the free tier first.',
-  },
 ];
 
 const FAQAccordion = () => {

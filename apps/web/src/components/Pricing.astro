@@ -1,45 +1,96 @@
 ---
-// Pricing section - Buy Once, Own Forever
+// Pricing section - Alpha (free) + Beta (paid, waitlist)
 import { AnimatedCTA } from './AnimatedCTA';
+import { WaitlistModal } from './WaitlistModal';
 ---
 
 <section id="pricing" class="section-spacing bg-white">
   <div class="container-custom">
     <!-- Section Header -->
-    <div class="text-center mb-12 flex flex-col gap-2 md:gap-4">
+    <div class="text-center mb-12 md:mb-16 flex flex-col gap-2 md:gap-4">
       <p class="text-base md:text-lg text-charcoal/80 max-w-2xl mx-auto">
         Pricing
       </p>
-      <h2>One payment.<br /><i>Everything included</i></h2>
+      <h2>Free and open-source.<br />More <i>coming soon.</i></h2>
     </div>
 
     <!-- Pricing Cards -->
-    <div class="gap-8 max-w-xl mx-auto">
-      <!-- Available Now Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-start">
+      <!-- Free / Alpha Card -->
+      <div class="card relative border border-charcoal/10 h-full">
+        <div class="mt-2 flex flex-col justify-between items-start h-full">
+          <div class="flex flex-col">
+            <!-- Price -->
+            <div class="mb-8 flex flex-col gap-4">
+              <div class="flex items-baseline gap-2">
+                <h3>Free</h3>
+                <span class="text-charcoal/80">/ forever</span>
+              </div>
+              <p class="text-charcoal/80">Generate your tokens and theme for free</p>
+            </div>
+
+            <!-- Features List -->
+            <ul class="space-y-4 mb-8">
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>Browser-based token generator, no signup needed</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>Color, typography, and spacing scales (light + dark)</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>Export to CSS, DTCG JSON, Tailwind, and shadcn</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>Live preview with branded showcase components</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>WCAG-aware contrast checks built in</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
+                <span>Markdown consumption guidelines for your team</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- CTA — navigates to /generate -->
+          <AnimatedCTA
+            client:load
+            id="pricing-cta-free"
+            href="/generate"
+            variant="primary"
+            size="lg"
+          >
+            Start Building
+          </AnimatedCTA>
+        </div>
+      </div>
+
+      <!-- Paid / Beta Card -->
       <div class="card relative border-2 border-forest-green">
         <!-- Badge -->
         <div class="absolute -top-4 left-1/2 -translate-x-1/2">
           <span class="inline-flex items-center px-4 py-2 rounded-lg bg-forest-green-50 text-forest-green font-semibold text-sm">
-            Launch discount
+            Coming soon
           </span>
         </div>
-
-        <div class="mt-4">
+        <div class="mt-2">
           <!-- Price -->
           <div class="mb-8 flex flex-col gap-4">
             <div class="flex items-baseline gap-2">
-              <h3><span class="line-through text-[#888]">$149</span> $99</h3>
-              <span class="text-charcoal/80">/ forever</span>
+              <h3>$99</h3>
+              <span class="text-charcoal/80">/ one-time payment</span>
             </div>
-            <p class="text-charcoal/80">Limited-time offer for first 100 customers</p>
+            <p class="text-charcoal/80">Get everything in alpha, plus:</p>
           </div>
 
           <!-- Features List -->
           <ul class="space-y-4 mb-8">
-            <li class="flex items-center gap-2">
-              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
-              <span>Full DTCG-compliant multi-theme tokens (light + dark mode)</span>
-            </li>
             <li class="flex items-center gap-2">
               <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
               <span>26 React components with TypeScript and Vitest</span>
@@ -51,10 +102,6 @@ import { AnimatedCTA } from './AnimatedCTA';
             <li class="flex items-center gap-2">
               <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
               <span>Monorepo setup (pnpm + Turborepo)</span>
-            </li>
-            <li class="flex items-center gap-2">
-              <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
-              <span>Battle-tested WCAG compliance and accessibility</span>
             </li>
             <li class="flex items-center gap-2">
               <img src="/src/assets/check.svg" alt="Check" class="w-5 h-5" />
@@ -70,32 +117,33 @@ import { AnimatedCTA } from './AnimatedCTA';
             </li>
           </ul>
 
-          <div class="bg-gray rounded-2xl p-4 md:p-6 mb-8 hidden md:flex flex-col gap-2 items-start">
-            <h5>More coming soon</h5>
-            <p>Framework support for Vue/Svelte, additional token systems, and UI libraries like shadcn/ui, react ARIA, and Ark UI.</p>
-            <a
-              href="https://cristobalgrana.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-forest-green underline font-medium text-base transition-all hover:text-forest-green-600 hover:text-decoration-0"
-            >
-              Join the waitlist
-            </a>
-          </div>
-
-          <!-- CTA — navigates to /generate -->
+          <!-- CTA — opens the waitlist modal via custom event -->
           <AnimatedCTA
             client:load
-            id="pricing-cta"
-            href="/generate"
-            variant="primary"
+            id="pricing-cta-waitlist"
+            variant="secondary"
             size="lg"
+            ariaLabel="Join the beta waitlist"
           >
-            Start Building
+            Join the waitlist
           </AnimatedCTA>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Waitlist modal (mounted once, listens for `openWaitlist`) -->
+  <WaitlistModal client:load />
 </section>
 
+<script>
+  // Bridge between the static markup and the React modal: clicking the waitlist
+  // CTA dispatches a global event that <WaitlistModal /> is listening for.
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    const trigger = target?.closest('#pricing-cta-waitlist');
+    if (!trigger) return;
+    event.preventDefault();
+    window.dispatchEvent(new CustomEvent('openWaitlist'));
+  });
+</script>

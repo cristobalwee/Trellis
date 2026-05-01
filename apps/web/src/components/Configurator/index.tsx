@@ -75,8 +75,8 @@ const MobileSegmentedController: React.FC<{
   active: MobileSegment;
   onChange: (v: MobileSegment) => void;
 }> = ({ active, onChange }) => (
-  <div className="md:hidden sticky top-0 z-10 bg-white border-b border-charcoal/5 px-4 py-2">
-    <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5">
+  <div className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-charcoal/5 bg-white/95 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_40px_rgba(0,0,0,0.08)] backdrop-blur">
+    <div className="mx-auto flex max-w-md gap-1 rounded-lg bg-charcoal/5 p-0.5">
       {(['configure', 'preview'] as const).map((segment) => (
         <button
           key={segment}
@@ -205,9 +205,9 @@ const Configurator: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full" data-lenis-prevent="true">
+    <div className="flex min-h-dvh flex-col md:h-full md:min-h-0" data-lenis-prevent="true">
       {/* Two-panel layout */}
-      <div className="flex flex-col md:flex-row flex-1 min-h-0 bg-gray">
+      <div className="flex flex-1 flex-col bg-gray pb-[calc(4rem+env(safe-area-inset-bottom))] md:min-h-0 md:flex-row md:pb-0">
         {/* Left Panel — Configuration */}
         <motion.aside
           animate={isDesktop ? { width: isCollapsed ? 72 : 360 } : undefined}
@@ -327,7 +327,7 @@ const Configurator: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsInspecting(!isInspecting)}
-                  className={`flex items-center gap-1.5 text-xs font-medium border px-4 md:py-3 rounded-full active:scale-95  hover:scale-105 transition-all duration-250 cursor-pointer ${
+                  className={`flex items-center gap-1.5 text-xs font-medium border px-4 py-3 rounded-full active:scale-95  hover:scale-105 transition-all duration-250 cursor-pointer ${
                     isInspecting
                       ? 'border-forest-green/50 bg-forest-green/10 text-forest-green'
                       : 'border-transparent text-charcoal/80 hover:text-charcoal hover:bg-forest-green/10'
@@ -341,7 +341,7 @@ const Configurator: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-8 pb-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 md:px-8">
             <div ref={previewContainerRef} className="relative rounded-3xl border-2 border-white overflow-hidden shadow-sm h-full min-h-[500px] max-w-[1600px] mx-auto max-h-[1200px]" style={designTokens as React.CSSProperties}>
               {previewTab === 'dashboard' && (
                 <PlaygroundDashboard

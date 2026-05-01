@@ -1,5 +1,11 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
-import { motion, useSpring, useMotionValue, useScroll, useMotionValueEvent, useTransform } from 'framer-motion';
+import React, { useRef, useMemo, useEffect, useState } from 'react';
+import { motion, useSpring, useMotionValue } from 'framer-motion';
+
+// Scroll distance (px) before flowers begin to disappear. Kept small so it feels scroll-driven.
+const HIDE_THRESHOLD = 140;
+// Total stagger window (s) from first to last element. Small to keep interruption snappy.
+// Duration/easing for the hide animation itself live in `.floral-hide` in global.css.
+const HIDE_STAGGER = 0.28;
 
 type TokenKind = 'color' | 'radius' | 'spacing' | 'font';
 
@@ -146,17 +152,25 @@ const RIGHT_CLUSTER: Position[] = [
   { x: 54, y: 66, rotation: 10, scale: 0.8, delay: 0.6, type: 'pink' },
   ];
 
-const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYProgress, cluster, masterDelay = 0 }: {
+const FloralElement = React.memo(({
+  pos,
+  mouseX,
+  mouseY,
+  cluster,
+  masterDelay = 0,
+  containerRef,
+}: {
   pos: Position;
   mouseX: any;
   mouseY: any;
-  isScrolling: boolean;
-  scrollYProgress: any;
   cluster: 'left' | 'right';
   masterDelay?: number;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
   const elementRef = useRef<HTMLDivElement>(null);
-  
+  // Cached element center; refreshed on mount/resize/page-swap instead of every mousemove.
+  const centerRef = useRef<{ x: number; y: number } | null>(null);
+
   const springConfig = { damping: 25, stiffness: 200 };
   const translateX = useSpring(0, springConfig);
   const translateY = useSpring(0, springConfig);
@@ -166,36 +180,72 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
   const swayDuration = useMemo(() => 3 + Math.random() * 2, []);
   const swayAmount = useMemo(() => 4 + Math.random() * 4, []);
 
-  // Staggered fade out from inside out
-  const fadeStart = useMemo(() => {
-    if (cluster === 'left') {
-      // higher x is more inside, should start first
-      return Math.max(0, (75 - pos.x) / 75 * 0.4);
-    } else {
-      // lower x is more inside, should start first
-      return Math.max(0, (pos.x - 25) / 75 * 0.4);
-    }
+  // Per-element stagger delays based on horizontal proximity to screen center.
+  // - Going hidden: inner-most elements leave first (delayOut = 0 at center, max at edges).
+  // - Coming back: outer-most elements return first (delayIn = 0 at edges, max at center).
+  // The values are emitted as CSS custom properties below; the `.floral-hide` rule consumes
+  // them via `transition-delay` so direction reversal is handled by the browser, not JS.
+  const { delayIn, delayOut } = useMemo(() => {
+    const inwardness =
+      cluster === 'left'
+        ? Math.min(1, Math.max(0, pos.x / 75))
+        : Math.min(1, Math.max(0, (100 - pos.x) / 75));
+    return {
+      delayOut: (1 - inwardness) * HIDE_STAGGER,
+      delayIn: inwardness * HIDE_STAGGER,
+    };
   }, [pos.x, cluster]);
 
-  const fadeEnd = fadeStart + 0.3;
+  useEffect(() => {
+    const updateCenter = () => {
+      if (!elementRef.current) return;
+      const rect = elementRef.current.getBoundingClientRect();
+      centerRef.current = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+    };
 
-  const scrollOpacity = useTransform(scrollYProgress, [fadeStart, fadeEnd], [1, 0]);
-  const scrollScale = useTransform(scrollYProgress, [fadeStart, fadeEnd], [pos.scale, 0]);
+    // Defer first read to next frame so parent layout (and any entrance transforms) has settled.
+    const raf = requestAnimationFrame(updateCenter);
+
+    let resizeRaf = 0;
+    const scheduleUpdate = () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(updateCenter);
+    };
+
+    window.addEventListener('resize', scheduleUpdate);
+    document.addEventListener('astro:after-swap', updateCenter);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      cancelAnimationFrame(resizeRaf);
+      window.removeEventListener('resize', scheduleUpdate);
+      document.removeEventListener('astro:after-swap', updateCenter);
+    };
+  }, []);
 
   useEffect(() => {
     const updateMovement = () => {
-      if (!elementRef.current) return;
-      
-      const rect = elementRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      const dist = Math.hypot(mouseX.get() - centerX, mouseY.get() - centerY);
+      // Cheap bail-out while the page is actively scrolling. With Lenis driving smooth scroll
+      // on the same rAF loop as Framer's springs, suppressing 80×2 spring updates per scroll
+      // frame removes the main bottleneck during the hide animation window.
+      if (containerRef.current?.dataset.floralScrolling === 'true') return;
+
+      const center = centerRef.current;
+      if (!center) return;
+
+      const mx = mouseX.get();
+      const my = mouseY.get();
+      const dx = mx - center.x;
+      const dy = my - center.y;
+      const dist = Math.hypot(dx, dy);
       const maxDist = 250;
-      
+
       if (dist < maxDist) {
         const power = (1 - dist / maxDist) * 30;
-        const angle = Math.atan2(mouseY.get() - centerY, mouseX.get() - centerX);
+        const angle = Math.atan2(dy, dx);
         translateX.set(Math.cos(angle) * -power);
         translateY.set(Math.sin(angle) * -power);
       } else {
@@ -204,14 +254,14 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
       }
     };
 
-    const unsubscribeX = mouseX.on("change", updateMovement);
-    const unsubscribeY = mouseY.on("change", updateMovement);
-    
+    const unsubscribeX = mouseX.on('change', updateMovement);
+    const unsubscribeY = mouseY.on('change', updateMovement);
+
     return () => {
       unsubscribeX();
       unsubscribeY();
     };
-  }, [mouseX, mouseY, translateX, translateY]);
+  }, [mouseX, mouseY, translateX, translateY, containerRef]);
 
   const renderContent = () => {
     if (pos.type === 'bubble' && pos.token) {
@@ -258,12 +308,15 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
     return (
       <img
         src={ASSETS[pos.type]}
-        alt="" 
-        className="w-full h-full object-contain drop-shadow-sm select-none" 
+        alt=""
+        className="w-full h-full object-contain drop-shadow-sm select-none"
         draggable={false}
       />
     );
   };
+
+  const rotateDuration = swayDuration;
+  const translateDuration = swayDuration * 1.2;
 
   return (
     <div
@@ -274,88 +327,105 @@ const FloralElement = React.memo(({ pos, mouseX, mouseY, isScrolling, scrollYPro
         top: `${pos.y}%`,
         transform: 'translate(-50%, -50%)',
         zIndex: pos.type === 'bubble' ? 20 : 10,
+        // Per-element CSS vars drive the sway keyframes (no per-element Framer tweens).
+        ['--floral-sway-amount' as any]: `${swayAmount}px`,
+        ['--floral-sway-duration' as any]: `${rotateDuration}s`,
+        ['--floral-sway-translate-duration' as any]: `${translateDuration}s`,
+        ['--floral-sway-rotate-delay' as any]: `${pos.delay + masterDelay}s`,
+        ['--floral-sway-translate-delay' as any]: `${swayOffset}s`,
+        // Consumed by `.floral-hide` for the compositor-driven scale+fade transition.
+        ['--floral-delay-in' as any]: `${delayIn}s`,
+        ['--floral-delay-out' as any]: `${delayOut}s`,
       }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0, rotate: pos.rotation - 20 }}
-        animate={{ 
-          opacity: 1, 
-          scale: pos.scale, 
-          rotate: isScrolling ? pos.rotation : [pos.rotation, pos.rotation + 2, pos.rotation - 2, pos.rotation] 
-        }}
+        animate={{ opacity: 1, scale: pos.scale, rotate: pos.rotation }}
         transition={{
-          opacity: { duration: 0.8, delay: pos.delay + masterDelay, ease: [0.34, 1.56, 0.64, 1] },
-          scale: { duration: 0.8, delay: pos.delay + masterDelay, ease: [0.34, 1.56, 0.64, 1] },
-          rotate: isScrolling 
-            ? { duration: 0.8, ease: "easeOut" }
-            : {
-                duration: swayDuration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: pos.delay + masterDelay
-              }
+          duration: 0.8,
+          delay: pos.delay + masterDelay,
+          ease: [0.34, 1.56, 0.64, 1],
         }}
         style={{
           width: pos.type === 'bubble' ? 'auto' : 'clamp(60px, 8vw, 100px)',
           height: pos.type === 'bubble' ? 'auto' : 'clamp(60px, 8vw, 100px)',
           x: translateX,
           y: translateY,
-          opacity: scrollOpacity,
-          scale: scrollScale,
         }}
-        className="cursor-pointer will-change-transform"
+        className="cursor-pointer"
       >
-        <motion.div
-          animate={{
-            x: isScrolling ? 0 : [0, swayAmount, -swayAmount, 0],
-            y: isScrolling ? 0 : [0, swayAmount / 2, -swayAmount / 2, 0]
-          }}
-          transition={isScrolling 
-            ? { duration: 0.8, ease: "easeOut" }
-            : {
-                duration: swayDuration * 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: swayOffset
-              }
-          }
-          style={{ width: '100%', height: '100%' }}
-        >
-          {renderContent()}
-        </motion.div>
+        <div className="floral-hide">
+          <div className="floral-sway-rotate">
+            <div className="floral-sway-translate">{renderContent()}</div>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
 });
 
-export const FloralDecoration = ({ masterDelay = 0 }: { masterDelay?: number }) => {
+export const FloralDecoration = ({
+  masterDelay = 0,
+  hideThreshold = HIDE_THRESHOLD,
+}: {
+  masterDelay?: number;
+  hideThreshold?: number;
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const { scrollY, scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
-  const scrollTimeout = useRef<any>(null);
+  // Single boolean reflected as `data-floral-past` on the root. The hide/show animation
+  // is pure CSS (see `.floral-hide` in global.css), so this state only flips twice per
+  // visit (once on cross, once on cross-back) — the React render cost is negligible.
+  const [pastThreshold, setPastThreshold] = useState(false);
 
-  useMotionValueEvent(scrollY, "change", () => {
-    if (!isScrolling) setIsScrolling(true);
-    
-    if (scrollTimeout.current) {
-      clearTimeout(scrollTimeout.current);
-    }
-    
-    scrollTimeout.current = setTimeout(() => {
-      setIsScrolling(false);
-    }, 50);
-  });
-
+  // One passive scroll listener, rAF-throttled, replaces the ~80 per-element
+  // scroll subscriptions. It does two things:
+  //   1. Toggles `data-floral-scrolling` on the container so CSS can pause sway and
+  //      JS can short-circuit per-element parallax updates during continuous scroll.
+  //   2. Updates `pastThreshold` only on threshold cross — drives the CSS hide/show.
   useEffect(() => {
-    return () => {
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    const node = containerRef.current;
+    if (!node) return;
+
+    let rafId = 0;
+    let resetTimeout: ReturnType<typeof setTimeout> | null = null;
+    let lastPast = window.scrollY > hideThreshold;
+    setPastThreshold(lastPast);
+
+    const handle = () => {
+      rafId = 0;
+      if (!containerRef.current) return;
+
+      if (containerRef.current.dataset.floralScrolling !== 'true') {
+        containerRef.current.dataset.floralScrolling = 'true';
+      }
+      if (resetTimeout) clearTimeout(resetTimeout);
+      resetTimeout = setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.dataset.floralScrolling = 'false';
+        }
+      }, 120);
+
+      const past = window.scrollY > hideThreshold;
+      if (past !== lastPast) {
+        lastPast = past;
+        setPastThreshold(past);
+      }
     };
-  }, []);
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(handle);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (resetTimeout) clearTimeout(resetTimeout);
+    };
+  }, [hideThreshold]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     mouseX.set(e.clientX);
@@ -363,29 +433,31 @@ export const FloralDecoration = ({ masterDelay = 0 }: { masterDelay?: number }) 
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="absolute inset-0 pointer-events-none select-none overflow-hidden"
+      data-floral-scrolling="false"
+      data-floral-past={pastThreshold ? 'true' : 'false'}
+      className="floral-root absolute inset-0 pointer-events-none select-none overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      {/* Left Corner Cluster */}
-      <div className="absolute bottom-[120px] left-[-50px] w-[45vw] h-[600px] pointer-events-auto">
+      {/* Hide/show is driven entirely by the `data-floral-past` attribute on the root and
+          per-element CSS vars; the cluster wrappers exist only for positioning + their own
+          compositor layer (`.floral-cluster`). */}
+      <div className="floral-cluster absolute bottom-[120px] left-[-50px] w-[45vw] h-[600px] pointer-events-auto">
         {LEFT_CLUSTER.map((pos, i) => (
           <FloralElement
             key={`left-${i}`}
             pos={pos}
             mouseX={mouseX}
             mouseY={mouseY}
-            isScrolling={isScrolling}
-            scrollYProgress={scrollYProgress}
             cluster="left"
             masterDelay={masterDelay}
+            containerRef={containerRef}
           />
         ))}
       </div>
 
-      {/* Right Corner Cluster */}
-      <div className="absolute bottom-[120px] right-[-50px] w-[45vw] h-[600px] pointer-events-auto">
+      <div className="floral-cluster absolute bottom-[120px] right-[-50px] w-[45vw] h-[600px] pointer-events-auto">
         <div className="relative w-full h-full">
           {RIGHT_CLUSTER.map((pos, i) => (
             <FloralElement
@@ -393,10 +465,9 @@ export const FloralDecoration = ({ masterDelay = 0 }: { masterDelay?: number }) 
               pos={pos}
               mouseX={mouseX}
               mouseY={mouseY}
-              isScrolling={isScrolling}
-              scrollYProgress={scrollYProgress}
               cluster="right"
               masterDelay={masterDelay}
+              containerRef={containerRef}
             />
           ))}
         </div>

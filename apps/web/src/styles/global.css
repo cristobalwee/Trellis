@@ -236,6 +236,106 @@ html.lenis {
   }
 }
 
+/* Floral Decoration root — isolate paint/layout from the rest of the page so smooth-scroll
+   driven invalidations don't propagate, and give the cluster wrappers their own compositor
+   layer roots so the 80 child transforms ride on a single GPU surface per side. */
+.floral-root {
+  contain: layout paint style;
+  isolation: isolate;
+}
+
+.floral-cluster {
+  transform: translateZ(0);
+}
+
+/* Floral hide/show — pure CSS so the scale+fade runs on the compositor, off the main thread
+   that Lenis already saturates with its rAF loop. Per-element CSS vars carry the stagger; the
+   asymmetric transition-delay (declared on each terminal state) gives the inner→outer hide
+   and outer→inner reveal patterns and survives mid-flight interruption naturally. */
+.floral-hide {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 0.45s cubic-bezier(0.32, 0.72, 0, 1) var(--floral-delay-in, 0s),
+    transform 0.45s cubic-bezier(0.32, 0.72, 0, 1) var(--floral-delay-in, 0s);
+}
+
+[data-floral-past='true'] .floral-hide {
+  opacity: 0;
+  transform: scale(0.5);
+  transition-delay: var(--floral-delay-out, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floral-hide {
+    transition: none;
+  }
+}
+
+/* Floral Decoration sway animations — driven by CSS so scroll can pause via data-attr */
+@keyframes floral-sway-rotate {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes floral-sway-translate {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(
+      var(--floral-sway-amount, 6px),
+      calc(var(--floral-sway-amount, 6px) / 2)
+    );
+  }
+  75% {
+    transform: translate(
+      calc(var(--floral-sway-amount, 6px) * -1),
+      calc(var(--floral-sway-amount, 6px) / -2)
+    );
+  }
+}
+
+.floral-sway-rotate {
+  width: 100%;
+  height: 100%;
+  animation: floral-sway-rotate var(--floral-sway-duration, 4s) ease-in-out infinite;
+  animation-delay: var(--floral-sway-rotate-delay, 0s);
+}
+
+.floral-sway-translate {
+  width: 100%;
+  height: 100%;
+  animation: floral-sway-translate var(--floral-sway-translate-duration, 4.8s)
+    ease-in-out infinite;
+  animation-delay: var(--floral-sway-translate-delay, 0s);
+}
+
+[data-floral-scrolling='true'] .floral-sway-rotate,
+[data-floral-scrolling='true'] .floral-sway-translate,
+[data-floral-past='true'] .floral-sway-rotate,
+[data-floral-past='true'] .floral-sway-translate {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floral-sway-rotate,
+  .floral-sway-translate {
+    animation: none;
+  }
+}
+
 /* Page-exit fade */
 html.page-exiting body {
   opacity: 0;

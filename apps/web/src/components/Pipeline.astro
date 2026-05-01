@@ -87,14 +87,28 @@ const steps = [
           <div class="anim3">
             <!-- Browser frame -->
             <div class="anim3-frame">
-              <div class="anim3-nav"></div>
+              <div class="anim3-nav">
+                <div class="anim3-traffic" aria-hidden="true">
+                  <span class="anim3-dot anim3-dot-close"></span>
+                  <span class="anim3-dot anim3-dot-min"></span>
+                  <span class="anim3-dot anim3-dot-max"></span>
+                </div>
+                <div class="anim3-url"></div>
+              </div>
               <div class="anim3-body">
-                <div class="anim3-sidebar"></div>
+                <div class="anim3-sidebar">
+                  <div class="anim3-nav-item"></div>
+                  <div class="anim3-nav-item"></div>
+                  <div class="anim3-nav-item anim3-nav-item-active"></div>
+                </div>
                 <div class="anim3-main">
                   <div class="anim3-block anim3-block-1"></div>
                   <div class="anim3-block anim3-block-2"></div>
                   <div class="anim3-block anim3-block-3"></div>
-                  <div class="anim3-btn"></div>
+                  <div class="anim3-btn-row">
+                    <div class="anim3-btn anim3-btn-ghost"></div>
+                    <div class="anim3-btn anim3-btn-primary"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -137,7 +151,7 @@ const steps = [
 
   /* ============================================
      ANIMATION 1 — Color swatch + ramp cascade
-     Total loop: ~12.5s (JS-driven)
+     Loop: ~8s (JS-driven clicks; cursor fixed on swatch)
      ============================================ */
   .anim1 {
     position: absolute;
@@ -162,14 +176,14 @@ const steps = [
     aspect-ratio: 1;
     border-radius: 24%;
     box-shadow: 0 3px 14px oklch(24.3% 0 0 / 0.10), 0 1px 3px oklch(24.3% 0 0 / 0.06);
-    transition: background-color 0.35s var(--ease-anim), transform 0.15s var(--ease-anim);
+    transition: background-color 0.35s var(--ease-anim), transform 0.22s var(--ease-anim), box-shadow 0.22s var(--ease-anim);
     flex-shrink: 0;
     will-change: background-color, transform;
   }
 
   .anim1-swatch.is-pressed {
-    transform: scale(0.88);
-    box-shadow: 0 1px 6px oklch(24.3% 0 0 / 0.08);
+    transform: scale(0.94);
+    box-shadow: 0 2px 10px oklch(24.3% 0 0 / 0.09), 0 1px 2px oklch(24.3% 0 0 / 0.06);
   }
 
   /* Hex input display */
@@ -223,27 +237,21 @@ const steps = [
     100% { transform: scaleY(1); }
   }
 
-  /* Hand pointer cursor */
+  /* Hand pointer — fixed over swatch; only click motion loops */
   .anim1-ptr {
     position: absolute;
-    top: 28%;
-    left: 20%;
-    opacity: 0;
-    transform: translate(300px, 100px);
-    transition: opacity 0.85s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    top: 24%;
+    left: calc(12% + 1%);
+    opacity: 1;
+    transform: translate(-4px, 4px);
+    transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 10;
     filter: drop-shadow(0 1px 3px oklch(24.3% 0 0 / 0.22));
   }
 
-  .anim1-ptr.is-visible {
-    opacity: 1;
-    transform: translate(0, 0);
-  }
-
   .anim1-ptr.is-clicking {
-    transform: translate(0, 3px);
-    transition-duration: 0.1s;
+    transform: translate(-4px, 8px);
   }
 
 
@@ -274,7 +282,7 @@ const steps = [
     background: oklch(22% 0.01 240);
     border: 1px solid oklch(100% 0 0 / 0.9);
     border-radius: 12px;
-    box-shadow: 0 3px 6px oklch(0% 0 0 / 0.12),
+    box-shadow: 0 3px 6px oklch(0% 0 0 / 0.12);
     overflow: hidden;
   }
 
@@ -339,8 +347,8 @@ const steps = [
 
 
   /* ============================================
-     ANIMATION 3 — UI assembly
-     Total loop: ~7s
+     ANIMATION 3 — UI assembly (staggered reveal)
+     Total loop: 5.8s — static hold, then unravel (no frame highlight)
      ============================================ */
   .anim3 {
     position: absolute;
@@ -349,6 +357,9 @@ const steps = [
     align-items: center;
     justify-content: center;
     padding: 10%;
+    --a3-dur: 5.8s;
+    --a3-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --a3-ease-snap: cubic-bezier(0.34, 1.15, 0.64, 1);
   }
 
   .anim3-frame {
@@ -359,16 +370,56 @@ const steps = [
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: oklch(99.2% 0.002 151);
+    box-shadow: 0 1px 2px oklch(24.3% 0 0 / 0.04);
   }
 
   .anim3-nav {
-    height: 10%;
-    background: oklch(51.88% 0.109 151.87 / 0.12);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 13%;
+    padding: 0 10px;
+    background: linear-gradient(
+      180deg,
+      oklch(98.5% 0.004 151) 0%,
+      oklch(96.5% 0.012 151.87 / 0.35) 100%
+    );
+    border-bottom: 1px solid oklch(24.3% 0 0 / 0.06);
     opacity: 0;
-    transform: scale(0.97);
-    animation: a3-el 7s var(--ease-anim) infinite;
-    animation-delay: 0s;
+    transform: translateY(-100%);
+    animation: a3-nav-in var(--a3-dur) var(--a3-ease-out) infinite;
+  }
+
+  .anim3-traffic {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .anim3-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    opacity: 0.85;
+  }
+
+  .anim3-dot-close { background: oklch(72% 0.17 25); }
+  .anim3-dot-min   { background: oklch(82% 0.14 85); }
+  .anim3-dot-max   { background: oklch(72% 0.14 151); }
+
+  .anim3-url {
+    flex: 1;
+    height: 52%;
+    max-height: 22px;
+    border-radius: 5px;
+    background: oklch(100% 0 0 / 0.75);
+    border: 1px solid oklch(24.3% 0 0 / 0.06);
+    opacity: 0;
+    transform: scaleX(0.92);
+    transform-origin: left center;
+    animation: a3-url-in var(--a3-dur) var(--a3-ease-out) infinite;
+    animation-delay: 0.05s;
   }
 
   .anim3-body {
@@ -378,13 +429,34 @@ const steps = [
   }
 
   .anim3-sidebar {
-    width: 20%;
-    background: oklch(97.02% 0 0);
+    width: 22%;
+    background: oklch(97.5% 0.003 151);
     border-right: 1px solid oklch(24.3% 0 0 / 0.06);
+    padding: 10% 8%;
+    display: flex;
+    flex-direction: column;
+    gap: 10%;
     opacity: 0;
-    transform: scale(0.97);
-    animation: a3-el 7s var(--ease-anim) infinite;
-    animation-delay: 0.12s;
+    transform: translateX(-14px);
+    animation: a3-sidebar-in var(--a3-dur) var(--a3-ease-out) infinite;
+    animation-delay: 0.08s;
+  }
+
+  .anim3-nav-item {
+    height: 8px;
+    border-radius: 4px;
+    background: oklch(24.3% 0 0 / 0.07);
+    opacity: 0;
+    transform: translateX(-6px);
+    animation: a3-nav-item-in var(--a3-dur) var(--a3-ease-out) infinite;
+  }
+
+  .anim3-nav-item:nth-child(1) { animation-delay: 0.14s; }
+  .anim3-nav-item:nth-child(2) { animation-delay: 0.18s; }
+  .anim3-nav-item:nth-child(3) { animation-delay: 0.22s; }
+
+  .anim3-nav-item-active {
+    background: oklch(51.88% 0.109 151.87 / 0.22);
   }
 
   .anim3-main {
@@ -392,59 +464,140 @@ const steps = [
     display: flex;
     flex-direction: column;
     padding: 8%;
-    gap: 6%;
+    gap: 5%;
+    min-width: 0;
   }
 
   .anim3-block {
     border-radius: 6px;
     opacity: 0;
-    transform: scale(0.97);
-    animation: a3-el 7s var(--ease-anim) infinite;
+    transform: translateY(12px);
+    animation: a3-block-in var(--a3-dur) var(--a3-ease-snap) infinite;
   }
 
   .anim3-block-1 {
-    height: 30%;
+    height: 28%;
     background: oklch(97.02% 0 0);
-    animation-delay: 0.24s;
+    animation-delay: 0.16s;
   }
 
   .anim3-block-2 {
-    height: 20%;
+    height: 18%;
     background: oklch(98.5% 0.006 85.7);
     border: 1px solid oklch(24.3% 0 0 / 0.05);
-    animation-delay: 0.36s;
+    animation-delay: 0.22s;
   }
 
   .anim3-block-3 {
-    height: 22%;
+    height: 20%;
     background: oklch(97.02% 0 0);
-    animation-delay: 0.48s;
+    animation-delay: 0.28s;
+  }
+
+  .anim3-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6%;
+    margin-top: auto;
+    padding-top: 2%;
+    opacity: 0;
+    animation: a3-btn-row-in var(--a3-dur) var(--a3-ease-out) infinite;
+    animation-delay: 0.34s;
   }
 
   .anim3-btn {
-    align-self: flex-end;
-    width: 30%;
-    height: 14%;
+    height: 22px;
     border-radius: 99px;
-    background: oklch(51.88% 0.109 151.87);
-    opacity: 0;
-    transform: scale(0.97);
-    animation: a3-el 7s var(--ease-anim) infinite;
-    animation-delay: 0.6s;
+    flex-shrink: 0;
   }
 
-  /* 7s loop:
-     0.0s-0.8s  elements stagger in
-     0.8s-4.3s  hold assembled
-     4.3s-4.8s  fade out all
-     4.8s-7.0s  pause */
-  @keyframes a3-el {
-    0%       { opacity: 0; transform: scale(0.97); }
-    4%       { opacity: 0; transform: scale(0.97); }
-    8%       { opacity: 1; transform: scale(1); }
-    61%      { opacity: 1; transform: scale(1); }
-    69%      { opacity: 0; transform: scale(1); }
-    100%     { opacity: 0; transform: scale(0.97); }
+  .anim3-btn-ghost {
+    width: 28%;
+    background: oklch(100% 0 0);
+    border: 1px solid oklch(24.3% 0 0 / 0.1);
+    opacity: 0;
+    transform: scale(0.92);
+    animation: a3-btn-ghost-in var(--a3-dur) var(--a3-ease-snap) infinite;
+    animation-delay: 0.36s;
+  }
+
+  .anim3-btn-primary {
+    width: 32%;
+    background: oklch(51.88% 0.109 151.87);
+    box-shadow: 0 1px 0 oklch(24.3% 0 0 / 0.06);
+    opacity: 0;
+    transform: scale(0.88);
+    animation: a3-btn-primary-in var(--a3-dur) var(--a3-ease-snap) infinite;
+    animation-delay: 0.4s;
+  }
+
+  /* Timeline (5.8s): build → long static hold → unravel → short gap */
+  @keyframes a3-nav-in {
+    0%, 3%   { opacity: 0; transform: translateY(-100%); }
+    12%      { opacity: 1; transform: translateY(0); }
+    84%      { opacity: 1; transform: translateY(0); }
+    91%      { opacity: 0; transform: translateY(-6px); }
+    100%     { opacity: 0; transform: translateY(-100%); }
+  }
+
+  @keyframes a3-url-in {
+    0%, 4%   { opacity: 0; transform: scaleX(0.92); }
+    13%      { opacity: 1; transform: scaleX(1); }
+    84%      { opacity: 1; transform: scaleX(1); }
+    91%      { opacity: 0; transform: scaleX(0.96); }
+    100%     { opacity: 0; transform: scaleX(0.92); }
+  }
+
+  @keyframes a3-sidebar-in {
+    0%, 5%   { opacity: 0; transform: translateX(-14px); }
+    14%      { opacity: 1; transform: translateX(0); }
+    84%      { opacity: 1; transform: translateX(0); }
+    91%      { opacity: 0; transform: translateX(-8px); }
+    100%     { opacity: 0; transform: translateX(-14px); }
+  }
+
+  @keyframes a3-nav-item-in {
+    0%, 7%   { opacity: 0; transform: translateX(-6px); }
+    16%      { opacity: 1; transform: translateX(0); }
+    84%      { opacity: 1; transform: translateX(0); }
+    91%      { opacity: 0; }
+    100%     { opacity: 0; transform: translateX(-6px); }
+  }
+
+  @keyframes a3-block-in {
+    0%, 6%   { opacity: 0; transform: translateY(12px); }
+    16%      { opacity: 1; transform: translateY(0); }
+    84%      { opacity: 1; transform: translateY(0); }
+    90%      { opacity: 0; transform: translateY(6px); }
+    100%     { opacity: 0; transform: translateY(12px); }
+  }
+
+  @keyframes a3-btn-row-in {
+    0%, 10%  { opacity: 0; }
+    18%      { opacity: 1; }
+    84%      { opacity: 1; }
+    91%      { opacity: 0; }
+    100%     { opacity: 0; }
+  }
+
+  @keyframes a3-btn-ghost-in {
+    0%, 11%  { opacity: 0; transform: scale(0.92); }
+    20%      { opacity: 1; transform: scale(1); }
+    84%      { opacity: 1; transform: scale(1); }
+    90%      { opacity: 0; transform: scale(0.96); }
+    100%     { opacity: 0; transform: scale(0.92); }
+  }
+
+  @keyframes a3-btn-primary-in {
+    0%, 12%  { opacity: 0; transform: scale(0.88); }
+    22%      { opacity: 1; transform: scale(1); }
+    48%      { opacity: 1; transform: scale(1); }
+    52%      { opacity: 1; transform: scale(1.04); }
+    56%      { opacity: 1; transform: scale(1); }
+    84%      { opacity: 1; transform: scale(1); }
+    90%      { opacity: 0; transform: scale(0.94); }
+    100%     { opacity: 0; transform: scale(0.88); }
   }
 
 
@@ -457,14 +610,23 @@ const steps = [
     .anim1-hex-val,
     .anim1-ptr,
     .anim2-code,
+    .anim3-frame,
     .anim3-nav,
+    .anim3-url,
     .anim3-sidebar,
+    .anim3-nav-item,
     .anim3-block,
+    .anim3-btn-row,
     .anim3-btn {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
       transition: none !important;
+      box-shadow: none !important;
+    }
+
+    .anim3-frame {
+      box-shadow: 0 1px 2px oklch(24.3% 0 0 / 0.06) !important;
     }
 
     .anim1-ptr { display: none; }
@@ -546,15 +708,12 @@ const steps = [
     function runCycle() {
       clearAll();
       applyPalette(0, false);
-      cursor.classList.remove('is-visible');
       cursor.classList.remove('is-clicking');
 
-      schedule(() => cursor.classList.add('is-visible'), 500);   // cursor enters
-      schedule(() => doClick(1), 2000);                          // click → blue
-      schedule(() => doClick(2), 4200);                          // click → coral
+      schedule(() => doClick(1), 1200);
+      schedule(() => doClick(2), 3800);
       schedule(() => doClick(3), 6400);
-      schedule(() => cursor.classList.remove('is-visible'), 8600); // cursor exits
-      schedule(runCycle, 10300);                                 // loop
+      schedule(runCycle, 8200);
     }
 
     runCycle();
