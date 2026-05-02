@@ -10,6 +10,8 @@ const {
   title = 'Trellis - Build a design system in 10 minutes',
   description = 'Tokens, components, Figma, and complete documentation—customized to your brand. Skip the 6-month setup and start building today.',
 } = Astro.props;
+
+const ogImage = new URL('/og.jpg', Astro.site ?? Astro.url);
 ---
 
 <!doctype html>
@@ -26,11 +28,15 @@ const {
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:alt" content="Trellis" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage.href} />
+    <meta property="twitter:image:alt" content="Trellis" />
 
     <!-- Preload fonts for better performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

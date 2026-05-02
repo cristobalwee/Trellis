@@ -22,6 +22,8 @@ interface InspectTokenEditorProps {
   semanticMap: Record<string, PrimitiveMapping>;
   anchorRect: DOMRect;
   onClose: () => void;
+  /** Same as inspect flyout — keeps highlight alive when `relatedTarget` is missing on leave */
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
@@ -30,6 +32,7 @@ export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
   semanticMap,
   anchorRect,
   onClose,
+  onMouseEnter,
 }) => {
   const info = getTokenEditInfo(tokenName, isDarkMode, semanticMap);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -103,6 +106,7 @@ export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
     <motion.div
       ref={popoverRef}
       data-inspect-overlay
+      onMouseEnter={onMouseEnter}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}

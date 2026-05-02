@@ -11,6 +11,8 @@ const {
   title = 'Generate | Trellis',
   description = 'Configure and generate your design system tokens.',
 } = Astro.props;
+
+const ogImage = new URL('/og.jpg', Astro.site ?? Astro.url);
 ---
 
 <!doctype html>
@@ -26,9 +28,13 @@ const {
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:alt" content="Trellis" />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage.href} />
+    <meta property="twitter:image:alt" content="Trellis" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

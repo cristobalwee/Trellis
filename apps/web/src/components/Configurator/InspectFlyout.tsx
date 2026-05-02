@@ -54,8 +54,8 @@ interface InspectFlyoutProps {
   editingToken: string | null;
   onEditToken: (tokenName: string) => void;
   onCloseEditor: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
@@ -134,12 +134,12 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
           to 0,0 — it simply holds its last position when invisible. */}
       <div
         data-inspect-overlay
-        className="fixed z-[9999]"
+        className="fixed z-[9999] box-border"
         style={{
           top: position.top - SAFE_ZONE,
           left: position.left - SAFE_ZONE,
           width: FLYOUT_W + SAFE_ZONE * 2,
-          height: FLYOUT_MAX_H + SAFE_ZONE * 2,
+          padding: SAFE_ZONE,
           opacity: visible ? 1 : 0,
           pointerEvents: visible ? 'auto' : 'none',
           transition: `top ${SLIDE_DURATION} ${SLIDE_EASE}, left ${SLIDE_DURATION} ${SLIDE_EASE}, opacity 0.18s ease`,
@@ -152,8 +152,6 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
           data-inspect-overlay
           className="bg-white rounded-xl shadow-xl border border-charcoal/10 overflow-hidden"
           style={{
-            marginTop: SAFE_ZONE,
-            marginLeft: SAFE_ZONE,
             width: FLYOUT_W,
             maxHeight: FLYOUT_MAX_H,
           }}
@@ -203,6 +201,7 @@ export const InspectFlyout: React.FC<InspectFlyoutProps> = ({
             semanticMap={semanticMap}
             anchorRect={editAnchorRect}
             onClose={onCloseEditor}
+            onMouseEnter={onMouseEnter}
           />
         )}
       </AnimatePresence>

@@ -47,7 +47,13 @@ const InspectOverlay: React.FC<InspectOverlayProps> = ({
     }
   }, []);
 
-  const handleFlyoutMouseLeave = useCallback(() => {
+  const handleFlyoutMouseLeave = useCallback((e: React.MouseEvent) => {
+    // Token editor popover is a portal sibling of the flyout; without this,
+    // leaving the list for the color picker fires leave first and dismisses.
+    const next = e.relatedTarget;
+    if (next instanceof Element && next.closest('[data-inspect-overlay]')) {
+      return;
+    }
     isFlyoutHoveredRef.current = false;
     // Clear after a brief delay — gives the user time to re-enter the container
     leaveTimeoutRef.current = setTimeout(() => {

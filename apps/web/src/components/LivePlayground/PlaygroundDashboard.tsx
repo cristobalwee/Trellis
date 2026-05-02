@@ -17,6 +17,16 @@ import {
   DollarSign,
   ShoppingCart,
   ExternalLink,
+  Mail,
+  Calendar,
+  FolderKanban,
+  FileBarChart,
+  Megaphone,
+  UsersRound,
+  Package,
+  CreditCard,
+  Plug,
+  HelpCircle,
 } from 'lucide-react';
 import type { PlaygroundConfig } from './types';
 
@@ -151,11 +161,34 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
 
   // --- Static data ---
 
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'users', label: 'Users', icon: Users },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'settings', label: 'Settings', icon: Settings },
+  const navSections: {
+    title: string;
+    items: { id: string; label: string; icon: typeof LayoutDashboard }[];
+  }[] = [
+    {
+      title: 'Overview',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { id: 'inbox', label: 'Inbox', icon: Mail },
+        { id: 'calendar', label: 'Calendar', icon: Calendar },
+        { id: 'projects', label: 'Projects', icon: FolderKanban },
+      ],
+    },
+    {
+      title: 'Commerce',
+      items: [
+        { id: 'orders', label: 'Orders', icon: Package },
+        { id: 'billing', label: 'Billing', icon: CreditCard },
+      ],
+    },
+    {
+      title: 'Insights',
+      items: [
+        { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+        { id: 'reports', label: 'Reports', icon: FileBarChart },
+        { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
+      ],
+    }
   ];
 
   const metrics = [
@@ -321,7 +354,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
       >
         {/* Sidebar */}
         <div
-          className="hidden md:flex flex-col shrink-0"
+          className="hidden md:flex flex-col shrink-0 min-h-0 h-full"
           style={{
             width: '196px',
             paddingTop: space.lg,
@@ -329,7 +362,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             transition: transition.theme,
           }}
         >
-          <div className="px-4 mb-6 flex items-center gap-2">
+          <div className="px-4 mb-6 flex items-center gap-2 shrink-0">
             <div
               className="w-6 h-6 flex items-center justify-center text-white text-[10px] font-bold"
               style={{
@@ -343,35 +376,46 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             <span className="text-sm font-semibold" style={{ color: fg.onBase }}>Acme</span>
           </div>
 
-          <div className="text-[11px] font-semibold px-4 mb-2" style={{ color: fg.onBaseFaint }}>
-            General
+          <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto">
+            <nav className="flex flex-col gap-4 px-2 pb-2">
+              {navSections.map((section) => (
+                <div key={section.title}>
+                  <div
+                    className="text-[11px] font-semibold px-2 mb-2"
+                    style={{ color: fg.onBaseFaint }}
+                  >
+                    {section.title}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    {section.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeNav === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setActiveNav(item.id)}
+                          className={`flex items-center gap-2.5 px-3 py-2 text-xs font-medium cursor-pointer ${!isActive ? 'pg-nav' : ''}`}
+                          style={{
+                            fontFamily: 'inherit',
+                            borderRadius: radius.badge,
+                            color: isActive ? fg.onBase : fg.onBaseMuted,
+                            backgroundColor: isActive ? bg.raisedHover : 'transparent',
+                            transition: transition.interactive,
+                          }}
+                        >
+                          <Icon size={14} />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </nav>
           </div>
 
-          <nav className="flex flex-col gap-0.5 px-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeNav === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveNav(item.id)}
-                  className={`flex items-center gap-2.5 px-3 py-2 text-xs font-medium cursor-pointer ${!isActive ? 'pg-nav' : ''}`}
-                  style={{
-                    fontFamily: 'inherit',
-                    borderRadius: radius.badge,
-                    color: isActive ? fg.onBase : fg.onBaseMuted,
-                    backgroundColor: isActive ? bg.raisedHover : 'transparent',
-                    transition: transition.interactive,
-                  }}
-                >
-                  <Icon size={14} />
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="mt-auto px-3" style={{ transition: transition.theme }}>
+          <div className="shrink-0 mt-auto pt-4 px-3" style={{ transition: transition.theme }}>
             <div
               style={{
                 backgroundColor: bg.raised,
@@ -420,7 +464,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
               transition: transition.theme,
             }}
           >
-            <div className="flex-1 min-w-[180px]">
+            <div className="flex-1 min-w-[120px]">
               <div
                 className="flex items-center gap-2"
                 style={{
