@@ -62,8 +62,8 @@ const SEMANTIC_OCCUPATION_THRESHOLD = 24;
 // ========== Lightness Targets ================================================
 
 export const LIGHT_MODE_LIGHTNESS: Record<number, number> = {
-  50: 0.975,
-  100: 0.93,
+  50: 0.965,
+  100: 0.925,
   200: 0.87,
   300: 0.78,
   400: 0.68,
