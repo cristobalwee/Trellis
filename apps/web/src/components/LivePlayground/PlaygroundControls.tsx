@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
 import { Select } from '../ui/Select';
-import { generateRamp } from '../Showcase/colorUtils';
+import { generateRamp } from '@trellis/generator';
 import type { PlaygroundConfig } from './types';
 import { GOOGLE_FONTS } from './types';
 import { Sun, Moon, X, Settings2 } from 'lucide-react';

@@ -5,7 +5,7 @@ import { Sun, Moon, Download } from 'lucide-react';
 
 import { $brandConfig, updateConfig, resetConfig, type TabId } from './store';
 import { siteImages } from '../../lib/siteImages';
-import { generateDesignTokens } from '../../utils/generateTokens';
+import { generateDesignTokens } from '@trellis/generator';
 import BrandHeader from './BrandHeader';
 import TabBar from './TabBar';
 import TabColor from './TabColor';
@@ -21,10 +21,13 @@ import type { PlaygroundConfig } from '../LivePlayground/types';
 type PreviewTab = 'dashboard' | 'components';
 
 const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) => void }> = ({ active, onChange }) => (
-  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5">
+  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5" role="tablist" aria-label="Preview type">
     {(['dashboard', 'components'] as const).map((tab) => (
       <button
         key={tab}
+        type="button"
+        role="tab"
+        aria-selected={active === tab}
         onClick={() => onChange(tab)}
         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer capitalize ${
           active === tab
@@ -44,6 +47,9 @@ const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) =>
 
 const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ isDark, onToggle }) => (
   <button
+    type="button"
+    role="switch"
+    aria-checked={isDark}
     onClick={onToggle}
     className="relative w-12 h-7 rounded-full p-0.5 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200"
     style={{ backgroundColor: isDark ? '#374151' : '#e5e7eb' }}
@@ -185,6 +191,7 @@ const BrandIntake: React.FC = () => {
               <img src={siteImages.logoIcon} alt="Trellis" className="w-7 h-7" />
               {isDev && (
                 <button
+                  type="button"
                   onClick={() => { if (confirm('Reset all config?')) resetConfig(); }}
                   className="text-[10px] font-mono text-red-500/60 hover:text-red-500 transition-colors cursor-pointer"
                 >
@@ -193,6 +200,7 @@ const BrandIntake: React.FC = () => {
               )}
             </div>
             <button
+              type="button"
               onClick={handleClose}
               className="p-2 hover:bg-gray-200 cursor-pointer flex items-center justify-center rounded-lg bg-gray transition-colors"
               aria-label="Close"
@@ -215,6 +223,9 @@ const BrandIntake: React.FC = () => {
               <div
                 ref={scrollContainerRef}
                 className="flex-1 overflow-y-auto px-6 py-5 min-h-0"
+                role="tabpanel"
+                id={`theme-tab-panel-${activeTab}`}
+                aria-labelledby={`theme-tab-${activeTab}`}
               >
                 {activeTab === 'color' && <TabColor />}
                 {activeTab === 'typography' && <TabTypography />}
@@ -224,6 +235,7 @@ const BrandIntake: React.FC = () => {
               {/* Sticky download button */}
               <div className="shrink-0 px-4 py-3 border-t border-charcoal/5 bg-white">
                 <button
+                  type="button"
                   onClick={() => {
                     // No-op for now — export pipeline not yet built
                   }}

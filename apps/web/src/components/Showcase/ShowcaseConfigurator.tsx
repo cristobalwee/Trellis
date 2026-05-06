@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import { $showcaseConfig, updateShowcase } from './store';
-import { generateRamp } from './colorUtils';
+import { generateRamp } from '@trellis/generator';
 import { ColorRampView } from './ColorRampView';
 import { VisualPicker, type VisualPickerOption } from './VisualPicker';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';

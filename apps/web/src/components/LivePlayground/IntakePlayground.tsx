@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import { $brandConfig, updateConfig } from '../BrandIntake/store';
 import LivePlayground from './LivePlayground';
 import type { PlaygroundConfig } from './types';
-import { generateDesignTokens } from '../../utils/generateTokens';
+import { generateDesignTokens } from '@trellis/generator';
 
 const IntakePlayground: React.FC = () => {
   const brand = useStore($brandConfig);

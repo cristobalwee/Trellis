@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useId, useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HexColorPicker, HexColorInput } from 'react-colorful';
@@ -32,6 +32,7 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const popoverId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -67,12 +68,29 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
         !triggerRef.current.contains(target)
       ) {
         setIsOpen(false);
+        triggerRef.current?.focus();
       }
     };
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => {
+      popoverRef.current?.focus();
+    });
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
   return (
@@ -82,6 +100,7 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
       )}
       <button
         ref={triggerRef}
+        type="button"
         onClick={() => {
           if (!isOpen && triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect();
@@ -92,6 +111,9 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
         className={swatchClassName}
         style={{ backgroundColor: color }}
         aria-label={ariaLabel || label || 'Pick color'}
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? popoverId : undefined}
       />
       {typeof document !== 'undefined' &&
         createPortal(
@@ -99,6 +121,10 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
             {isOpen && (
               <motion.div
                 ref={popoverRef}
+                id={popoverId}
+                role="dialog"
+                aria-label={ariaLabel || label || 'Color picker'}
+                tabIndex={-1}
                 initial={{ opacity: 0, y: -10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -121,6 +147,7 @@ export const ColorPickerPopover: React.FC<ColorPickerPopoverProps> = ({
                       color={color}
                       onChange={onChange}
                       prefixed={false}
+                      aria-label={`${ariaLabel || label || 'Color'} hex value`}
                       className="flex-1 text-xs font-mono text-charcoal/80 bg-charcoal/5 rounded-md px-2 py-1.5 border border-charcoal/10 outline-none focus:border-forest-green/40 uppercase"
                     />
                   </div>

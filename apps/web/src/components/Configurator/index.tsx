@@ -12,7 +12,7 @@ import PlaygroundDashboard from '../LivePlayground/PlaygroundDashboard';
 import PreviewTypography from '../LivePlayground/PreviewTypography';
 import PreviewComponents from '../ComponentSampler';
 import type { PlaygroundConfig } from '../LivePlayground/types';
-import { generateDesignTokens } from '../../utils/generateTokens';
+import { generateDesignTokens } from '@trellis/generator';
 import { Tooltip } from '../ui/Tooltip';
 import InspectOverlay from './InspectOverlay';
 import ExportDialog from './ExportDialog';
@@ -25,10 +25,17 @@ import { siteImages } from '../../lib/siteImages';
 type PreviewTab = 'dashboard' | 'components' | 'blog';
 
 const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) => void }> = ({ active, onChange }) => (
-  <div className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 w-full md:w-auto justify-between md:justify-start">
+  <div
+    className="flex gap-1 bg-charcoal/5 rounded-lg p-0.5 w-full md:w-auto justify-between md:justify-start"
+    role="tablist"
+    aria-label="Preview type"
+  >
     {(['dashboard', 'components', 'blog'] as const).map((tab) => (
       <button
         key={tab}
+        type="button"
+        role="tab"
+        aria-selected={active === tab}
         onClick={() => onChange(tab)}
         className={`px-3 py-1.5 text-xs font-medium w-full md:w-auto rounded-md transition-all cursor-pointer capitalize ${
           active === tab
@@ -48,6 +55,9 @@ const PreviewTabBar: React.FC<{ active: PreviewTab; onChange: (t: PreviewTab) =>
 
 const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ isDark, onToggle }) => (
   <button
+    type="button"
+    role="switch"
+    aria-checked={isDark}
     onClick={onToggle}
     className="relative w-12 h-7 rounded-full p-0.5 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-200"
     style={{ backgroundColor: isDark ? '#374151' : '#d7d9dc' }}
@@ -76,10 +86,17 @@ const MobileSegmentedController: React.FC<{
   onChange: (v: MobileSegment) => void;
 }> = ({ active, onChange }) => (
   <div className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-charcoal/5 bg-white/95 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_40px_rgba(0,0,0,0.08)] backdrop-blur">
-    <div className="mx-auto flex max-w-md gap-1 rounded-lg bg-charcoal/5 p-0.5">
+    <div
+      className="mx-auto flex max-w-md gap-1 rounded-lg bg-charcoal/5 p-0.5"
+      role="tablist"
+      aria-label="Mobile workspace view"
+    >
       {(['configure', 'preview'] as const).map((segment) => (
         <button
           key={segment}
+          type="button"
+          role="tab"
+          aria-selected={active === segment}
           onClick={() => onChange(segment)}
           className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all cursor-pointer capitalize ${
             active === segment
@@ -296,6 +313,9 @@ const Configurator: React.FC = () => {
                     <AnimatePresence mode="wait" initial={false}>
                       <motion.div
                         key={activeTab}
+                        id={`theme-tab-panel-${activeTab}`}
+                        role="tabpanel"
+                        aria-labelledby={`theme-tab-${activeTab}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -326,7 +346,9 @@ const Configurator: React.FC = () => {
               />
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => setIsInspecting(!isInspecting)}
+                  aria-pressed={isInspecting}
                   className={`flex items-center gap-1.5 text-xs font-medium border px-4 py-3 rounded-full active:scale-95  hover:scale-105 transition-all duration-250 cursor-pointer ${
                     isInspecting
                       ? 'border-forest-green/50 bg-forest-green/10 text-forest-green'

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { extractTokensFromElement, findStyledAncestor, type TokenInfo } from './inspectUtils';
 import { InspectFlyout } from './InspectFlyout';
-import type { PrimitiveMapping } from '../../utils/generateTokens';
+import type { PrimitiveMapping } from '@trellis/generator';
 
 interface InspectOverlayProps {
   isActive: boolean;

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { HexColorPicker } from 'react-colorful';
 import { getTokenEditInfo } from './inspectUtils';
 import { updateRampStep } from '../BrandIntake/store';
-import type { PrimitiveMapping } from '../../utils/generateTokens';
+import type { PrimitiveMapping } from '@trellis/generator';
 
 // ---------------------------------------------------------------------------
 // Constants

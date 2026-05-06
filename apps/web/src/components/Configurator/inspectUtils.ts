@@ -2,7 +2,7 @@
 // Inspect-mode utilities — token extraction & semantic-to-primitive mapping
 // ---------------------------------------------------------------------------
 
-import type { PrimitiveMapping } from '../../utils/generateTokens';
+import type { PrimitiveMapping } from '@trellis/generator';
 
 export type TokenCategory =
   | 'color'

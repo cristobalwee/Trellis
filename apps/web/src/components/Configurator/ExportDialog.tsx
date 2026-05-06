@@ -9,7 +9,7 @@ import {
   type ExportFormat,
   type ColorSpace,
   type TokenSet,
-} from '../../utils/exportTokens';
+} from '@trellis/generator';
 import type { BrandConfig } from '../BrandIntake/store';
 
 // ---------------------------------------------------------------------------
@@ -411,6 +411,34 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
     setActiveTab(tab);
   }, []);
 
+  const handleTabKeyDown = useCallback((event: React.KeyboardEvent<HTMLButtonElement>, tab: TabKey) => {
+    const index = FORMAT_TABS.findIndex((item) => item.id === tab);
+    const moveTo = (nextIndex: number) => {
+      const next = FORMAT_TABS[(nextIndex + FORMAT_TABS.length) % FORMAT_TABS.length].id;
+      handleTabChange(next);
+      requestAnimationFrame(() => {
+        document.getElementById(`export-tab-${next}`)?.focus();
+      });
+    };
+
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveTo(index + 1);
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveTo(index - 1);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      moveTo(0);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      moveTo(FORMAT_TABS.length - 1);
+    }
+  }, [handleTabChange]);
+
   const output = useMemo(() => {
     if (isGuide) return generateGuide(config, tokens, lastExportFormat);
     return exportTokens(tokens, activeTab, colorSpace, { includeSemantic });
@@ -517,7 +545,10 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                       Export theme
                     </h4>
                   )}></Dialog.Title>
-                  <Dialog.Close className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer p-1 rounded-lg hover:bg-charcoal/5">
+                  <Dialog.Close
+                    aria-label="Close export dialog"
+                    className="text-charcoal/40 hover:text-charcoal/70 transition-colors cursor-pointer p-1 rounded-lg hover:bg-charcoal/5"
+                  >
                     <X size={18} />
                   </Dialog.Close>
                 </div>
@@ -525,11 +556,22 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                 {/* Toolbar: tabs + color space + copy */}
                 <div className="flex flex-col items-stretch justify-between gap-3 px-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6">
                   {/* Format tabs */}
-                  <div className="flex min-w-0 flex-1 gap-1 rounded-lg bg-charcoal/5 p-0.5 sm:max-w-fit">
+                  <div
+                    className="flex min-w-0 flex-1 gap-1 rounded-lg bg-charcoal/5 p-0.5 sm:max-w-fit"
+                    role="tablist"
+                    aria-label="Export format"
+                  >
                     {FORMAT_TABS.map((tab) => (
                       <button
                         key={tab.id}
+                        id={`export-tab-${tab.id}`}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls="export-output-panel"
+                        tabIndex={activeTab === tab.id ? 0 : -1}
                         onClick={() => handleTabChange(tab.id)}
+                        onKeyDown={(event) => handleTabKeyDown(event, tab.id)}
                         className={`flex-1 whitespace-nowrap rounded-md px-2 py-1.5 text-xs font-medium transition-all cursor-pointer sm:flex-none sm:px-3 ${
                           activeTab === tab.id
                             ? 'bg-white text-charcoal shadow-sm'
@@ -576,7 +618,9 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                       />
                     )}
                     <button
+                      type="button"
                       onClick={handleCopy}
+                      aria-live="polite"
                       className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
                     >
                       {copied ? (
@@ -595,7 +639,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ tokens, config }) => {
                 </div>
 
                 {/* Code output */}
-                <div className="min-h-0 flex-1 overflow-auto p-4 pt-4 sm:p-6 sm:pt-4">
+                <div
+                  id="export-output-panel"
+                  role="tabpanel"
+                  aria-labelledby={`export-tab-${activeTab}`}
+                  className="min-h-0 flex-1 overflow-auto p-4 pt-4 sm:p-6 sm:pt-4"
+                >
                   <pre className="text-[12px] leading-[1.65] font-mono whitespace-pre overflow-x-auto bg-gray rounded-xl p-4 max-h-[50vh] overflow-y-auto">
                     {highlighted}
                   </pre>

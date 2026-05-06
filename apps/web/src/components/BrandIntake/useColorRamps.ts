@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { BrandConfig } from './store';
-import type { ColorRamp, NeutralColorRamp } from '../Showcase/colorUtils';
+import type { ColorRamp, NeutralColorRamp } from '@trellis/generator';
 import {
   toOklch,
   getGeneratedColor,
@@ -14,7 +14,7 @@ import {
   type ColorMode,
   type HueSlot,
   type HueSelection,
-} from './colorGeneration';
+} from '@trellis/generator';
 
 function applyOverrides(ramp: NeutralColorRamp, overrides?: Partial<NeutralColorRamp>): NeutralColorRamp;
 function applyOverrides(ramp: ColorRamp, overrides?: Partial<ColorRamp>): ColorRamp;

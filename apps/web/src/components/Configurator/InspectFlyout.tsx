@@ -10,7 +10,7 @@ import {
   getEditLabel,
 } from './inspectUtils';
 import { InspectTokenEditor } from './InspectTokenEditor';
-import type { PrimitiveMapping } from '../../utils/generateTokens';
+import type { PrimitiveMapping } from '@trellis/generator';
 
 // ---------------------------------------------------------------------------
 // Constants

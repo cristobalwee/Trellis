@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
-import type { ColorRamp } from '../Showcase/colorUtils';
+import type { ColorRamp } from '@trellis/generator';
 
 export interface StatusColorRowProps {
   label: string;

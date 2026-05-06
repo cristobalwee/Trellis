@@ -15,8 +15,8 @@ import { Input } from '../ui/Input';
 import { Select, type SelectOption } from '../ui/Select';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
-import { type GenerationMode } from './colorGeneration';
-import type { ColorRamp } from '../Showcase/colorUtils';
+import { type GenerationMode } from '@trellis/generator';
+import type { ColorRamp } from '@trellis/generator';
 
 // ---------------------------------------------------------------------------
 // Small reusable pieces

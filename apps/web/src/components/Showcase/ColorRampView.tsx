@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HexColorPicker } from 'react-colorful';
-import { STEPS, type ColorRamp, type NeutralColorRamp } from './colorUtils';
+import { STEPS, type ColorRamp, type NeutralColorRamp } from '@trellis/generator';
 import { Tooltip } from '../ui/Tooltip';
 
 interface ColorRampViewProps {
@@ -23,7 +23,7 @@ const EditableSwatch: React.FC<{
 }> = ({ step, color, onStepChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const POPOVER_OUTER_W = 200 + 24; // picker width + p-3 * 2
@@ -60,10 +60,24 @@ const EditableSwatch: React.FC<{
         !triggerRef.current.contains(target)
       ) {
         setIsOpen(false);
+        triggerRef.current?.focus();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
   return (
@@ -77,10 +91,14 @@ const EditableSwatch: React.FC<{
         }
         side="top"
       >
-        <motion.div
+        <motion.button
           ref={triggerRef}
+          type="button"
           className="flex-1 group relative cursor-pointer transition-transform hover:scale-y-110 hover:z-10"
           style={{ backgroundColor: color }}
+          aria-label={`Edit color step ${step}, current value ${color.toUpperCase()}`}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
           animate={{ backgroundColor: color }}
           transition={{ duration: 0.3 }}
           onClick={() => {
@@ -100,6 +118,9 @@ const EditableSwatch: React.FC<{
             {isOpen && (
               <motion.div
                 ref={popoverRef}
+                role="dialog"
+                aria-label={`Edit color step ${step}`}
+                tabIndex={-1}
                 initial={{ opacity: 0, y: -6, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -6, scale: 0.95 }}
@@ -127,6 +148,7 @@ const EditableSwatch: React.FC<{
                     />
                   </div>
                   <button
+                    type="button"
                     onClick={() => setIsOpen(false)}
                     className="text-xs font-bold text-forest-green hover:underline cursor-pointer"
                   >
@@ -164,6 +186,7 @@ export const ColorRampView: React.FC<ColorRampViewProps> = ({
         className={`flex w-full rounded-lg overflow-hidden shadow-sm border border-charcoal/5 ${
           className ? className : compact ? 'h-6' : 'h-8'
         }`}
+        aria-label={label ? `${label} color ramp` : 'Color ramp'}
       >
         {stepsToRender.map((step) => {
           const color = (ramp as Record<number, string>)[step];

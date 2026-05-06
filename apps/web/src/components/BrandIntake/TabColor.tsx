@@ -8,9 +8,9 @@ import { useColorRamps, type ColorSlot } from './useColorRamps';
 import { HexColorInput, RampSliders, NeutralTintSelector, GenerationModeSelector } from './ColorRow';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
-import { NEUTRAL_STEPS } from '../Showcase/colorUtils';
-import type { GenerationMode } from './colorGeneration';
-import { SEMANTIC_HUES } from './colorGeneration';
+import { NEUTRAL_STEPS } from '@trellis/generator';
+import type { GenerationMode } from '@trellis/generator';
+import { SEMANTIC_HUES } from '@trellis/generator';
 
 const EXPAND_TRANSITION = { duration: 0.25, ease: [0.32, 0.72, 0, 1] as const };
 
@@ -80,6 +80,9 @@ const TabColor: React.FC = () => {
         <ColorRampView ramp={derived.primaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('primary')} />
         <div>
         <button
+          type="button"
+          aria-expanded={isAdvancedOpen}
+          aria-controls="primary-advanced-settings"
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
           className={`flex items-center justify-between w-full py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg ${
             isAdvancedOpen ? 'text-forest-green' : 'text-charcoal/70 hover:text-charcoal'
@@ -95,6 +98,7 @@ const TabColor: React.FC = () => {
         <AnimatePresence initial={false}>
           {isAdvancedOpen && (
             <motion.div
+              id="primary-advanced-settings"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -145,6 +149,9 @@ const TabColor: React.FC = () => {
       {/* Additional colors */}
       <div className="border-t border-charcoal/10 pt-6">
         <button
+          type="button"
+          aria-expanded={isAdditionalOpen}
+          aria-controls="additional-color-ramps"
           onClick={() => setIsAdditionalOpen(!isAdditionalOpen)}
           className={`flex items-center justify-between w-full py-2 text-sm font-medium transition-colors cursor-pointer rounded-lg ${
             isAdditionalOpen ? 'text-forest-green' : 'text-charcoal/70 hover:text-charcoal'
@@ -160,6 +167,7 @@ const TabColor: React.FC = () => {
         <AnimatePresence initial={false}>
           {isAdditionalOpen && (
             <motion.div
+              id="additional-color-ramps"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}

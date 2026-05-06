@@ -9,7 +9,7 @@ import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
 import { Combobox } from '../ui/Combobox';
 import PreviewComponents from '../ComponentSampler';
-import { generateDesignTokens } from '../../utils/generateTokens';
+import { generateDesignTokens } from '@trellis/generator';
 import { appendGoogleFontStylesheet } from '../../data/googleFonts';
 
 const DarkModeToggle: React.FC<{ isDark: boolean; onToggle: () => void }> = ({ isDark, onToggle }) => (

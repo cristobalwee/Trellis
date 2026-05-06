@@ -4,7 +4,7 @@ import {
   Sun, Moon, User,
   FileJson, FileImage, Folder, Layers
 } from 'lucide-react';
-import { generateRamp } from './colorUtils';
+import { generateRamp } from '@trellis/generator';
 import { $showcaseConfig, updateShowcase } from './store';
 
 const SHOWCASE_FONT = 'Inter, system-ui, sans-serif';

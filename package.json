@@ -1,9 +1,13 @@
 {
   "name": "trellis",
   "private": true,
+  "engines": {
+    "node": ">=18.20.8"
+  },
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "test": "turbo test",
     "preview": "turbo preview"
   },
   "devDependencies": {

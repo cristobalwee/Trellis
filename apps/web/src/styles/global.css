@@ -123,6 +123,15 @@ a {
   @apply transition-colors duration-200;
 }
 
+:where(a, button, input, select, textarea, [role='button'], [role='tab'], [role='switch']):focus-visible {
+  outline: 2px solid var(--color-forest-green);
+  outline-offset: 3px;
+}
+
+:where(button, [role='button'], [role='tab'], [role='switch']) {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Button Styles */
 .btn {
   @apply inline-flex items-center justify-center rounded-full font-sans font-medium transition-all duration-300 will-change-transform px-6 py-3 md:px-8 md:py-4 text-base md:text-lg;
