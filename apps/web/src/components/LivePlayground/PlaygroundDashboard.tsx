@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { EChartsOption } from 'echarts';
 import { graphic } from 'echarts';
 import ReactEChartsImport from 'echarts-for-react/lib/index.js';
@@ -52,13 +52,22 @@ const V = (token: string) => `var(--${token})`;
 const t = (token: string) => V(token);
 const ReactECharts = (ReactEChartsImport as unknown as { default?: React.ComponentType<any> }).default
   ?? (ReactEChartsImport as unknown as React.ComponentType<any>);
-const resolveVarColor = (value: string, fallback: string) => {
-  if (typeof window === 'undefined') return fallback;
-  const tokenMatch = value.match(/^var\(--([^)]+)\)$/);
-  if (!tokenMatch) return value;
-  const token = tokenMatch[1];
-  const resolved = getComputedStyle(document.documentElement).getPropertyValue(`--${token}`).trim();
-  return resolved || fallback;
+
+/**
+ * Resolve a CSS custom property to a concrete color string against an element
+ * inside the token cascade. Walks one or two levels of `var()` indirection in
+ * case the browser does not substitute nested vars within custom-property
+ * computed values.
+ */
+const readCssVar = (el: Element, name: string, fallback: string): string => {
+  const styles = getComputedStyle(el);
+  let value = styles.getPropertyValue(name).trim();
+  for (let depth = 0; depth < 4 && value.startsWith('var('); depth++) {
+    const m = value.match(/^var\(\s*(--[A-Za-z0-9-]+)\s*\)$/);
+    if (!m) break;
+    value = styles.getPropertyValue(m[1]).trim();
+  }
+  return value || fallback;
 };
 
 // Shorthand accessors for commonly used token groups
@@ -156,9 +165,53 @@ interface PlaygroundDashboardProps {
   onChange: (updates: Partial<PlaygroundConfig>) => void;
 }
 
+interface ChartPalette {
+  primary: string;
+  primarySubtle: string;
+  raised: string;
+  grid: string;
+  textMuted: string;
+  textFaint: string;
+}
+
+const CHART_PALETTE_FALLBACK: ChartPalette = {
+  primary:       '#2f6d5c',
+  primarySubtle: '#d4e6de',
+  raised:        '#ffffff',
+  grid:          '#e5e7eb',
+  textMuted:     '#6b7280',
+  textFaint:     '#9ca3af',
+};
+
 const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onChange }) => {
   const [activeNav, setActiveNav] = useState('dashboard');
   void onChange;
+
+  // Refs/state to resolve cascading CSS vars from inside the dashboard subtree
+  // (the design tokens are inline-styled on a parent in Configurator, not on
+  // documentElement, so a global lookup misses).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [chartPalette, setChartPalette] = useState<ChartPalette>(CHART_PALETTE_FALLBACK);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const next: ChartPalette = {
+      primary:       readCssVar(el, '--color-background-primary',        CHART_PALETTE_FALLBACK.primary),
+      primarySubtle: readCssVar(el, '--color-background-primarySubtle',  CHART_PALETTE_FALLBACK.primarySubtle),
+      raised:        readCssVar(el, '--color-background-raised',         CHART_PALETTE_FALLBACK.raised),
+      grid:          readCssVar(el, '--color-chart-grid',                CHART_PALETTE_FALLBACK.grid),
+      textMuted:     readCssVar(el, '--color-foreground-onBaseMuted',    CHART_PALETTE_FALLBACK.textMuted),
+      textFaint:     readCssVar(el, '--color-foreground-onBaseFaint',    CHART_PALETTE_FALLBACK.textFaint),
+    };
+    // Bail out via same-reference return to avoid an update loop, since the
+    // parent passes a fresh `config` object each render.
+    setChartPalette((prev) =>
+      (Object.keys(next) as (keyof ChartPalette)[]).every((k) => prev[k] === next[k])
+        ? prev
+        : next,
+    );
+  }, [config]);
 
   // --- Static data ---
 
@@ -218,12 +271,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
   const orderSeries = [38, 48, 44, 67, 59, 72, 78];
 
   const revenueChartOption = useMemo<EChartsOption>(() => {
-    const primary = resolveVarColor(bg.primary, '#2f6d5c');
-    const primarySubtle = resolveVarColor(bg.primarySubtle, '#d4e6de');
-    const raised = resolveVarColor(bg.raised, '#ffffff');
-    const grid = resolveVarColor(t('color-chart-grid'), '#e5e7eb');
-    const textMuted = resolveVarColor(fg.onBaseMuted, '#6b7280');
-    const textFaint = resolveVarColor(fg.onBaseFaint, '#9ca3af');
+    const { primary, primarySubtle, raised, grid, textMuted, textFaint } = chartPalette;
     const reduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     return {
@@ -325,7 +373,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
         },
       ],
     };
-  }, [config]);
+  }, [config, chartPalette]);
 
   const trafficSources = [
     { label: 'Direct', share: 45, color: bg.primary },
@@ -345,6 +393,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
     <>
       <style>{PLAYGROUND_STYLES}</style>
       <div
+        ref={rootRef}
         className="flex overflow-hidden h-full select-none"
         style={{
           backgroundColor: bg.sunken,
@@ -478,7 +527,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                 <input
                   aria-label="Search dashboard data"
                   placeholder="Search components, users, or settings..."
-                  className="w-full bg-transparent text-xs outline-none"
+                  className="w-full bg-transparent text-xs outline-none bordder-none"
                   style={{ color: fg.onBase, fontFamily: 'inherit' }}
                 />
               </div>
@@ -777,7 +826,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                         <div
                           className="h-1.5 w-full overflow-hidden"
                           style={{
-                            backgroundColor: bg.raisedHover,
+                            backgroundColor: bg.sunkenStrong,
                             borderRadius: radius.action,
                             transition: transition.theme,
                           }}
@@ -786,7 +835,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                             className="h-full"
                             style={{
                               width: `${source.share}%`,
-                              backgroundColor: source.color,
+                              backgroundColor: bg.primary,
                               borderRadius: radius.action,
                               transition: transition.theme,
                             }}
@@ -822,7 +871,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                           style={{
                             color: fg.onBase,
                             border: `1px solid ${border.neutral}`,
-                            backgroundColor: bg.raisedHover,
+                            backgroundColor: bg.base,
                             borderRadius: radius.field,
                             padding: `${space.sm} ${space.lg}`,
                             transition: transition.theme,

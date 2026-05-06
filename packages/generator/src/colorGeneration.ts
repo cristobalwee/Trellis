@@ -428,11 +428,14 @@ export function generateNeutralRamp(
       : 0;
 
   if (isDark) {
-    // Dark mode: step 0 is very dark, step 1050 is very light
+    // Match light-mode ordering: step 0 = lightest extreme, step 1050 = darkest.
+    // Consumers expect a monotonic ramp where higher step → darker color in both
+    // modes; semantic tokens like `background-sunkenStrong` reach for neutral-1000
+    // expecting it to be the deepest surface available.
     return {
       ...ramp as ColorRamp,
-      0: formatHex({ mode: 'oklch', l: 0.13, c: endpointC(0.13), h: hue }) || '#121212',
-      1050: formatHex({ mode: 'oklch', l: 0.95, c: endpointC(0.95), h: hue }) || '#f0f0f0',
+      0: formatHex({ mode: 'oklch', l: 0.95, c: endpointC(0.95), h: hue }) || '#f0f0f0',
+      1050: formatHex({ mode: 'oklch', l: 0.13, c: endpointC(0.13), h: hue }) || '#121212',
     };
   }
 

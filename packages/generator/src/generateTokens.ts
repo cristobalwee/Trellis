@@ -48,6 +48,8 @@ export interface PrimitiveMapping {
 export interface TokenResult {
   tokens: Record<string, string>;
   semanticMap: Record<string, PrimitiveMapping>;
+  /** Step-500 representatives of the role ramps — used by UI swatches. */
+  swatches: { primary: string; secondary: string; neutral: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -867,7 +869,13 @@ export function generateDesignTokens(
   Object.assign(tokens, stateTokens());
   Object.assign(tokens, transitionTokens(config.expressiveness));
 
-  return { tokens, semanticMap };
+  const swatches = {
+    primary:   (byHue[roleHue.primary] as ColorRamp)[500],
+    secondary: (byHue[roleHue.secondary] as ColorRamp)[500],
+    neutral:   (byHue.neutral as ColorRamp)[500],
+  };
+
+  return { tokens, semanticMap, swatches };
 }
 
 // ---------------------------------------------------------------------------

@@ -175,7 +175,7 @@ const Configurator: React.FC = () => {
   }, [config.primaryFont, config.headingFont]);
 
   // Generate design tokens as CSS custom properties
-  const { tokens: designTokens, semanticMap } = useMemo(
+  const { tokens: designTokens, semanticMap, swatches } = useMemo(
     () => generateDesignTokens(config, isDarkMode),
     [config, isDarkMode]
   );
@@ -264,9 +264,9 @@ const Configurator: React.FC = () => {
 
                   {/* Color swatches */}
                   {([
-                    ['Primary', config.primaryColor],
-                    ['Secondary', config.secondaryColor || config.primaryRamp?.[500] || '#8B5CF6'],
-                    ['Neutral', config.neutralRamp?.[500] || '#94a3b8'],
+                    ['Primary',   swatches.primary],
+                    ['Secondary', swatches.secondary],
+                    ['Neutral',   swatches.neutral],
                   ] as const).map(([name, value]) => (
                     <Tooltip key={name} label={`${name}: ${value}`} side="right">
                       <button
