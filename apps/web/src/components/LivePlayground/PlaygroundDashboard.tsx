@@ -65,6 +65,7 @@ const resolveVarColor = (value: string, fallback: string) => {
 const bg = {
   base: t('color-background-base'),
   sunken: t('color-background-sunken'),
+  sunkenStrong: t('color-background-sunkenStrong'),
   raised: t('color-background-raised'),
   raisedHover: t('color-background-raisedHover'),
   primary: t('color-background-primary'),
@@ -400,7 +401,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                             fontFamily: 'inherit',
                             borderRadius: radius.badge,
                             color: isActive ? fg.onBase : fg.onBaseMuted,
-                            backgroundColor: isActive ? bg.raisedHover : 'transparent',
+                            backgroundColor: isActive ? bg.sunkenStrong : 'transparent',
                             transition: transition.interactive,
                           }}
                         >

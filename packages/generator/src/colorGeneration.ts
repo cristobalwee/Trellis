@@ -497,31 +497,3 @@ export function applyChromaGuardrails(
   });
 }
 
-// ========== Legacy Compatibility =============================================
-
-/**
- * Compute seeded base lightness/chroma for additional ramps.
- * Now delegates to the Gaussian algorithm — the seed values feed into
- * generateOklchRamp which handles the full curve computation.
- *
- * @deprecated Use generateOklchRamp directly with the hue's natural parameters.
- */
-export interface AdditionalRampSeed {
-  baseL: number;
-  baseChroma: number;
-}
-
-export function getAdditionalRampSeed(
-  _slotName: string,
-  hue: number,
-  _primaryL: number,
-  saturationRatio: number,
-): AdditionalRampSeed {
-  // Use the Gaussian peak lightness as the base
-  const peakL = 0.60;
-  const hueMaxC = maxChromaForLH(peakL, hue);
-  // Scale chroma by the primary's saturation ratio
-  const baseChroma = Math.min(hueMaxC * Math.min(saturationRatio, 1.0), hueMaxC);
-
-  return { baseL: peakL, baseChroma };
-}

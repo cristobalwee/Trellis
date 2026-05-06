@@ -1,12 +1,5 @@
-// ---------------------------------------------------------------------------
-// Shared design-token accessors
-//
-// Every preview component references CSS custom properties set on an ancestor
-// element via `generateDesignTokens()`.  These helpers give a single, typed
-// source-of-truth so individual component files stay DRY.
-//
-// Names follow the primitive/semantic layering of `apps/web/src/utils/tokens.css`.
-// ---------------------------------------------------------------------------
+// Shared, typed accessors for the CSS custom properties emitted by
+// `generateDesignTokens()` (see `@trellis/generator`).
 
 const t = (token: string) => `var(--${token})`;
 

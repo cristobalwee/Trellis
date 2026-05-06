@@ -93,7 +93,7 @@ export interface TokenSet {
 export type ExportFormat = 'css' | 'dtcg' | 'tailwind' | 'shadcn';
 
 // ---------------------------------------------------------------------------
-// Category mapping (mirrors the ordering in `utils/tokens.css`)
+// Category mapping (drives grouped output in CSS / DTCG / Tailwind / shadcn)
 // ---------------------------------------------------------------------------
 
 type Category =
