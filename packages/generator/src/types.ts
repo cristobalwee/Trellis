@@ -6,6 +6,10 @@ export type { ColorRamp, NeutralColorRamp };
 export const FONT_WEIGHT_OPTIONS = [300, 400, 500, 600, 700, 800, 900] as const;
 export type FontWeight = (typeof FONT_WEIGHT_OPTIONS)[number];
 
+export const HEADLESS_LIB_OPTIONS = ['base-ui', 'radix', 'react-aria', 'headless-ui'] as const;
+export type HeadlessLib = (typeof HEADLESS_LIB_OPTIONS)[number];
+export const DEFAULT_HEADLESS_LIB: HeadlessLib = 'base-ui';
+
 export interface BodyFontWeights {
   light: FontWeight;
   regular: FontWeight;
@@ -54,6 +58,7 @@ export interface BrandConfig {
   shadows: 'none' | 'subtle' | 'dramatic';
   density: 'compact' | 'default' | 'comfortable';
   expressiveness: 'minimal' | 'balanced' | 'expressive';
+  headlessLib: HeadlessLib;
 }
 
 export type BrandConfigInput = Partial<
@@ -92,6 +97,7 @@ export const initialConfig: BrandConfig = {
   shadows: 'subtle',
   density: 'default',
   expressiveness: 'balanced',
+  headlessLib: DEFAULT_HEADLESS_LIB,
 };
 
 export function createBrandConfig(input: BrandConfigInput = {}): BrandConfig {

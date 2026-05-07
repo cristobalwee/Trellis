@@ -15,8 +15,8 @@ import type { PlaygroundConfig } from '../LivePlayground/types';
 import { generateDesignTokens } from '@trellis/generator';
 import { Tooltip } from '../ui/Tooltip';
 import InspectOverlay from './InspectOverlay';
-import ExportDialog from './ExportDialog';
 import { siteImages } from '../../lib/siteImages';
+import { encodeBrandConfig } from '../../lib/configUrl';
 
 // ---------------------------------------------------------------------------
 // Preview tab bar (Dashboard / Components)
@@ -180,11 +180,13 @@ const Configurator: React.FC = () => {
     [config, isDarkMode]
   );
 
-  // Generate paired light + dark token sets for export (always both, regardless of preview mode)
-  const exportTokenSet = useMemo(() => ({
-    light: generateDesignTokens(config, false).tokens,
-    dark: generateDesignTokens(config, true).tokens,
-  }), [config]);
+  // The export page receives the entire BrandConfig via a URL-encoded param;
+  // it regenerates tokens on its own, so we don't pre-compute the paired
+  // light+dark TokenSet here anymore.
+  const exportHref = useMemo(
+    () => `/generate/export?c=${encodeBrandConfig(config)}`,
+    [config],
+  );
 
   // Bridge: BrandConfig → PlaygroundConfig (kept for font-loading side effect)
   const playgroundConfig: PlaygroundConfig = {
@@ -358,7 +360,27 @@ const Configurator: React.FC = () => {
                   <MousePointerClick size={13} />
                   Inspect{isInspecting && ': On'}
                 </button>
-                <ExportDialog tokens={exportTokenSet} config={config} />
+                <a
+                  href={exportHref}
+                  className="btn btn-primary shadow-none btn-sm flex items-center gap-1.5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  Export
+                </a>
               </div>
             </div>
           </div>
