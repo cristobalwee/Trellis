@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HexColorPicker } from 'react-colorful';
 import { getTokenEditInfo } from './inspectUtils';
-import { updateRampStep } from '../BrandIntake/store';
+import { updateConfig, updateRampStep } from '../BrandIntake/store';
 import type { PrimitiveMapping } from '@trellis/generator';
 
 // ---------------------------------------------------------------------------
@@ -92,7 +92,11 @@ export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
 
   const handleColorChange = (newColor: string) => {
     setColor(newColor);
-    updateRampStep(info.rampKey, info.step, newColor);
+    if (info.kind === 'primaryColor') {
+      updateConfig({ primaryColor: newColor });
+    } else {
+      updateRampStep(info.rampKey, info.step, newColor);
+    }
   };
 
   const handleHexInput = (raw: string) => {
@@ -117,7 +121,7 @@ export const InspectTokenEditor: React.FC<InspectTokenEditorProps> = ({
       {/* Label */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-mono text-charcoal/60">
-          {info.displayRamp} &middot; {info.step}
+          {info.displayRamp} &middot; {info.kind === 'primaryColor' ? 'base' : info.step}
         </span>
       </div>
 

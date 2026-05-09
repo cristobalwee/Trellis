@@ -5,6 +5,7 @@ import {
   generateOklchRamp,
   generateNeutralRamp,
   maxChromaForLH,
+  deriveHoverFromInput,
   NAMED_HUES,
 } from './colorGeneration.js';
 import type { ColorMode } from './colorGeneration.js';
@@ -24,7 +25,7 @@ import { wcagContrast } from 'culori';
 const LIGHTNESS_TARGETS = {
   strong:      { light: 0.48, dark: 0.42 },  // primary/accent/status filled backgrounds
   strongHover: { light: 0.42, dark: 0.5 },   // hover states
-  subtle:      { light: 0.97, dark: 0.3 },   // subtle backgrounds
+  subtle:      { light: 0.97, dark: 0.36 },  // subtle backgrounds
   fgColored:   { light: 0.42, dark: 0.65 },  // colored text on base surfaces
 };
 
@@ -43,6 +44,13 @@ export interface PrimitiveMapping {
   role?: string | null;
   lightStep: number | null;
   darkStep: number | null;
+  /**
+   * Routing sentinel for inspector edits. When set to 'primaryColor', editing
+   * this token writes the new hex back to `config.primaryColor` rather than
+   * `rampOverrides`. Used by the saturated-primary tokens that resolve to the
+   * exact-input primitive `--color-primary-base` (and its hover derivative).
+   */
+  target?: 'primaryColor';
 }
 
 export interface TokenResult {
@@ -604,6 +612,19 @@ export function generateDesignTokens(
     }
   }
 
+  // Exact-input primitive: bypasses ramp clamping so saturated primary surfaces
+  // (button background, border, hover) preserve the user's chosen hex verbatim.
+  // Same hex in both light and dark modes — branding wins over mode-specific tuning.
+  const primaryBaseHex = config.primaryColor;
+  tokens['--color-primary-base'] = primaryBaseHex;
+  semanticMap['color-primary-base'] = {
+    ramp: roleHue.primary,
+    role: 'primary',
+    lightStep: null,
+    darkStep: null,
+    target: 'primaryColor',
+  };
+
   // =========================================================================
   // Semantic color helpers — every write emits `var(--color-<hue>-<step>)`
   // =========================================================================
@@ -743,8 +764,25 @@ export function generateDesignTokens(
   }
 
   // Brand / accent backgrounds
-  assignPicked('background-primary',        roleHue.primary,   LIGHTNESS_TARGETS.strong);
-  assignPicked('background-primaryHover',   roleHue.primary,   LIGHTNESS_TARGETS.strongHover);
+  // background-primary + primaryHover route through the exact-input primitive
+  // (and a derived hover) — see the `--color-primary-base` block above.
+  tokens['--color-background-primary'] = `var(--color-primary-base)`;
+  semanticMap['color-background-primary'] = {
+    ramp: roleHue.primary,
+    role: 'primary',
+    lightStep: null,
+    darkStep: null,
+    target: 'primaryColor',
+  };
+  const primaryHoverHex = deriveHoverFromInput(primaryBaseHex, isDark ? 'dark' : 'light');
+  tokens['--color-background-primaryHover'] = primaryHoverHex;
+  semanticMap['color-background-primaryHover'] = {
+    ramp: null,
+    role: null,
+    lightStep: null,
+    darkStep: null,
+    target: 'primaryColor',
+  };
   assignPicked('background-primarySubtle',  roleHue.primary,   LIGHTNESS_TARGETS.subtle);
   assignPicked('background-accent',         roleHue.secondary, LIGHTNESS_TARGETS.strong);
   assignPicked('background-accentSubtle',   roleHue.secondary, LIGHTNESS_TARGETS.subtle);
@@ -830,7 +868,16 @@ export function generateDesignTokens(
     'rgba(15,23,42,0.08)', 'rgba(255,255,255,0.09)');
   assignLiteral('border-strong',
     'rgba(15,23,42,0.14)', 'rgba(255,255,255,0.14)');
-  assignPicked('border-primary', roleHue.primary,   LIGHTNESS_TARGETS.strong);
+  // border-primary mirrors the exact-input primary fill so a primary button
+  // doesn't get a hue mismatch between fill and outline.
+  tokens['--color-border-primary'] = `var(--color-primary-base)`;
+  semanticMap['color-border-primary'] = {
+    ramp: roleHue.primary,
+    role: 'primary',
+    lightStep: null,
+    darkStep: null,
+    target: 'primaryColor',
+  };
   assignPicked('border-accent',  roleHue.secondary, LIGHTNESS_TARGETS.strong);
   for (const role of ['success', 'warning', 'critical', 'info'] as const) {
     assignPicked(`border-${role}`, roleHue[role], LIGHTNESS_TARGETS.strong);

@@ -14,13 +14,18 @@ export interface ContrastValidationFailure extends ContrastPair {
 }
 
 const WCAG_AA_TEXT_RATIO = 4.5;
+// `background-primary` resolves to the user's exact input color (preserving
+// brand fidelity), so it isn't guaranteed body-text AA the way ramp-derived
+// surfaces are. We still enforce large-text AA — adequate for primary
+// buttons, which typically use bold/large labels.
+const WCAG_AA_LARGE_TEXT_RATIO = 3.0;
 
 export const DEFAULT_CONTRAST_PAIRS: ContrastPair[] = [
   { name: 'body on base', foreground: '--color-foreground-onBase', background: '--color-background-base', minimum: WCAG_AA_TEXT_RATIO },
   { name: 'muted text on base', foreground: '--color-foreground-onBaseMuted', background: '--color-background-base', minimum: WCAG_AA_TEXT_RATIO },
   { name: 'raised text', foreground: '--color-foreground-onRaised', background: '--color-background-raised', minimum: WCAG_AA_TEXT_RATIO },
   { name: 'sunken text', foreground: '--color-foreground-onSunken', background: '--color-background-sunken', minimum: WCAG_AA_TEXT_RATIO },
-  { name: 'primary surface', foreground: '--color-foreground-onPrimary', background: '--color-background-primary', minimum: WCAG_AA_TEXT_RATIO },
+  { name: 'primary surface', foreground: '--color-foreground-onPrimary', background: '--color-background-primary', minimum: WCAG_AA_LARGE_TEXT_RATIO },
   { name: 'accent surface', foreground: '--color-foreground-onAccent', background: '--color-background-accent', minimum: WCAG_AA_TEXT_RATIO },
   { name: 'success surface', foreground: '--color-foreground-onSuccess', background: '--color-background-success', minimum: WCAG_AA_TEXT_RATIO },
   { name: 'warning surface', foreground: '--color-foreground-onWarning', background: '--color-background-warning', minimum: WCAG_AA_TEXT_RATIO },

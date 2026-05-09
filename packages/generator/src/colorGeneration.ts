@@ -33,6 +33,22 @@ export function getGeneratedColor(baseHex: string, mode: GenerationMode): string
   );
 }
 
+/**
+ * Derive a hover color from an exact-input primary by shifting lightness:
+ * darker in light mode, lighter in dark mode. Preserves hue and chroma
+ * (chroma re-clamped to gamut at the new lightness).
+ */
+export function deriveHoverFromInput(hex: string, mode: ColorMode): string {
+  const o = toOklch(hex);
+  if (!o) return hex;
+  const L = mode === 'dark'
+    ? Math.min((o.l ?? 0.5) + 0.06, 0.95)
+    : Math.max((o.l ?? 0.5) - 0.06, 0.05);
+  const H = o.h ?? 0;
+  const C = Math.min(o.c ?? 0, maxChromaForLH(L, H));
+  return formatHex({ mode: 'oklch', l: L, c: C, h: H }) ?? hex;
+}
+
 // ========== Named Hue System =================================================
 
 export interface NamedHue {
