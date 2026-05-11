@@ -8,6 +8,7 @@ export * from './contrastUtils.js';
 export * from './accessibility.js';
 export * from './exportTokens.js';
 export * from './generateTokens.js';
+export * from './skills.js';
 export * from './types.js';
 
 export interface GenerateThemeOptions {

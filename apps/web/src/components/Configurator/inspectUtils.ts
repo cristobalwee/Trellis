@@ -108,26 +108,39 @@ export function findStyledAncestor(
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the ramp key and step for a given semantic or primitive color
- * token, or null if the token is not editable (hardcoded value, non-color,
- * or unknown).
+ * Returns edit info for a given semantic or primitive color token, or null
+ * if the token is not editable (hardcoded value, non-color, or unknown).
  *
- * `rampKey` is the override bucket used by `updateRampStep` (role names like
- * "primary"/"secondary"/"neutral" for role-backed ramps, hue names for
- * decoratives). `displayRamp` is the hue name displayed to the user (e.g.
- * "blue", "teal") — they diverge whenever a role happens to pick a hue.
+ * Two kinds of editable tokens:
+ *  - `kind: 'ramp'` — edits flow to `rampOverrides[rampKey][step]` via
+ *    `updateRampStep`. Default for ramp-backed tokens.
+ *  - `kind: 'primaryColor'` — edits flow to `config.primaryColor` directly,
+ *    re-deriving every primary-base-routed token. Used by the saturated-input
+ *    primary surfaces (background-primary, primaryHover, border-primary, the
+ *    primary-base primitive, and chart aliases).
+ *
+ * `displayRamp` is the hue name displayed to the user (e.g. "blue", "teal").
  */
+export type TokenEditInfo =
+  | { kind: 'ramp'; rampKey: string; displayRamp: string; step: number }
+  | { kind: 'primaryColor'; displayRamp: string };
+
 export function getTokenEditInfo(
   tokenName: string,
   isDarkMode: boolean,
   semanticMap: Record<string, PrimitiveMapping>,
-): { rampKey: string; displayRamp: string; step: number } | null {
+): TokenEditInfo | null {
   const mapping = semanticMap[tokenName];
   if (!mapping) return null;
+
+  if (mapping.target === 'primaryColor') {
+    return { kind: 'primaryColor', displayRamp: mapping.ramp ?? 'primary' };
+  }
+
   const step = isDarkMode ? mapping.darkStep : mapping.lightStep;
   if (!mapping.ramp || step == null) return null;
   const rampKey = mapping.role ?? mapping.ramp;
-  return { rampKey, displayRamp: mapping.ramp, step };
+  return { kind: 'ramp', rampKey, displayRamp: mapping.ramp, step };
 }
 
 /**
@@ -149,6 +162,7 @@ export function getEditLabel(
 ): string | null {
   const info = getTokenEditInfo(tokenName, isDarkMode, semanticMap);
   if (!info) return null;
+  if (info.kind === 'primaryColor') return `${info.displayRamp} \u00b7 base`;
   return `${info.displayRamp} \u00b7 ${info.step}`;
 }
 
