@@ -16,7 +16,7 @@ import { generateDesignTokens } from '@trellis/generator';
 import { Tooltip } from '../ui/Tooltip';
 import InspectOverlay from './InspectOverlay';
 import { siteImages } from '../../lib/siteImages';
-import { encodeBrandConfig } from '../../lib/configUrl';
+import { decodeBrandConfig, encodeBrandConfig } from '../../lib/configUrl';
 
 // ---------------------------------------------------------------------------
 // Preview tab bar (Dashboard / Components)
@@ -128,7 +128,32 @@ const useIsDesktop = () => {
   return isDesktop;
 };
 
+// Hydrate the shared BrandConfig store from a `?c=` URL param if present, then
+// strip the param so the configurator URL stays clean. This is the back-edge
+// of the export-page round-trip — the configurator itself never encodes its
+// state into the URL during normal use.
+const hydrateFromUrlIfPresent = () => {
+  if (typeof window === 'undefined') return;
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('c');
+  if (!raw) return;
+  const decoded = decodeBrandConfig(raw);
+  if (decoded) $brandConfig.set(decoded);
+  params.delete('c');
+  const search = params.toString();
+  const url = window.location.pathname + (search ? `?${search}` : '') + window.location.hash;
+  window.history.replaceState(null, '', url);
+};
+
 const Configurator: React.FC = () => {
+  // Run once before the first useStore read so the initial render already
+  // reflects the decoded config (no flash of defaults).
+  const hydratedRef = useRef(false);
+  if (!hydratedRef.current) {
+    hydratedRef.current = true;
+    hydrateFromUrlIfPresent();
+  }
+
   const config = useStore($brandConfig);
   const isDesktop = useIsDesktop();
 

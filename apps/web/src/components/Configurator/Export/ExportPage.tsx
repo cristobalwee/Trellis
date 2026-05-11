@@ -89,6 +89,33 @@ const COLOR_SPACE_OPTIONS = [
 ];
 
 // ---------------------------------------------------------------------------
+// Token-derived file-icon colors
+// ---------------------------------------------------------------------------
+
+// Each file kind maps to a semantic role from the generated token system, so
+// the icons reflect whatever palette the user configured rather than fixed
+// blues/ambers.
+const ICON_TOKEN_BY_KIND: Record<FileIconKind, string> = {
+  css:  '--color-background-primary',
+  json: '--color-background-warning',
+  js:   '--color-background-accent',
+  md:   '--color-background-success',
+};
+
+const VAR_REF = /^var\(\s*(--[\w-]+)\s*\)$/;
+
+/** Follow `var(--x)` indirection in a token map until a literal color is reached. */
+function resolveTokenValue(tokens: Record<string, string>, name: string): string {
+  let value = tokens[name];
+  for (let i = 0; i < 8 && value; i++) {
+    const m = value.match(VAR_REF);
+    if (!m) return value;
+    value = tokens[m[1]];
+  }
+  return value ?? '#888888';
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -143,6 +170,15 @@ const ExportPage: React.FC = () => {
 
   const allAssets = useMemo(() => [...TOKEN_ASSETS, ...skillAssets], [skillAssets]);
 
+  // Per-kind colors derived from the generated tokens. Resolved from the
+  // light token set so the icons stay legible against the white preview card.
+  const iconColors = useMemo<Record<FileIconKind, string>>(() => ({
+    css:  resolveTokenValue(tokenSet.light, ICON_TOKEN_BY_KIND.css),
+    json: resolveTokenValue(tokenSet.light, ICON_TOKEN_BY_KIND.json),
+    js:   resolveTokenValue(tokenSet.light, ICON_TOKEN_BY_KIND.js),
+    md:   resolveTokenValue(tokenSet.light, ICON_TOKEN_BY_KIND.md),
+  }), [tokenSet]);
+
   // Default selection: the canonical CSS export.
   const [selectedId, setSelectedId] = useState<AssetId>(TOKEN_ASSETS[0].id);
   const selectedAsset = useMemo(
@@ -184,10 +220,16 @@ const ExportPage: React.FC = () => {
     URL.revokeObjectURL(url);
   }, [generateContent]);
 
+  const encodedConfig = useMemo(() => encodeBrandConfig(config), [config]);
+
   const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/generate/export?c=${encodeBrandConfig(config)}`;
-  }, [config]);
+    return `${window.location.origin}/generate/export?c=${encodedConfig}`;
+  }, [encodedConfig]);
+
+  // Round-trip the encoded config back to the configurator so the user lands
+  // on their last configuration instead of the defaults.
+  const backHref = `/generate?c=${encodedConfig}`;
 
   const [shareCopied, setShareCopied] = useState(false);
   const handleShareCopy = useCallback(async () => {
@@ -199,6 +241,14 @@ const ExportPage: React.FC = () => {
 
   const isCopied = copiedId === selectedAsset.id;
 
+  // Mobile dropdown options — same list/order as the sidebar, with the file
+  // icon rendered inline so the type stays scannable in the trigger.
+  const mobileAssetOptions = useMemo(() => allAssets.map((a) => ({
+    value: a.id,
+    label: a.title,
+    icon: <FileIcon kind={a.iconKind} color={iconColors[a.iconKind]} size={20} className="shrink-0" />,
+  })), [allAssets, iconColors]);
+
   return (
     <div className="export-page relative min-h-dvh bg-gray text-charcoal overflow-x-hidden">
       <div className="relative z-10">
@@ -208,7 +258,7 @@ const ExportPage: React.FC = () => {
           style={{ animationDelay: '1.35s' }}
         >
           <a
-            href="/generate"
+            href={backHref}
             className="inline-flex items-center gap-2 text-sm text-charcoal/70 hover:text-charcoal transition-colors"
           >
             <ArrowLeft size={16} />
@@ -228,7 +278,7 @@ const ExportPage: React.FC = () => {
             Ready to ship
           </h2>
           <p className="text-base md:text-lg text-charcoal/80 max-w-2xl mx-auto leading-relaxed">
-            A complete token set plus three LLM-ready skills, scoped to <em className="not-italic font-medium text-charcoal">{config.headingFont}</em> & <em className="not-italic font-medium text-charcoal">{config.primaryFont}</em>, anchored on
+            A complete token and configuration set, plus three LLM-ready skills, scoped to <em className="not-italic font-medium text-charcoal">{config.headingFont}</em> & <em className="not-italic font-medium text-charcoal">{config.primaryFont}</em>, anchored on
             <span
               className="inline-block w-3 h-3 rounded-full align-middle mx-1.5 ring-1 ring-charcoal/10"
               style={{ backgroundColor: config.primaryColor }}
@@ -282,22 +332,24 @@ const ExportPage: React.FC = () => {
         >
           <article className="bg-white rounded-2xl border border-charcoal/5 shadow-[0_4px_14px_-6px_rgba(20,30,50,0.10)] overflow-hidden">
             <div className="grid md:grid-cols-[14rem_minmax(0,1fr)]">
-              {/* Left nav — inside the card, divided from preview by a single border */}
+              {/* Left nav — md+ only. On mobile the asset switcher lives in the preview header as a dropdown. */}
               <nav
                 aria-label="Export assets"
-                className="px-2 py-5 md:py-6 border-b md:border-b-0 md:border-r border-charcoal/8"
+                className="hidden md:block px-2 md:py-6 md:border-r border-charcoal/8"
               >
                 <NavGroup
                   label="Theme artifacts"
                   assets={TOKEN_ASSETS}
                   selectedId={selectedId}
                   onSelect={setSelectedId}
+                  iconColors={iconColors}
                 />
                 <NavGroup
                   label="System skills"
                   assets={skillAssets}
                   selectedId={selectedId}
                   onSelect={setSelectedId}
+                  iconColors={iconColors}
                   className="mt-7"
                 />
               </nav>
@@ -305,12 +357,27 @@ const ExportPage: React.FC = () => {
               {/* Preview */}
               <div className="min-w-0">
                 <header className="flex items-center justify-between gap-3 px-5 py-4 md:px-6 md:py-5">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FileIcon kind={selectedAsset.iconKind} size={32} className="shrink-0" />
+                  {/* Desktop: file info block. Mobile: dropdown switcher. */}
+                  <div className="hidden md:flex items-center gap-3 min-w-0">
+                    <FileIcon
+                      kind={selectedAsset.iconKind}
+                      color={iconColors[selectedAsset.iconKind]}
+                      size={32}
+                      className="shrink-0"
+                    />
                     <div className="min-w-0">
                       <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
                       <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
                     </div>
+                  </div>
+                  <div className="md:hidden flex-1 min-w-0">
+                    <Select
+                      value={selectedId}
+                      onValueChange={(v) => setSelectedId(v as AssetId)}
+                      options={mobileAssetOptions}
+                      size="compact"
+                      triggerClassName="!py-1.5 !pl-2 !pr-2.5 !text-sm !rounded-lg"
+                    />
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {selectedAsset.takesColorSpace && (
@@ -377,10 +444,11 @@ interface NavGroupProps {
   assets: AssetDescriptor[];
   selectedId: AssetId;
   onSelect: (id: AssetId) => void;
+  iconColors: Record<FileIconKind, string>;
   className?: string;
 }
 
-const NavGroup: React.FC<NavGroupProps> = ({ label, assets, selectedId, onSelect, className = '' }) => {
+const NavGroup: React.FC<NavGroupProps> = ({ label, assets, selectedId, onSelect, iconColors, className = '' }) => {
   if (assets.length === 0) return null;
   return (
     <div className={className}>
@@ -403,7 +471,7 @@ const NavGroup: React.FC<NavGroupProps> = ({ label, assets, selectedId, onSelect
                     : 'text-charcoal/80 hover:text-charcoal hover:bg-charcoal/[0.03]',
                 ].join(' ')}
               >
-                <FileIcon kind={asset.iconKind} size={22} className="shrink-0" />
+                <FileIcon kind={asset.iconKind} color={iconColors[asset.iconKind]} size={22} className="shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className={`text-sm leading-tight truncate ${isSelected ? 'font-medium' : ''}`}>
                     {asset.title}
