@@ -1,14 +1,14 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Info } from 'lucide-react';
 
 import { $brandConfig, updateConfig, updateRampStep } from './store';
 import { useColorRamps, type ColorSlot } from './useColorRamps';
 import { HexColorInput, RampSliders, NeutralTintSelector, GenerationModeSelector } from './ColorRow';
 import { ColorPickerPopover } from '../ui/ColorPickerPopover';
 import { ColorRampView } from '../Showcase/ColorRampView';
-import { NEUTRAL_STEPS } from '@trellis/generator';
+import { NEUTRAL_STEPS, clampPrimaryForContrast } from '@trellis/generator';
 import type { GenerationMode } from '@trellis/generator';
 import { SEMANTIC_HUES } from '@trellis/generator';
 
@@ -68,6 +68,23 @@ const TabColor: React.FC = () => {
     [],
   );
 
+  // The exact-input primary becomes `--color-primary-base` (button/border fill).
+  // If it sits too close to the base background in either mode, the generator
+  // nudges it toward readability — surface that to the user here so they
+  // understand why the rendered surface isn't a 1:1 match for their input.
+  const primaryContrastNotice = useMemo(() => {
+    const lightBase = derived.neutralRamp[0];
+    const darkBase = derived.dark?.neutralRamp[800];
+    const light = lightBase
+      ? clampPrimaryForContrast(config.primaryColor, lightBase, 'light')
+      : null;
+    const dark = darkBase
+      ? clampPrimaryForContrast(config.primaryColor, darkBase, 'dark')
+      : null;
+    if (!light?.adjusted && !dark?.adjusted) return null;
+    return { light, dark };
+  }, [config.primaryColor, derived.neutralRamp, derived.dark]);
+
   return (
     <div className="flex flex-col gap-8">
       {/* Primary color picker */}
@@ -78,6 +95,43 @@ const TabColor: React.FC = () => {
           <HexColorInput color={config.primaryColor} onChange={handlePrimaryChange} />
         </div>
         <ColorRampView ramp={derived.primaryRamp} className="h-8 rounded-lg" onStepChange={handleRampStep('primary')} />
+        {false && (
+          <div className="flex items-start gap-2 text-xs text-charcoal/80 bg-amber-50 rounded-lg px-3 py-2">
+            <Info size={13} className="mt-0.5 shrink-0 text-amber-600" />
+            <div className="flex flex-col gap-1.5">
+              <span>
+                {primaryContrastNotice.light?.adjusted && primaryContrastNotice.dark?.adjusted
+                  ? 'This color sits at the edge of legibility against the page background in both light and dark modes.'
+                  : primaryContrastNotice.dark?.adjusted
+                  ? 'This color is too dark to read against the dark-mode background.'
+                  : 'This color is too light to read against the light-mode background.'}
+                {' '}We’ve nudged the applied color to preserve contrast — your input is preserved here in the picker.
+              </span>
+              <div className="flex flex-wrap gap-3 pt-0.5">
+                {primaryContrastNotice.light?.adjusted && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-charcoal/50">Light:</span>
+                    <span
+                      className="inline-block w-3 h-3 rounded-sm border border-charcoal/10"
+                      style={{ backgroundColor: primaryContrastNotice.light.applied }}
+                    />
+                    <span className="font-mono">{primaryContrastNotice.light.applied}</span>
+                  </span>
+                )}
+                {primaryContrastNotice.dark?.adjusted && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-charcoal/50">Dark:</span>
+                    <span
+                      className="inline-block w-3 h-3 rounded-sm border border-charcoal/10"
+                      style={{ backgroundColor: primaryContrastNotice.dark.applied }}
+                    />
+                    <span className="font-mono">{primaryContrastNotice.dark.applied}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         <div>
         <button
           type="button"

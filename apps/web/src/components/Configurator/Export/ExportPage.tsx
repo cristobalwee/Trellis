@@ -214,10 +214,15 @@ const ExportPage: React.FC = () => {
     const a = document.createElement('a');
     a.href = url;
     a.download = asset.filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Defer cleanup: revoking the URL or removing the anchor synchronously can
+    // cancel the download before the browser has dereferenced the blob URL.
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 0);
   }, [generateContent]);
 
   // `encodeURIComponent` is required: the LZ alphabet contains `+`, which
@@ -261,7 +266,7 @@ const ExportPage: React.FC = () => {
         {/* Top bar */}
         <header
           className="export-anim flex items-center justify-between px-6 py-5 md:px-10"
-          style={{ animationDelay: '1.35s' }}
+          style={{ animationDelay: '0.5s' }}
         >
           <a
             href={backHref}
@@ -278,7 +283,7 @@ const ExportPage: React.FC = () => {
         {/* Hero */}
         <section
           className="export-anim px-6 md:px-10 max-w-5xl mx-auto pt-8 pb-8 md:pt-16 md:pb-10 text-center"
-          style={{ animationDelay: '1.5s' }}
+          style={{ animationDelay: '1.6s' }}
         >
           <h2 className="mb-6 text-charcoal">
             Ready to ship
@@ -303,7 +308,7 @@ const ExportPage: React.FC = () => {
         {/* Slim share bar */}
         <section
           className="export-anim px-6 md:px-10 max-w-2xl mx-auto pb-10 md:pb-14"
-          style={{ animationDelay: '1.7s' }}
+          style={{ animationDelay: '1.75s' }}
         >
           <div className="flex items-center gap-3">
             <label
@@ -334,7 +339,7 @@ const ExportPage: React.FC = () => {
         {/* Main: left nav + preview card */}
         <section
           className="export-anim px-6 md:px-10 max-w-7xl mx-auto pb-20 md:pb-28"
-          style={{ animationDelay: '1.85s' }}
+          style={{ animationDelay: '1.9s' }}
         >
           <article className="bg-white rounded-2xl border border-charcoal/5 shadow-[0_4px_14px_-6px_rgba(20,30,50,0.10)] overflow-hidden">
             <div className="grid md:grid-cols-[14rem_minmax(0,1fr)]">

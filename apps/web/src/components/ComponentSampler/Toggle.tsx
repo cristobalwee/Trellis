@@ -40,7 +40,7 @@ const Toggle: React.FC<ToggleProps> = ({ checked, onChange, label, id }) => {
             width: '14px',
             height: '14px',
             borderRadius: '50%',
-            backgroundColor: fg.onPrimary,
+            backgroundColor: bg.base,
             transition: transition.interactive,
           }}
         />
