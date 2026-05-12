@@ -220,7 +220,13 @@ const ExportPage: React.FC = () => {
     URL.revokeObjectURL(url);
   }, [generateContent]);
 
-  const encodedConfig = useMemo(() => encodeBrandConfig(config), [config]);
+  // `encodeURIComponent` is required: the LZ alphabet contains `+`, which
+  // URLSearchParams decodes as a space — leaving it raw silently corrupts
+  // the param on read.
+  const encodedConfig = useMemo(
+    () => encodeURIComponent(encodeBrandConfig(config)),
+    [config],
+  );
 
   const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
@@ -356,9 +362,19 @@ const ExportPage: React.FC = () => {
 
               {/* Preview */}
               <div className="min-w-0">
+                {/* Mobile-only asset switcher — sits above the main content
+                    in place of the desktop left-nav. */}
+                <div className="md:hidden px-5 pt-4">
+                  <Select
+                    value={selectedId}
+                    onValueChange={(v) => setSelectedId(v as AssetId)}
+                    options={mobileAssetOptions}
+                    size="compact"
+                    triggerClassName="!py-2 !pl-2.5 !pr-2.5 !text-sm !rounded-lg"
+                  />
+                </div>
                 <header className="flex items-center justify-between gap-3 px-5 py-4 md:px-6 md:py-5">
-                  {/* Desktop: file info block. Mobile: dropdown switcher. */}
-                  <div className="hidden md:flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <FileIcon
                       kind={selectedAsset.iconKind}
                       color={iconColors[selectedAsset.iconKind]}
@@ -369,15 +385,6 @@ const ExportPage: React.FC = () => {
                       <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
                       <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
                     </div>
-                  </div>
-                  <div className="md:hidden flex-1 min-w-0">
-                    <Select
-                      value={selectedId}
-                      onValueChange={(v) => setSelectedId(v as AssetId)}
-                      options={mobileAssetOptions}
-                      size="compact"
-                      triggerClassName="!py-1.5 !pl-2 !pr-2.5 !text-sm !rounded-lg"
-                    />
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {selectedAsset.takesColorSpace && (

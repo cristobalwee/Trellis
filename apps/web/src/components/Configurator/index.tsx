@@ -131,9 +131,11 @@ const useIsDesktop = () => {
 // Hydrate the shared BrandConfig store from a `?c=` URL param if present, then
 // strip the param so the configurator URL stays clean. This is the back-edge
 // of the export-page round-trip — the configurator itself never encodes its
-// state into the URL during normal use.
+// state into the URL during normal use. Must run in a post-hydration effect
+// (not during render): the SSR pass has no URL access and emits defaults, so
+// touching the store before hydration completes would cause attribute
+// mismatches that React 19 refuses to patch up.
 const hydrateFromUrlIfPresent = () => {
-  if (typeof window === 'undefined') return;
   const params = new URLSearchParams(window.location.search);
   const raw = params.get('c');
   if (!raw) return;
@@ -146,16 +148,12 @@ const hydrateFromUrlIfPresent = () => {
 };
 
 const Configurator: React.FC = () => {
-  // Run once before the first useStore read so the initial render already
-  // reflects the decoded config (no flash of defaults).
-  const hydratedRef = useRef(false);
-  if (!hydratedRef.current) {
-    hydratedRef.current = true;
-    hydrateFromUrlIfPresent();
-  }
-
   const config = useStore($brandConfig);
   const isDesktop = useIsDesktop();
+
+  useEffect(() => {
+    hydrateFromUrlIfPresent();
+  }, []);
 
   // Local UI state
   const [activeTab, setActiveTab] = useState<TabId>('color');
@@ -208,8 +206,10 @@ const Configurator: React.FC = () => {
   // The export page receives the entire BrandConfig via a URL-encoded param;
   // it regenerates tokens on its own, so we don't pre-compute the paired
   // light+dark TokenSet here anymore.
+  // `encodeURIComponent` wraps the LZ payload because its alphabet includes
+  // `+`, which URLSearchParams would otherwise decode as a space on the way back.
   const exportHref = useMemo(
-    () => `/generate/export?c=${encodeBrandConfig(config)}`,
+    () => `/generate/export?c=${encodeURIComponent(encodeBrandConfig(config))}`,
     [config],
   );
 
