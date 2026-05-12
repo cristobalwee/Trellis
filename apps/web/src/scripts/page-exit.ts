@@ -12,6 +12,10 @@ function shouldIntercept(anchor: HTMLAnchorElement): boolean {
   if (anchor.origin !== location.origin) return false;
   if (anchor.pathname === location.pathname) return false;
   if (anchor.target === '_blank') return false;
+  // Never intercept downloads or non-navigable schemes — blob: anchors share
+  // the page origin, so the origin check alone lets them through.
+  if (anchor.hasAttribute('download')) return false;
+  if (anchor.protocol !== 'http:' && anchor.protocol !== 'https:') return false;
   return true;
 }
 

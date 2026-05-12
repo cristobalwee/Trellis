@@ -214,13 +214,24 @@ const ExportPage: React.FC = () => {
     const a = document.createElement('a');
     a.href = url;
     a.download = asset.filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Defer cleanup: revoking the URL or removing the anchor synchronously can
+    // cancel the download before the browser has dereferenced the blob URL.
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 0);
   }, [generateContent]);
 
-  const encodedConfig = useMemo(() => encodeBrandConfig(config), [config]);
+  // `encodeURIComponent` is required: the LZ alphabet contains `+`, which
+  // URLSearchParams decodes as a space — leaving it raw silently corrupts
+  // the param on read.
+  const encodedConfig = useMemo(
+    () => encodeURIComponent(encodeBrandConfig(config)),
+    [config],
+  );
 
   const shareUrl = useMemo(() => {
     if (typeof window === 'undefined') return '';
@@ -255,7 +266,7 @@ const ExportPage: React.FC = () => {
         {/* Top bar */}
         <header
           className="export-anim flex items-center justify-between px-6 py-5 md:px-10"
-          style={{ animationDelay: '1.35s' }}
+          style={{ animationDelay: '0.5s' }}
         >
           <a
             href={backHref}
@@ -272,7 +283,7 @@ const ExportPage: React.FC = () => {
         {/* Hero */}
         <section
           className="export-anim px-6 md:px-10 max-w-5xl mx-auto pt-8 pb-8 md:pt-16 md:pb-10 text-center"
-          style={{ animationDelay: '1.5s' }}
+          style={{ animationDelay: '1.6s' }}
         >
           <h2 className="mb-6 text-charcoal">
             Ready to ship
@@ -297,7 +308,7 @@ const ExportPage: React.FC = () => {
         {/* Slim share bar */}
         <section
           className="export-anim px-6 md:px-10 max-w-2xl mx-auto pb-10 md:pb-14"
-          style={{ animationDelay: '1.7s' }}
+          style={{ animationDelay: '1.75s' }}
         >
           <div className="flex items-center gap-3">
             <label
@@ -328,7 +339,7 @@ const ExportPage: React.FC = () => {
         {/* Main: left nav + preview card */}
         <section
           className="export-anim px-6 md:px-10 max-w-7xl mx-auto pb-20 md:pb-28"
-          style={{ animationDelay: '1.85s' }}
+          style={{ animationDelay: '1.9s' }}
         >
           <article className="bg-white rounded-2xl border border-charcoal/5 shadow-[0_4px_14px_-6px_rgba(20,30,50,0.10)] overflow-hidden">
             <div className="grid md:grid-cols-[14rem_minmax(0,1fr)]">
@@ -356,9 +367,19 @@ const ExportPage: React.FC = () => {
 
               {/* Preview */}
               <div className="min-w-0">
+                {/* Mobile-only asset switcher — sits above the main content
+                    in place of the desktop left-nav. */}
+                <div className="md:hidden px-5 pt-4">
+                  <Select
+                    value={selectedId}
+                    onValueChange={(v) => setSelectedId(v as AssetId)}
+                    options={mobileAssetOptions}
+                    size="compact"
+                    triggerClassName="!py-2 !pl-2.5 !pr-2.5 !text-sm !rounded-lg"
+                  />
+                </div>
                 <header className="flex items-center justify-between gap-3 px-5 py-4 md:px-6 md:py-5">
-                  {/* Desktop: file info block. Mobile: dropdown switcher. */}
-                  <div className="hidden md:flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
                     <FileIcon
                       kind={selectedAsset.iconKind}
                       color={iconColors[selectedAsset.iconKind]}
@@ -369,15 +390,6 @@ const ExportPage: React.FC = () => {
                       <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
                       <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
                     </div>
-                  </div>
-                  <div className="md:hidden flex-1 min-w-0">
-                    <Select
-                      value={selectedId}
-                      onValueChange={(v) => setSelectedId(v as AssetId)}
-                      options={mobileAssetOptions}
-                      size="compact"
-                      triggerClassName="!py-1.5 !pl-2 !pr-2.5 !text-sm !rounded-lg"
-                    />
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {selectedAsset.takesColorSpace && (

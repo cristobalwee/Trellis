@@ -1,4 +1,4 @@
-import { converter, formatHex, displayable } from 'culori';
+import { converter, formatHex, displayable, wcagContrast } from 'culori';
 import { STEPS, type ColorRamp, type NeutralColorRamp } from './colorUtils.js';
 
 export const toOklch = converter('oklch');
@@ -47,6 +47,103 @@ export function deriveHoverFromInput(hex: string, mode: ColorMode): string {
   const H = o.h ?? 0;
   const C = Math.min(o.c ?? 0, maxChromaForLH(L, H));
   return formatHex({ mode: 'oklch', l: L, c: C, h: H }) ?? hex;
+}
+
+// ========== Primary Contrast Guardrail =======================================
+
+/**
+ * Minimum WCAG contrast required between the exact-input primary and the
+ * base background. 3:1 is the WCAG AA threshold for UI components / graphical
+ * elements — appropriate for button/border surfaces. (Text legibility is
+ * handled separately by `foreground-onPrimary`.)
+ */
+export const MIN_PRIMARY_CONTRAST = 3.0;
+
+export interface PrimaryContrastClampResult {
+  /** Hex that should be emitted as the primary primitive. */
+  applied: string;
+  /** Original input hex (unchanged from `config.primaryColor`). */
+  original: string;
+  /** True if the input was nudged to meet the contrast threshold. */
+  adjusted: boolean;
+  /** WCAG contrast of the original input vs. baseBgHex. */
+  contrastBefore: number;
+  /** WCAG contrast of `applied` vs. baseBgHex. */
+  contrastAfter: number;
+  /** Which mode triggered the adjustment (informational). */
+  mode: ColorMode;
+}
+
+/**
+ * Ensure the exact-input primary maintains readable contrast against the
+ * mode's base background. If the input falls below `MIN_PRIMARY_CONTRAST`,
+ * walk OKLCH lightness toward the opposite of the background (darker on
+ * light bg, lighter on dark bg) in small steps until the threshold is met.
+ * Preserves hue; chroma is re-clamped to gamut at the new lightness.
+ */
+export function clampPrimaryForContrast(
+  hex: string,
+  baseBgHex: string,
+  mode: ColorMode,
+): PrimaryContrastClampResult {
+  const initialContrast = wcagContrast(hex, baseBgHex) ?? 1;
+  if (initialContrast >= MIN_PRIMARY_CONTRAST) {
+    return {
+      applied: hex, original: hex, adjusted: false,
+      contrastBefore: initialContrast, contrastAfter: initialContrast, mode,
+    };
+  }
+
+  const o = toOklch(hex);
+  if (!o) {
+    return {
+      applied: hex, original: hex, adjusted: false,
+      contrastBefore: initialContrast, contrastAfter: initialContrast, mode,
+    };
+  }
+
+  const H = o.h ?? 0;
+  const startL = o.l ?? 0.5;
+  const startC = o.c ?? 0;
+  // Walk away from the bg: lighter when bg is dark, darker when bg is light.
+  const direction = mode === 'dark' ? +1 : -1;
+  const stepL = 0.02;
+  const minL = 0.10;
+  const maxL = 0.92;
+
+  let bestHex = hex;
+  let bestContrast = initialContrast;
+
+  for (let i = 1; i <= 50; i++) {
+    const L = startL + direction * stepL * i;
+    // Stop when we've walked past the safe lightness range in our direction
+    // of travel. (The input itself might already sit outside [minL, maxL] —
+    // walking toward the opposite side is still progress, so only break once
+    // we cross the far bound.)
+    if (direction < 0 && L < minL) break;
+    if (direction > 0 && L > maxL) break;
+    const C = Math.min(startC, maxChromaForLH(L, H));
+    const candidate = formatHex({ mode: 'oklch', l: L, c: C, h: H });
+    if (!candidate) continue;
+    const contrast = wcagContrast(candidate, baseBgHex) ?? 1;
+    if (contrast >= MIN_PRIMARY_CONTRAST) {
+      return {
+        applied: candidate, original: hex, adjusted: true,
+        contrastBefore: initialContrast, contrastAfter: contrast, mode,
+      };
+    }
+    if (contrast > bestContrast) {
+      bestContrast = contrast;
+      bestHex = candidate;
+    }
+  }
+
+  // Couldn't reach the threshold within the lightness bounds — return the
+  // best candidate we found so the surface is at least more legible.
+  return {
+    applied: bestHex, original: hex, adjusted: bestHex !== hex,
+    contrastBefore: initialContrast, contrastAfter: bestContrast, mode,
+  };
 }
 
 // ========== Named Hue System =================================================

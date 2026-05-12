@@ -6,9 +6,10 @@ import {
   generateNeutralRamp,
   maxChromaForLH,
   deriveHoverFromInput,
+  clampPrimaryForContrast,
   NAMED_HUES,
 } from './colorGeneration.js';
-import type { ColorMode } from './colorGeneration.js';
+import type { ColorMode, PrimaryContrastClampResult } from './colorGeneration.js';
 import type { ColorRamp, NeutralColorRamp } from './colorUtils.js';
 import { pickStep, pickContrastingFg } from './contrastUtils.js';
 import { wcagContrast } from 'culori';
@@ -58,6 +59,12 @@ export interface TokenResult {
   semanticMap: Record<string, PrimitiveMapping>;
   /** Step-500 representatives of the role ramps — used by UI swatches. */
   swatches: { primary: string; secondary: string; neutral: string };
+  /**
+   * Populated when the input primary color failed the contrast guardrail
+   * against the current mode's base background and was nudged toward
+   * readability. Undefined when no adjustment was needed.
+   */
+  primaryAdjustment?: PrimaryContrastClampResult;
 }
 
 // ---------------------------------------------------------------------------
@@ -615,7 +622,19 @@ export function generateDesignTokens(
   // Exact-input primitive: bypasses ramp clamping so saturated primary surfaces
   // (button background, border, hover) preserve the user's chosen hex verbatim.
   // Same hex in both light and dark modes — branding wins over mode-specific tuning.
-  const primaryBaseHex = config.primaryColor;
+  //
+  // Guardrail: if the input would be illegible against this mode's base
+  // background (e.g. a near-black primary in dark mode), nudge it toward the
+  // opposite of the bg until WCAG 3:1 is met. `config.primaryColor` itself is
+  // left untouched so the picker keeps showing the user's chosen hex.
+  const neutralRampOut = byHue.neutral as NeutralColorRamp;
+  const baseBgHex = (isDark ? neutralRampOut[800] : neutralRampOut[0]) as string;
+  const primaryAdjustment = clampPrimaryForContrast(
+    config.primaryColor,
+    baseBgHex,
+    isDark ? 'dark' : 'light',
+  );
+  const primaryBaseHex = primaryAdjustment.applied;
   tokens['--color-primary-base'] = primaryBaseHex;
   semanticMap['color-primary-base'] = {
     ramp: roleHue.primary,
@@ -922,7 +941,12 @@ export function generateDesignTokens(
     neutral:   (byHue.neutral as ColorRamp)[500],
   };
 
-  return { tokens, semanticMap, swatches };
+  return {
+    tokens,
+    semanticMap,
+    swatches,
+    ...(primaryAdjustment.adjusted ? { primaryAdjustment } : {}),
+  };
 }
 
 // ---------------------------------------------------------------------------

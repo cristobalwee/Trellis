@@ -32,6 +32,7 @@ export const fg = {
   onBaseFaint: t('color-foreground-onBaseFaint'),
   onRaised: t('color-foreground-onRaised'),
   onSunken: t('color-foreground-onSunken'),
+  onSunkenStrong: t('color-foreground-onSunkenStrong'),
   primary: t('color-foreground-primary'),
   onPrimary: t('color-foreground-onPrimary'),
   onPrimarySubtle: t('color-foreground-onPrimarySubtle'),
