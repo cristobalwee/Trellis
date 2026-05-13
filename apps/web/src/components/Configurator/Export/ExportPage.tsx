@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, Copy, Download } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Copy, Download } from 'lucide-react';
+import { Select as BaseSelect } from '@base-ui/react/select';
 
 import {
   exportTokens,
@@ -367,52 +368,83 @@ const ExportPage: React.FC = () => {
 
               {/* Preview */}
               <div className="min-w-0">
-                {/* Mobile-only asset switcher — sits above the main content
-                    in place of the desktop left-nav. */}
-                <div className="md:hidden px-5 pt-4">
-                  <Select
-                    value={selectedId}
-                    onValueChange={(v) => setSelectedId(v as AssetId)}
-                    options={mobileAssetOptions}
-                    size="compact"
-                    triggerClassName="!py-2 !pl-2.5 !pr-2.5 !text-sm !rounded-lg"
-                  />
-                </div>
-                <header className="flex items-center justify-between gap-3 px-5 py-4 md:px-6 md:py-5">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FileIcon
-                      kind={selectedAsset.iconKind}
-                      color={iconColors[selectedAsset.iconKind]}
-                      size={32}
-                      className="shrink-0"
+                <header className="px-5 py-4 md:px-6 md:py-5">
+                  <div className="flex items-center gap-3">
+                    {/* Mobile: title doubles as the asset dropdown trigger */}
+                    <MobileTitleDropdown
+                      options={mobileAssetOptions}
+                      selectedAsset={selectedAsset}
+                      selectedId={selectedId}
+                      onSelect={setSelectedId}
+                      iconColors={iconColors}
+                      className="md:hidden flex-1 min-w-0"
                     />
-                    <div className="min-w-0">
-                      <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
-                      <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
+                    {/* Desktop: static title */}
+                    <div className="hidden md:flex items-center gap-3 flex-1 min-w-0">
+                      <FileIcon
+                        kind={selectedAsset.iconKind}
+                        color={iconColors[selectedAsset.iconKind]}
+                        size={32}
+                        className="shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
+                        <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
+                      </div>
+                    </div>
+                    {/* Desktop actions */}
+                    <div className="hidden md:flex items-center gap-2 shrink-0">
+                      {selectedAsset.takesColorSpace && (
+                        <Select
+                          value={colorSpace}
+                          onValueChange={(v) => setColorSpace(v as ColorSpace)}
+                          options={COLOR_SPACE_OPTIONS}
+                          size="compact"
+                          triggerClassName="!w-24 !py-1.5 !px-2.5 !text-xs !rounded-lg"
+                        />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(selectedAsset)}
+                        aria-live="polite"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                      >
+                        {isCopied ? <><Check size={13} strokeWidth={2.5} /> Copied</> : <><Copy size={13} /> Copy</>}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(selectedAsset)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                      >
+                        <Download size={13} /> Download
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Mobile actions row — each item fills the available width */}
+                  <div className="flex md:hidden items-center gap-2 mt-3 pt-3 border-t border-charcoal/8">
                     {selectedAsset.takesColorSpace && (
-                      <Select
-                        value={colorSpace}
-                        onValueChange={(v) => setColorSpace(v as ColorSpace)}
-                        options={COLOR_SPACE_OPTIONS}
-                        size="compact"
-                        triggerClassName="!w-24 !py-1.5 !px-2.5 !text-xs !rounded-lg"
-                      />
+                      <div className="flex-1">
+                        <Select
+                          value={colorSpace}
+                          onValueChange={(v) => setColorSpace(v as ColorSpace)}
+                          options={COLOR_SPACE_OPTIONS}
+                          size="compact"
+                          triggerClassName="!py-1.5 !px-2.5 !text-xs !rounded-lg"
+                        />
+                      </div>
                     )}
                     <button
                       type="button"
                       onClick={() => handleCopy(selectedAsset)}
                       aria-live="polite"
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                      className="flex flex-1 items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
                     >
                       {isCopied ? <><Check size={13} strokeWidth={2.5} /> Copied</> : <><Copy size={13} /> Copy</>}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDownload(selectedAsset)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                      className="flex flex-1 items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
                     >
                       <Download size={13} /> Download
                     </button>
@@ -497,6 +529,86 @@ const NavGroup: React.FC<NavGroupProps> = ({ label, assets, selectedId, onSelect
           );
         })}
       </ul>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Mobile title-as-dropdown switcher
+// ---------------------------------------------------------------------------
+
+interface MobileTitleDropdownProps {
+  options: Array<{ value: string; label: string; icon: React.ReactNode }>;
+  selectedAsset: AssetDescriptor;
+  selectedId: AssetId;
+  onSelect: (id: AssetId) => void;
+  iconColors: Record<FileIconKind, string>;
+  className?: string;
+}
+
+const MobileTitleDropdown: React.FC<MobileTitleDropdownProps> = ({
+  options,
+  selectedAsset,
+  selectedId,
+  onSelect,
+  iconColors,
+  className = '',
+}) => {
+  const items = options.map((o) => ({ value: o.value, label: o.label }));
+
+  return (
+    <div className={className}>
+      <BaseSelect.Root
+        value={selectedId}
+        onValueChange={(v) => { if (v) onSelect(v as AssetId); }}
+        items={items}
+        modal={false}
+      >
+        <BaseSelect.Trigger className="flex w-full items-center gap-3 cursor-pointer text-left">
+          <FileIcon
+            kind={selectedAsset.iconKind}
+            color={iconColors[selectedAsset.iconKind]}
+            size={32}
+            className="shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <h4 className="text-base font-medium text-charcoal truncate">{selectedAsset.title}</h4>
+            <code className="text-xs text-charcoal/80 font-mono truncate block">{selectedAsset.filename}</code>
+          </div>
+          <BaseSelect.Icon className="text-charcoal/50 shrink-0 transition-transform data-popup-open:rotate-180">
+            <ChevronDown size={16} />
+          </BaseSelect.Icon>
+        </BaseSelect.Trigger>
+
+        <BaseSelect.Portal>
+          <BaseSelect.Positioner
+            side="bottom"
+            sideOffset={8}
+            alignItemWithTrigger={false}
+            className="z-60"
+            style={{ width: 'var(--trigger-width)' }}
+          >
+            <BaseSelect.Popup
+              data-lenis-prevent
+              className="bg-white border border-charcoal/10 shadow-lg rounded-xl p-1.5 outline-none max-h-60 overflow-y-auto overscroll-contain touch-pan-y origin-top transition-[transform,opacity] duration-150 ease-out data-starting-style:opacity-0 data-starting-style:scale-[0.95] data-ending-style:opacity-0 data-ending-style:scale-[0.95]"
+            >
+              {options.map((option) => (
+                <BaseSelect.Item
+                  key={option.value}
+                  value={option.value}
+                  className="flex items-center gap-2 w-full text-left hover:bg-charcoal/5 transition-colors cursor-pointer data-highlighted:bg-charcoal/5 data-selected:text-forest-green data-selected:font-medium px-3 py-2 rounded-lg text-sm"
+                >
+                  {option.icon}
+                  <BaseSelect.ItemText className="flex-1">{option.label}</BaseSelect.ItemText>
+                  <BaseSelect.ItemIndicator>
+                    <Check size={14} strokeWidth={2.5} />
+                  </BaseSelect.ItemIndicator>
+                </BaseSelect.Item>
+              ))}
+            </BaseSelect.Popup>
+          </BaseSelect.Positioner>
+        </BaseSelect.Portal>
+      </BaseSelect.Root>
     </div>
   );
 };
