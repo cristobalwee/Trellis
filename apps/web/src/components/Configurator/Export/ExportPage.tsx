@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Check, ChevronDown, Copy, Download } from 'lucide-react';
 import { Select as BaseSelect } from '@base-ui/react/select';
+import { strToU8, zipSync } from 'fflate';
 
 import {
   exportTokens,
@@ -116,6 +117,23 @@ function resolveTokenValue(tokens: Record<string, string>, name: string): string
   return value ?? '#888888';
 }
 
+/** Trigger a browser download for an in-memory blob via a synthetic anchor. */
+function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  // Defer cleanup: revoking the URL or removing the anchor synchronously can
+  // cancel the download before the browser has dereferenced the blob URL.
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -209,22 +227,22 @@ const ExportPage: React.FC = () => {
   }, [generateContent]);
 
   const handleDownload = useCallback((asset: AssetDescriptor) => {
-    const text = generateContent(asset);
-    const blob = new Blob([text], { type: asset.lang === 'json' ? 'application/json' : 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = asset.filename;
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    // Defer cleanup: revoking the URL or removing the anchor synchronously can
-    // cancel the download before the browser has dereferenced the blob URL.
-    setTimeout(() => {
-      a.remove();
-      URL.revokeObjectURL(url);
-    }, 0);
+    const blob = new Blob([generateContent(asset)], {
+      type: asset.lang === 'json' ? 'application/json' : 'text/plain',
+    });
+    saveBlob(blob, asset.filename);
   }, [generateContent]);
+
+  // Bundle every token + skill asset into a single zip so "Download all" hands
+  // the user one file instead of a burst of individual downloads.
+  const handleDownloadAll = useCallback(() => {
+    const files: Record<string, Uint8Array> = {};
+    for (const asset of allAssets) {
+      files[asset.filename] = strToU8(generateContent(asset));
+    }
+    const zipped = zipSync(files, { level: 6 });
+    saveBlob(new Blob([zipped], { type: 'application/zip' }), 'trellis-export.zip');
+  }, [allAssets, generateContent]);
 
   // `encodeURIComponent` is required: the LZ alphabet contains `+`, which
   // URLSearchParams decodes as a space — leaving it raw silently corrupts
@@ -267,7 +285,7 @@ const ExportPage: React.FC = () => {
         {/* Top bar */}
         <header
           className="export-anim flex items-center justify-between px-6 py-5 md:px-10"
-          style={{ animationDelay: '0.5s' }}
+          style={{ animationDelay: '0.8s' }}
         >
           <a
             href={backHref}
@@ -284,7 +302,7 @@ const ExportPage: React.FC = () => {
         {/* Hero */}
         <section
           className="export-anim px-6 md:px-10 max-w-5xl mx-auto pt-8 pb-8 md:pt-16 md:pb-10 text-center"
-          style={{ animationDelay: '1.6s' }}
+          style={{ animationDelay: '1.9s' }}
         >
           <h2 className="mb-6 text-charcoal">
             Ready to ship
@@ -306,41 +324,35 @@ const ExportPage: React.FC = () => {
           )}
         </section>
 
-        {/* Slim share bar */}
+        {/* Share + bulk-download actions */}
         <section
-          className="export-anim px-6 md:px-10 max-w-2xl mx-auto pb-10 md:pb-14"
-          style={{ animationDelay: '1.75s' }}
+          className="export-anim px-6 md:px-10 max-w-2xl mx-auto pb-10"
+          style={{ animationDelay: '2.05s' }}
         >
-          <div className="flex items-center gap-3">
-            <label
-              htmlFor="share-url"
-              className="text-[12px] text-charcoal/80 font-medium shrink-0"
+          <div className="flex items-center justify-center gap-3">
+            <CopyButton
+              copied={shareCopied}
+              onClick={handleShareCopy}
+              className="btn btn-secondary btn-sm border-none"
+              idleIcon={<Copy size={16} />}
+              copiedIcon={<Check size={16} strokeWidth={2.5} />}
+              idleLabel="Copy URL"
+              copiedLabel="Copied"
+            />
+            <button
+              type="button"
+              onClick={handleDownloadAll}
+              className="btn btn-secondary btn-sm gap-2 border-none"
             >
-              Share link
-            </label>
-            <div className="flex-1 min-w-0 flex items-center bg-white rounded-xl border border-charcoal/8 shadow-[0_2px_6px_-3px_rgba(20,30,50,0.06)] overflow-hidden">
-              <input
-                id="share-url"
-                readOnly
-                value={shareUrl}
-                onFocus={(e) => e.currentTarget.select()}
-                className="flex-1 min-w-0 px-3.5 py-2 bg-transparent text-xs md:text-sm font-mono text-charcoal/70 outline-none truncate"
-              />
-              <button
-                type="button"
-                onClick={handleShareCopy}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors cursor-pointer border-l border-charcoal/8"
-              >
-                {shareCopied ? <><Check size={13} strokeWidth={2.5} /> Copied</> : <><Copy size={13} /> Copy</>}
-              </button>
-            </div>
+              <Download size={16} /> Download all
+            </button>
           </div>
         </section>
 
         {/* Main: left nav + preview card */}
         <section
           className="export-anim px-6 md:px-10 max-w-7xl mx-auto pb-20 md:pb-28"
-          style={{ animationDelay: '1.9s' }}
+          style={{ animationDelay: '2.2s' }}
         >
           <article className="bg-white rounded-2xl border border-charcoal/5 shadow-[0_4px_14px_-6px_rgba(20,30,50,0.10)] overflow-hidden">
             <div className="grid md:grid-cols-[14rem_minmax(0,1fr)]">
@@ -403,14 +415,15 @@ const ExportPage: React.FC = () => {
                           triggerClassName="!w-24 !py-1.5 !px-2.5 !text-xs !rounded-lg"
                         />
                       )}
-                      <button
-                        type="button"
+                      <CopyButton
+                        copied={isCopied}
                         onClick={() => handleCopy(selectedAsset)}
-                        aria-live="polite"
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
-                      >
-                        {isCopied ? <><Check size={13} strokeWidth={2.5} /> Copied</> : <><Copy size={13} /> Copy</>}
-                      </button>
+                        className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                        idleIcon={<Copy size={13} />}
+                        copiedIcon={<Check size={13} strokeWidth={2.5} />}
+                        idleLabel="Copy"
+                        copiedLabel="Copied"
+                      />
                       <button
                         type="button"
                         onClick={() => handleDownload(selectedAsset)}
@@ -433,14 +446,15 @@ const ExportPage: React.FC = () => {
                         />
                       </div>
                     )}
-                    <button
-                      type="button"
+                    <CopyButton
+                      copied={isCopied}
                       onClick={() => handleCopy(selectedAsset)}
-                      aria-live="polite"
-                      className="flex flex-1 items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
-                    >
-                      {isCopied ? <><Check size={13} strokeWidth={2.5} /> Copied</> : <><Copy size={13} /> Copy</>}
-                    </button>
+                      className="flex flex-1 items-center justify-center px-3 py-1.5 text-xs font-medium bg-charcoal/5 hover:bg-charcoal/10 text-charcoal rounded-lg transition-colors cursor-pointer"
+                      idleIcon={<Copy size={13} />}
+                      copiedIcon={<Check size={13} strokeWidth={2.5} />}
+                      idleLabel="Copy"
+                      copiedLabel="Copied"
+                    />
                     <button
                       type="button"
                       onClick={() => handleDownload(selectedAsset)}
@@ -474,10 +488,88 @@ const ExportPage: React.FC = () => {
             opacity: 1;
           }
         }
+
+        /* Copy button: both faces share one grid cell so the button width is
+           fixed to the wider label and never jumps when the state flips. */
+        .copy-btn-stack {
+          display: inline-grid;
+        }
+        .copy-btn-face {
+          grid-area: 1 / 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.375rem;
+          white-space: nowrap;
+          transition: opacity 0.14s ease, transform 0.14s ease, filter 0.14s ease;
+        }
+        /* The entering face is delayed by one duration so it blurs/scales in
+           only after the leaving face has finished blurring/scaling out. */
+        .copy-btn-face--in {
+          opacity: 1;
+          transform: scale(1);
+          filter: blur(0);
+          transition-delay: 0.1s;
+        }
+        .copy-btn-face--out {
+          opacity: 0;
+          transform: scale(0.9);
+          filter: blur(4px);
+          pointer-events: none;
+          transition-delay: 0s;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .copy-btn-face {
+            transition: none;
+          }
+        }
       `}</style>
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Copy button — cross-fades between an idle and a "copied" face
+// ---------------------------------------------------------------------------
+
+interface CopyButtonProps {
+  copied: boolean;
+  onClick: () => void;
+  className?: string;
+  idleIcon: React.ReactNode;
+  copiedIcon: React.ReactNode;
+  idleLabel: string;
+  copiedLabel: string;
+}
+
+const CopyButton: React.FC<CopyButtonProps> = ({
+  copied,
+  onClick,
+  className = '',
+  idleIcon,
+  copiedIcon,
+  idleLabel,
+  copiedLabel,
+}) => (
+  <button type="button" onClick={onClick} aria-live="polite" className={className}>
+    <span className="copy-btn-stack">
+      <span
+        className={`copy-btn-face ${copied ? 'copy-btn-face--out' : 'copy-btn-face--in'}`}
+        aria-hidden={copied}
+      >
+        {idleIcon}
+        {idleLabel}
+      </span>
+      <span
+        className={`copy-btn-face ${copied ? 'copy-btn-face--in' : 'copy-btn-face--out'}`}
+        aria-hidden={!copied}
+      >
+        {copiedIcon}
+        {copiedLabel}
+      </span>
+    </span>
+  </button>
+);
 
 // ---------------------------------------------------------------------------
 // Left-nav group

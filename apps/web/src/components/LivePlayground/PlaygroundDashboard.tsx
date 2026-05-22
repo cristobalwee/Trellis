@@ -31,17 +31,21 @@ import {
 import type { PlaygroundConfig } from './types';
 
 // ---------------------------------------------------------------------------
-// Scoped hover styles — CSS variables make these reactive to token changes
+// Scoped interaction styles — CSS variables make these reactive to token
+// changes. Hover/active are a translucent scrim rather than a color swap: the
+// `pg-interactive` rule floods the border-box with an inset box-shadow that
+// sits above the element's background but below its label, so a single pair of
+// rules drives every button regardless of its own fill. Table rows can't carry
+// an inset box-shadow reliably, so they take the scrim as a background instead
+// (their base background is transparent, so the translucent token reads the
+// same way).
 // ---------------------------------------------------------------------------
 
 const PLAYGROUND_STYLES = `
-  .pg-btn-primary:hover { filter: brightness(1.1); }
-  .pg-btn-secondary:hover { background-color: var(--color-background-raisedHover) !important; }
-  .pg-btn-ghost:hover { background-color: var(--color-background-raisedHover) !important; }
-  .pg-btn-link:hover { text-decoration: underline; }
-  .pg-row:hover { background-color: var(--color-background-raisedHover); }
-  .pg-nav:hover { background-color: var(--color-background-raisedHover) !important; color: var(--color-foreground-onBase) !important; }
-  .pg-icon-btn:hover { background-color: var(--color-background-raisedHover) !important; color: var(--color-foreground-onBase) !important; }
+  .pg-interactive:hover { box-shadow: inset 0 0 0 999px var(--color-interactive-background-hover); }
+  .pg-interactive:active { box-shadow: inset 0 0 0 999px var(--color-interactive-background-active); }
+  .pg-row:hover { background-color: var(--color-interactive-background-hover); }
+  .pg-row:active { background-color: var(--color-interactive-background-active); }
 `;
 
 // ---------------------------------------------------------------------------
@@ -263,7 +267,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
     Paid: { fg: fg.onSuccessSubtle, bg: bg.successSubtle },
     Pending: { fg: fg.onWarningSubtle, bg: bg.warningSubtle },
     Failed: { fg: fg.onCriticalSubtle, bg: bg.criticalSubtle },
-    Draft: { fg: fg.onSunkenMuted, bg: bg.sunken },
+    Draft: { fg: fg.onSunken, bg: bg.sunken },
   };
 
   const revenueDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -445,7 +449,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                           key={item.id}
                           type="button"
                           onClick={() => setActiveNav(item.id)}
-                          className={`flex items-center gap-2.5 px-3 py-2 text-xs font-medium cursor-pointer ${!isActive ? 'pg-nav' : ''}`}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium cursor-pointer pg-interactive"
                           style={{
                             fontFamily: 'inherit',
                             borderRadius: radius.badge,
@@ -535,7 +539,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
             <div className="ml-auto flex items-center gap-2">
               {/* Ghost icon button */}
               <button
-                className="h-8 w-8 flex items-center justify-center cursor-pointer pg-icon-btn"
+                className="h-8 w-8 flex items-center justify-center cursor-pointer pg-interactive"
                 style={{
                   color: fg.onBaseMuted,
                   backgroundColor: 'transparent',
@@ -549,7 +553,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
               </button>
               {/* Primary button */}
               <button
-                className="flex items-center gap-1.5 text-[11px] font-semibold px-3 h-8 cursor-pointer pg-btn-primary"
+                className="flex items-center gap-1.5 text-[11px] font-semibold px-3 h-8 cursor-pointer pg-interactive"
                 style={{
                   color: fg.onPrimary,
                   backgroundColor: bg.primary,
@@ -677,7 +681,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     </div>
                     {/* Ghost button */}
                     <button
-                      className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 cursor-pointer pg-btn-ghost"
+                      className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 cursor-pointer pg-interactive"
                       style={{
                         color: fg.onBaseMuted,
                         backgroundColor: bg.raisedHover,
@@ -718,7 +722,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     </div>
                     {/* Link button */}
                     <button
-                      className="text-[10px] font-medium px-2 py-1 cursor-pointer pg-btn-link flex items-center gap-1"
+                      className="text-[10px] font-medium px-2 py-1 cursor-pointer pg-interactive flex items-center gap-1"
                       style={{
                         color: fg.primary,
                         borderRadius: radius.badge,
@@ -886,7 +890,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                   <div className="mt-4 flex gap-2">
                     {/* Primary button */}
                     <button
-                      className="flex-1 text-[10px] font-semibold py-2 cursor-pointer pg-btn-primary"
+                      className="flex-1 text-[10px] font-semibold py-2 cursor-pointer pg-interactive"
                       style={{
                         borderRadius: radius.action,
                         color: fg.onPrimary,
@@ -898,7 +902,7 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                     </button>
                     {/* Secondary (outlined) button */}
                     <button
-                      className="text-[10px] font-semibold py-2 px-3 cursor-pointer pg-btn-ghost"
+                      className="text-[10px] font-semibold py-2 px-3 cursor-pointer pg-interactive"
                       style={{
                         borderRadius: radius.action,
                         color: fg.onBase,
@@ -926,9 +930,9 @@ const PlaygroundDashboard: React.FC<PlaygroundDashboardProps> = ({ config, onCha
                   <div className="text-[10px] mt-1" style={{ color: fg.onGradientMuted, transition: transition.theme }}>Faster response times and realtime event streams.</div>
                   {/* Ghost-on-gradient button */}
                   <button
-                    className="mt-3 text-[10px] px-2.5 py-1 cursor-pointer pg-btn-link"
+                    className="mt-3 text-[10px] px-2.5 py-1 cursor-pointer pg-interactive"
                     style={{
-                      color: fg.onGradient,
+                      color: fg.onGradientSoft,
                       backgroundColor: bg.gradientSoft,
                       borderRadius: radius.badge,
                       transition: transition.interactive,

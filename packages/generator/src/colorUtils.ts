@@ -60,6 +60,25 @@ export function generateRamp(
   return ramp as ColorRamp;
 }
 
+/**
+ * Flip a chromatic ramp's step→hex assignment so the darkest shade lands on the
+ * lowest step (50) and the lightest on the highest (900): 50↔900, 100↔800,
+ * 200↔700, 300↔600, 400↔500.
+ *
+ * Used to invert dark-mode ramps. With the flip, a single semantic mapping such
+ * as `--color-background-primary → --color-<hue>-600` resolves to a darker shade
+ * in light mode and a lighter one in dark mode — no per-mode remapping needed.
+ * Pure, immutable, self-inverse.
+ */
+export function flipRamp(ramp: ColorRamp): ColorRamp {
+  const out: Partial<ColorRamp> = {};
+  const n = STEPS.length;
+  for (let i = 0; i < n; i++) {
+    out[STEPS[i] as keyof ColorRamp] = ramp[STEPS[n - 1 - i] as keyof ColorRamp];
+  }
+  return out as ColorRamp;
+}
+
 export function invertForDarkMode(ramp: ColorRamp): ColorRamp {
   const inverted: Partial<ColorRamp> = {};
 

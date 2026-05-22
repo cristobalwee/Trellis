@@ -31,9 +31,9 @@ const AdditionalColorRow: React.FC<ColorSlot & { onStepChange: (step: number, co
   );
 };
 
-const TabColor: React.FC = () => {
+const TabColor: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode = false }) => {
   const config = useStore($brandConfig);
-  const derived = useColorRamps(config);
+  const derived = useColorRamps(config, isDarkMode);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isAdditionalOpen, setIsAdditionalOpen] = useState(false);
 

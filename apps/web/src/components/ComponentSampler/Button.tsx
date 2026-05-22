@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   bg, fg, border, radius, space, transition,
-  font, weight, action,
+  font, weight, action, interactive,
   type ControlSize,
 } from './tokens';
 
@@ -76,31 +76,51 @@ const SIZE_STYLES: Record<ButtonSize, React.CSSProperties> = {
   },
 };
 
+// Hover/active are expressed as a translucent scrim rather than a color swap.
+// An inset box-shadow with a huge spread floods the border-box with the
+// interactive token: it sits above the background but below the label, respects
+// the border radius, and works the same on solid and transparent variants.
+const scrimShadow = (token: string) => `inset 0 0 0 999px ${token}`;
+
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   children,
   style,
+  onMouseEnter,
+  onMouseLeave,
+  onMouseDown,
+  onMouseUp,
   ...rest
-}) => (
-  <button
-    {...rest}
-    style={{
-      fontFamily: font.action,
-      fontWeight: weight.action,
-      cursor: 'pointer',
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: radius.action,
-      transition: transition.interactive,
-      ...VARIANT_STYLES[variant],
-      ...SIZE_STYLES[size],
-      ...style,
-    }}
-  >
-    {children}
-  </button>
-);
+}) => {
+  const [scrim, setScrim] = useState<'none' | 'hover' | 'active'>('none');
+  return (
+    <button
+      {...rest}
+      onMouseEnter={(e) => { setScrim('hover'); onMouseEnter?.(e); }}
+      onMouseLeave={(e) => { setScrim('none'); onMouseLeave?.(e); }}
+      onMouseDown={(e) => { setScrim('active'); onMouseDown?.(e); }}
+      onMouseUp={(e) => { setScrim('hover'); onMouseUp?.(e); }}
+      style={{
+        fontFamily: font.action,
+        fontWeight: weight.action,
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: radius.action,
+        transition: transition.interactive,
+        ...VARIANT_STYLES[variant],
+        ...SIZE_STYLES[size],
+        ...style,
+        ...(scrim !== 'none'
+          ? { boxShadow: scrimShadow(scrim === 'active' ? interactive.active : interactive.hover) }
+          : null),
+      }}
+    >
+      {children}
+    </button>
+  );
+};
 
 export default Button;

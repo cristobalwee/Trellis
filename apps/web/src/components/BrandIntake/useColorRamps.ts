@@ -11,6 +11,7 @@ import {
   maxChromaForLH,
   applyChromaGuardrails,
   falloffToSigma,
+  flipRamp,
   type ColorMode,
   type HueSlot,
   type HueSelection,
@@ -113,7 +114,7 @@ function generateRampsForMode(
   };
 }
 
-export function useColorRamps(config: BrandConfig): DerivedColors {
+export function useColorRamps(config: BrandConfig, isDarkMode = false): DerivedColors {
   const { primaryColor, chromaFalloff } = config;
 
   // --- Parse primary to OKLCH -------------------------------------------------
@@ -163,31 +164,52 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     [primaryH, primaryC, primaryL, sigma, secondaryColor, config.neutralTint, hueSelection, saturationRatio],
   );
 
-  // --- Apply overrides (light mode only — dark mode is auto-generated) --------
+  // --- Flip dark-mode chromatic ramps ----------------------------------------
+  // Dark mode reuses the same semantic mappings: the chromatic ramps are flipped
+  // so the darkest shade sits on the lowest step. The neutral ramp keeps its
+  // natural ordering — its surface-elevation hierarchy can't survive a flip.
+  const flippedDarkRamps = useMemo(
+    () => ({
+      primaryRamp: flipRamp(darkRamps.primaryRamp),
+      secondaryRamp: flipRamp(darkRamps.secondaryRamp),
+      neutralRamp: darkRamps.neutralRamp,
+      additionalColors: darkRamps.additionalColors.map((slot) => ({
+        ...slot,
+        ramp: flipRamp(slot.ramp),
+      })),
+    }),
+    [darkRamps],
+  );
+
+  // The active ramp set follows the dark-mode toggle so the picker shows the
+  // shades actually emitted for the current mode.
+  const activeRamps = isDarkMode ? flippedDarkRamps : lightRamps;
+
+  // --- Apply overrides (after the flip, so an edited swatch stays in place) ---
   const overrides = config.rampOverrides;
 
   const finalPrimaryRamp = useMemo(
-    () => applyOverrides(lightRamps.primaryRamp, overrides.primary),
-    [lightRamps.primaryRamp, overrides.primary],
+    () => applyOverrides(activeRamps.primaryRamp, overrides.primary),
+    [activeRamps.primaryRamp, overrides.primary],
   );
 
   const finalSecondaryRamp = useMemo(
-    () => applyOverrides(lightRamps.secondaryRamp, overrides.secondary),
-    [lightRamps.secondaryRamp, overrides.secondary],
+    () => applyOverrides(activeRamps.secondaryRamp, overrides.secondary),
+    [activeRamps.secondaryRamp, overrides.secondary],
   );
 
   const finalNeutralRamp = useMemo(
-    () => applyOverrides(lightRamps.neutralRamp, overrides.neutral as Partial<NeutralColorRamp>),
-    [lightRamps.neutralRamp, overrides.neutral],
+    () => applyOverrides(activeRamps.neutralRamp, overrides.neutral as Partial<NeutralColorRamp>),
+    [activeRamps.neutralRamp, overrides.neutral],
   );
 
   const finalAdditionalColors = useMemo(
     (): ColorSlot[] =>
-      lightRamps.additionalColors.map((slot) => ({
+      activeRamps.additionalColors.map((slot) => ({
         ...slot,
         ramp: applyOverrides(slot.ramp, overrides[slot.name]),
       })),
-    [lightRamps.additionalColors, overrides],
+    [activeRamps.additionalColors, overrides],
   );
 
   return {
@@ -197,6 +219,6 @@ export function useColorRamps(config: BrandConfig): DerivedColors {
     neutralRamp: finalNeutralRamp,
     additionalColors: finalAdditionalColors,
     hueSelection,
-    dark: darkRamps,
+    dark: flippedDarkRamps,
   };
 }

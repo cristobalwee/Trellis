@@ -97,6 +97,14 @@ export const transition = {
   chart: t('transition-chart'),
 } as const;
 
+// Translucent scrim colors layered over an interactive element to signal
+// hover/active. They only shift the color beneath them, so the same pair works
+// on solid and transparent backgrounds alike.
+export const interactive = {
+  hover: t('color-interactive-background-hover'),
+  active: t('color-interactive-background-active'),
+} as const;
+
 export const font = {
   primary: t('font-body-family'),
   secondary: t('font-heading-family'),

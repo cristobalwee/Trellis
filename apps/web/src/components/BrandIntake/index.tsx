@@ -227,7 +227,7 @@ const BrandIntake: React.FC = () => {
                 id={`theme-tab-panel-${activeTab}`}
                 aria-labelledby={`theme-tab-${activeTab}`}
               >
-                {activeTab === 'color' && <TabColor />}
+                {activeTab === 'color' && <TabColor isDarkMode={isDarkMode} />}
                 {activeTab === 'typography' && <TabTypography />}
                 {activeTab === 'style' && <TabStyle />}
               </div>

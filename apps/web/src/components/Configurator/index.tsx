@@ -348,7 +348,7 @@ const Configurator: React.FC = () => {
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
                       >
-                        {activeTab === 'color' && <TabColor />}
+                        {activeTab === 'color' && <TabColor isDarkMode={isDarkMode} />}
                         {activeTab === 'typography' && <TabTypography />}
                         {activeTab === 'style' && <TabStyle />}
                       </motion.div>

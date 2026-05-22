@@ -189,6 +189,7 @@ export const LIGHT_MODE_LIGHTNESS: Record<number, number> = {
 
 // Step 50 = lightest tint, step 900 = darkest tint — same semantic as light mode,
 // just tuned for dark-mode surfaces (peaks are less extreme than light mode).
+// Used by the NEUTRAL ramp, which needs to reach genuinely deep surfaces.
 export const DARK_MODE_LIGHTNESS: Record<number, number> = {
   50: 0.88,
   100: 0.77,
@@ -200,6 +201,25 @@ export const DARK_MODE_LIGHTNESS: Record<number, number> = {
   700: 0.27,
   800: 0.22,
   900: 0.18,
+};
+
+// Chromatic (primary/secondary/status/decorative) dark ramps use a shallower
+// curve: the dark end stops well above the neutral floor. Once a chromatic ramp
+// is flipped for dark mode, step 50 (subtle tinted surfaces) lands on the
+// darkest shade — at very low lightness OKLCH chroma collapses, so subtle tints
+// would read as muddy near-greys. Keeping the floor at ~0.30 preserves enough
+// chroma for subtle surfaces to stay recognisably tinted against a dark base.
+export const DARK_MODE_CHROMATIC_LIGHTNESS: Record<number, number> = {
+  50: 0.90,
+  100: 0.81,
+  200: 0.72,
+  300: 0.63,
+  400: 0.55,
+  500: 0.48,
+  600: 0.42,
+  700: 0.37,
+  800: 0.33,
+  900: 0.30,
 };
 
 // ========== Gamut Utilities ==================================================
@@ -459,7 +479,7 @@ export function generateOklchRamp(
   );
   const satRatio = options?.satRatio ?? 0;
 
-  const lightnessMap = mode === 'dark' ? DARK_MODE_LIGHTNESS : LIGHT_MODE_LIGHTNESS;
+  const lightnessMap = mode === 'dark' ? DARK_MODE_CHROMATIC_LIGHTNESS : LIGHT_MODE_LIGHTNESS;
   const { peakL, peakC } = computeGaussianParams(hue, baseL, baseChroma, sigma, mode);
 
   // Build the ramp
